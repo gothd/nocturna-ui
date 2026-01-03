@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Personalidade Goth: Scrollbar e Seleção */
+::selection {
+  background-color: #660000; /* nocturna-blood */
+  color: white;
+}
+
+body {
+  background-color: #050505;
+  color: #e0e0e0;
+}
