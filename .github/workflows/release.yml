@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write # Permite ao GitHub assinar a proveniência do NPM
 
 jobs:
   release-and-publish:
