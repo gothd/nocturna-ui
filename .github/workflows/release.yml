@@ -7,11 +7,11 @@ on:
 
 permissions:
   contents: write
-  id-token: write # Essencial para a autenticação OIDC (sem token manual)
 
 jobs:
   release-and-publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,15 +24,22 @@ jobs:
           npm ci
           npm run build
 
+      - name: Compress Artifacts
+        run: |
+          zip -r nocturna-ui-dist.zip dist/
+          tar -czvf nocturna-ui-dist.tar.gz dist/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          files: |
+            nocturna-ui-dist.zip
+            nocturna-ui-dist.tar.gz
           body: "Release da versão ${{ github.ref_name }} da Nocturna UI."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to NPM
-        run: npm publish
+        run: npm publish --provenance --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # O GitHub providencia isto dinamicamente
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

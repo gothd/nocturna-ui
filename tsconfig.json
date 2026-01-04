@@ -23,10 +23,7 @@
     /* Library specific */
     "declaration": true,
     "emitDeclarationOnly": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src"]
 }

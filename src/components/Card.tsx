@@ -1,27 +1,34 @@
+import { cn } from "../utils/cn";
 import React from "react";
 
-interface CardProps {
+interface NocturnaCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "void" | "blood";
   title: string;
   description?: string;
-  children?: React.ReactNode;
-  variant?: "void" | "blood";
 }
 
 export const NocturnaCard = ({
   title,
   description,
-  children,
   variant = "void",
-}: CardProps) => {
-  const borderStyle = variant === "void" ? "border-white" : "border-red-900";
-  const shadowStyle =
-    variant === "void"
-      ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-      : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]";
-
+  className,
+  children,
+  ...props
+}: NocturnaCardProps) => {
   return (
     <div
-      className={`bg-nocturna-void border-2 ${borderStyle} p-6 transition-all duration-300 ${shadowStyle} max-w-sm`}
+      className={cn(
+        "bg-black border-2",
+        // Border style
+        variant === "void" ? "border-white" : "border-red-900",
+        "p-6 transition-all duration-300",
+        // Shadow style
+        variant === "void"
+          ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+          : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+        className
+      )}
+      {...props}
     >
       <h3 className="font-serif text-2xl uppercase tracking-tighter text-white mb-2">
         {title}
