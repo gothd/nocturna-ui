@@ -86,10 +86,12 @@ export const GrimoireAccordion = ({
 
             {/* Painel animado com altura dinâmica */}
             <motion.div
+              key={`motion-content-${item.id}`}
               role="region"
               id={contentId}
               aria-labelledby={titleId}
               className="overflow-hidden w-full"
+              initial={{ maxHeight: 0 }}
               animate={{ maxHeight: isOpen ? height : 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >

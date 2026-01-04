@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Nocturna UI - Teste CDN</title>
+    <link rel="stylesheet" href="../../dist/style.css" />
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+    <script src="../../dist/index.umd.js"></script>
+  </head>
+  <body
+    style="
+      background: #000;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    "
+  >
+    <div id="root"></div>
+
+    <script>
+      const { VoidButton, GrimoireAccordion, AbyssSeparator } =
+        window.NocturnaUI;
+      const React = window.React;
+      const ReactDOM = window.ReactDOM;
+
+      function App() {
+        const items = [
+          {
+            id: "1",
+            title: "O Chamado do CDN",
+            content:
+              "Carregando componentes góticos diretamente do éter digital sem gerenciadores de pacotes.",
+          },
+          {
+            id: "2",
+            title: "Poder da Proveniência",
+            content:
+              "Build verificado e assinado via GitHub Actions para segurança total.",
+          },
+        ];
+
+        return React.createElement(
+          "div",
+          { className: "p-8 max-w-2xl mx-auto" },
+          React.createElement(
+            "h1",
+            { className: "text-5xl uppercase tracking-tighter mb-4" },
+            "Nocturna CDN"
+          ),
+          React.createElement(AbyssSeparator, { label: "✦" }),
+          React.createElement(
+            "div",
+            { className: "my-8" },
+            React.createElement(GrimoireAccordion, {
+              items: items,
+              variant: "blood",
+            })
+          ),
+          React.createElement(
+            VoidButton,
+            {
+              variant: "blood",
+              onClick: () => alert("O pacto foi selado."),
+            },
+            "Iniciar Ritual"
+          )
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(React.createElement(App));
+
+      /*       const { VoidButton, GrimoireAccordion } = window.NocturnaUI;
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+
+      root.render(
+        React.createElement(
+          VoidButton,
+          {
+            variant: "blood",
+          },
+          "O Vazio é Real"
+        )
+      ); */
+    </script>
+  </body>
+</html>

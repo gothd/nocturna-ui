@@ -8,13 +8,6 @@ A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de
 
 ---
 
-## 🌑 Novidades da v0.0.2
-
-- **Acessibilidade**: Implementação de _Focus Trap_ em modais, navegação por teclado em selects e atributos ARIA completos.
-- **Utilitário `cn`**: Integração de `tailwind-merge` e `clsx` para garantir que seus estilos customizados nunca conflitem com os da lib.
-- **React Portals**: Diálogos e Modais agora são renderizados fora da árvore principal para evitar problemas de z-index.
-- **Expansão do Grimório**: Adição de Accordion, Tabs, Badges, Separators e Checkboxes.
-
 ## 🕸️ Componentes Disponíveis
 
 | Primitivo             | Descrição                                                     |
@@ -30,11 +23,35 @@ A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de
 | **SigilBadge**        | Emblemas para status e tags em versões Solid ou Outline.      |
 | **NocturnaCard**      | Container clássico com sombras rígidas (hard shadows).        |
 
+## 🌑 Requisitos de Instalação (Peer Dependencies)
+
+Para evitar conflitos de instâncias do React (como o erro de `useState` nulo), a **Nocturna UI** utiliza `peerDependencies`. Certifique-se de que seu projeto possua:
+
+- **React** (^18.0.0)
+- **React-DOM** (^18.0.0)
+- **Framer Motion** (^11.0.0)
+
+```bash
+npm install react react-dom framer-motion
+```
+
+## 📜 Uso via CDN (UMD)
+
+Para utilizar a biblioteca diretamente no navegador, a ordem dos scripts é fundamental para que as globais sejam injetadas corretamente:
+
+```html
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+
+<script src="https://unpkg.com/nocturna-ui@0.0.3/dist/index.umd.js"></script>
+```
+
 ## 🩸 Instalação e Uso
 
 ```bash
 npm install nocturna-ui
-
 ```
 
 ```tsx

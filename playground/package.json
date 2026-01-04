@@ -11,9 +11,14 @@
   },
   "dependencies": {
     "nocturna-ui": "file:..",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "styled-components": "^6.1.19"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "styled-components": "^6.1.19",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.562.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.4.0",
+    "@emotion/is-prop-valid": "^1.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

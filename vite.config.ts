@@ -26,11 +26,12 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: ["react", "react-dom", "framer-motion"],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "framer-motion": "Motion",
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.names[0].endsWith(".css")) return "style.css";
