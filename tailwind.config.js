@@ -12,6 +12,15 @@ module.exports = {
       fontFamily: {
         serif: ["Playfair Display", "serif"], // Estilo tumblr/goth clássico
       },
+      keyframes: {
+        progress: {
+          "0%": { transform: "scaleX(1)" },
+          "100%": { transform: "scaleX(0)" },
+        },
+      },
+      animation: {
+        progress: "progress linear forwards",
+      },
     },
   },
   plugins: [],

@@ -2,7 +2,7 @@
 
 import { cn } from "../utils/cn";
 import { X } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { createPortal } from "react-dom";
 
 interface CryptModalProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -14,189 +14,189 @@ interface CryptModalProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "void" | "blood";
 }
 
-export const CryptModal = ({
-  isOpen,
-  onClose,
-  title,
-  description,
-  children,
-  variant = "void",
-  className = "",
-  ...props
-}: CryptModalProps) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const openerRef = useRef<Element | null>(null);
+export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
+  (
+    {
+      isOpen,
+      onClose,
+      title,
+      description,
+      children,
+      variant = "void",
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    // Refs
+    const internalRef = useRef<HTMLDivElement | null>(null);
+    const lastFocusedElement = useRef<HTMLElement | null>(null);
+    const onCloseRef = useRef(onClose);
 
-  // Captura quem abriu o modal para restaurar o foco ao fechar
-  useEffect(() => {
-    if (isOpen) {
-      openerRef.current = document.activeElement;
-    }
-  }, [isOpen]);
+    const [mounted, setMounted] = useState(false);
 
-  // Setup de foco inicial e trap
-  useEffect(() => {
-    if (!isOpen || !modalRef.current) return;
+    useEffect(() => {
+      setMounted(true);
+      return () => setMounted(false);
+    }, []);
 
-    const container = modalRef.current;
+    // Atualiza a ref sempre que a prop onClose mudar, sem disparar o efeito principal
+    useEffect(() => {
+      onCloseRef.current = onClose;
+    }, [onClose]);
 
-    // Lista de elementos focáveis
-    const getFocusable = () => {
-      const nodes = container.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      return Array.from(nodes).filter((el) => !el.hasAttribute("disabled"));
-    };
-
-    // Foco inicial: container, senão primeiro focável
-    const focusInitial = () => {
-      if (container) {
-        container.focus();
-        return;
-      }
-      const focusable = getFocusable();
-      focusable[0]?.focus();
-    };
-
-    focusInitial();
-
-    // Impede fuga de foco para fora do modal
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        return;
-      }
-      if (e.key !== "Tab") return;
-
-      const focusable = getFocusable();
-      if (focusable.length === 0) {
-        // Se não houver elementos focáveis, mantém foco no container
-        e.preventDefault();
-        container.focus();
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      // Se Shift+Tab no primeiro, volta para o último
-      if (e.shiftKey) {
-        if (
-          document.activeElement === first ||
-          document.activeElement === container
-        ) {
-          e.preventDefault();
-          last.focus();
+    // Bloqueia Scroll do Body & Salva Foco Anterior
+    useEffect(() => {
+      if (isOpen) {
+        document.body.style.overflow = "hidden";
+        if (document.activeElement instanceof HTMLElement) {
+          lastFocusedElement.current = document.activeElement;
         }
       } else {
-        // Tab no último, volta para o primeiro
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
+        document.body.style.overflow = "unset";
+        // DEVOLVE o foco ao fechar
+        if (lastFocusedElement.current) {
+          lastFocusedElement.current.focus();
         }
       }
-    };
+      return () => {
+        document.body.style.overflow = "unset";
+      };
+    }, [isOpen]);
 
-    // Evita que o foco saia do modal por meios não-Tab (mouse/assistivas)
-    const onFocusOut = (e: FocusEvent) => {
-      if (!modalRef.current) return;
-      const container = modalRef.current;
-      // Se o novo foco não está dentro do modal, redireciona para o primeiro focável
-      if (e.relatedTarget && !container.contains(e.relatedTarget as Node)) {
-        const focusable = getFocusable();
-        (focusable[0] || container).focus();
-      }
-    };
+    // Focus Trap & Escape (Global Listener)
+    useEffect(() => {
+      if (!isOpen || !internalRef.current) return;
 
-    document.addEventListener("keydown", onKeyDown);
-    container.addEventListener("focusout", onFocusOut);
+      const modal = internalRef.current;
+      const focusableElements = modal.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
 
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      container.removeEventListener("focusout", onFocusOut);
-    };
-  }, [isOpen, onClose]);
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
 
-  // Restaura foco ao fechar
-  useEffect(() => {
-    if (!isOpen && openerRef.current instanceof HTMLElement) {
-      openerRef.current.focus();
-    }
-  }, [isOpen]);
+      // Foca no primeiro elemento APENAS ao abrir (Mount do efeito)
+      const focusTimeout = setTimeout(() => {
+        if (firstElement) {
+          firstElement.focus();
+        } else {
+          modal.focus();
+        }
+      }, 10);
 
-  // Bloqueia scroll do body
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // ESCAPE (Usa a ref para garantir a versão mais recente da função)
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onCloseRef.current();
+          return;
+        }
 
-  if (!isOpen) return null;
+        // TAB (Trap)
+        if (e.key === "Tab") {
+          if (focusableElements.length === 0) {
+            e.preventDefault();
+            return;
+          }
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="crypt-modal-title"
-      aria-describedby="crypt-modal-description"
-    >
-      {/* Overlay */}
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              e.preventDefault();
+              lastElement.focus();
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault();
+              firstElement.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+        clearTimeout(focusTimeout);
+      };
+    }, [isOpen]);
+
+    if (!mounted || !isOpen) return null;
+
+    return createPortal(
       <div
-        className="absolute inset-0 bg-black/95 backdrop-blur-none"
-        onClick={onClose}
-      />
-      {/* Modal Card */}
-      <div
-        className={cn(
-          "relative bg-black border-2",
-          // Border color
-          variant === "void" ? "border-white" : "border-red-900",
-          "p-8 transition-all duration-300",
-          // Shadow style
-          variant === "void"
-            ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-            : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
-          "max-w-lg w-full mx-4",
-          className
-        )}
-        {...props}
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="crypt-modal-title"
+        aria-describedby={description ? "crypt-modal-desc" : undefined}
       >
-        <button
-          onClick={onClose}
-          aria-label="Fechar modal"
+        <div
+          className="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity"
+          onClick={() => onCloseRef.current()}
+          aria-hidden="true"
+        />
+
+        <div
+          // Ref Merge
+          ref={(node) => {
+            internalRef.current = node;
+            if (typeof ref === "function") {
+              ref(node);
+            } else if (ref) {
+              (ref as React.MutableRefObject<HTMLDivElement | null>).current =
+                node;
+            }
+          }}
+          tabIndex={-1}
           className={cn(
-            "absolute top-4 right-4",
-            // Icon color
-            variant === "void" ? "text-white" : "text-red-600",
-            "hover:opacity-70 transition-opacity duration-300"
+            "relative bg-black border-2 w-full max-w-lg mx-auto p-8 shadow-2xl animate-in zoom-in-95 duration-200 outline-none",
+            variant === "void"
+              ? "border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+              : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+            className
           )}
+          {...props}
         >
-          <X size={24} strokeWidth={1.5} />
-        </button>
-        <h2
-          id="crypt-modal-title"
-          className="font-serif text-2xl uppercase tracking-tighter text-white mb-2"
-        >
-          {title}
-        </h2>
-        {description && (
-          <p
-            id="crypt-modal-description"
-            className="text-zinc-500 text-sm mb-6 font-sans leading-relaxed"
+          <button
+            onClick={() => onCloseRef.current()}
+            aria-label="Close modal"
+            className={cn(
+              "absolute top-4 right-4 p-1 transition-all duration-300 focus:outline-none",
+              variant === "void"
+                ? "text-white hover:bg-white hover:text-black focus-visible:bg-white focus-visible:text-black"
+                : "text-red-600 hover:bg-red-900 hover:text-white focus-visible:bg-red-900 focus-visible:text-white"
+            )}
           >
-            {description}
-          </p>
-        )}
-        <div className="mt-4">{children}</div>
-      </div>
-    </div>,
-    document.body
-  );
-};
+            <X size={24} strokeWidth={1.5} />
+          </button>
+
+          <h2
+            id="crypt-modal-title"
+            className={cn(
+              "font-serif text-2xl uppercase tracking-tighter mb-2 pr-8",
+              variant === "void" ? "text-white" : "text-red-600"
+            )}
+          >
+            {title}
+          </h2>
+
+          {description && (
+            <p
+              id="crypt-modal-desc"
+              className="text-zinc-500 text-sm mb-6 font-sans leading-relaxed"
+            >
+              {description}
+            </p>
+          )}
+
+          <div className="mt-4 text-zinc-400">{children}</div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+);
+
+CryptModal.displayName = "CryptModal";

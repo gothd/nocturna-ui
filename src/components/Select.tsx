@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "../utils/cn";
 import { ChevronDown } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
+import { cn } from "../utils/cn";
 
 interface RitualSelectOption {
   value: string;
@@ -10,7 +10,10 @@ interface RitualSelectOption {
 }
 
 interface RitualSelectProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> {
+  extends Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    "onChange" | "value"
+  > {
   options: RitualSelectOption[];
   value?: string;
   onChange?: (value: string) => void;
@@ -20,171 +23,218 @@ interface RitualSelectProps
   size?: "sm" | "md" | "lg";
 }
 
-export const RitualSelect = ({
-  options,
-  value,
-  onChange,
-  placeholder = "Select...",
-  label,
-  variant = "void",
-  size = "md",
-  className = "",
-}: RitualSelectProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
-  const ref = useRef<HTMLDivElement>(null);
+export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
+  (
+    {
+      options,
+      value,
+      onChange,
+      placeholder = "Select...",
+      label,
+      variant = "void",
+      size = "md",
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        setFocusedIndex(-1);
+    const selectedOption = options.find((opt) => opt.value === value);
+
+    // Fecha ao clicar fora
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          containerRef.current &&
+          !containerRef.current.contains(event.target as Node)
+        ) {
+          setIsOpen(false);
+          setHighlightedIndex(-1);
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Scroll automático
+    useEffect(() => {
+      if (isOpen && highlightedIndex >= 0 && listRef.current) {
+        const optionNode = listRef.current.children[
+          highlightedIndex
+        ] as HTMLElement;
+        if (optionNode) {
+          optionNode.scrollIntoView({ block: "nearest" });
+        }
+      }
+    }, [highlightedIndex, isOpen]);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (props.disabled) return;
+
+      if (!isOpen) {
+        if (e.key === "Enter" || e.key === "ArrowDown" || e.key === " ") {
+          e.preventDefault();
+          setIsOpen(true);
+          const currentIndex = options.findIndex((opt) => opt.value === value);
+          setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
+        }
+        return;
+      }
+
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          setIsOpen(false);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          setHighlightedIndex((prev) =>
+            prev < options.length - 1 ? prev + 1 : 0
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setHighlightedIndex((prev) =>
+            prev > 0 ? prev - 1 : options.length - 1
+          );
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          if (highlightedIndex >= 0) {
+            onChange?.(options[highlightedIndex].value);
+            setIsOpen(false);
+          }
+          break;
+        case "Tab":
+          setIsOpen(false);
+          break;
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) {
-      if (e.key === "Enter" || e.key === "ArrowDown") {
-        setIsOpen(true);
-        setFocusedIndex(0);
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case "Escape":
-        setIsOpen(false);
-        setFocusedIndex(-1);
-        break;
-      case "ArrowDown":
-        e.preventDefault();
-        setFocusedIndex((prev) => (prev < options.length - 1 ? prev + 1 : 0));
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : options.length - 1));
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (focusedIndex >= 0) {
-          const opt = options[focusedIndex];
-          onChange?.(opt.value);
-          setIsOpen(false);
-          setFocusedIndex(-1);
-        }
-        break;
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-2" ref={ref} onKeyDown={handleKeyDown}>
-      {label && (
-        <label
-          id="ritual-select-label"
-          className={cn(
-            "font-serif text-sm uppercase tracking-widest",
-            // Text style
-            variant === "void" ? "text-white" : "text-red-600"
-          )}
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
-        <button
-          type="button"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-          aria-labelledby={label ? "ritual-select-label" : undefined}
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            "w-full bg-black border-2", // Border style
-            variant === "void" ? "border-white" : "border-red-900",
-            // Size styles
-            size === "sm" && "px-2 py-1.5",
-            size === "md" && "px-4 py-3",
-            size === "lg" && "px-7 py-6",
-            "flex items-center justify-between transition-all duration-300",
-            // Shadow styles
-            isOpen
-              ? variant === "void"
-                ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
-              : variant === "void"
-              ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-              : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
-            className
-          )}
-        >
-          <span
+    return (
+      <div className="flex flex-col gap-2">
+        {label && (
+          <label
+            onClick={() => !props.disabled && setIsOpen(!isOpen)}
             className={cn(
-              "font-sans text-sm",
-              // Text style
-              selectedOption
-                ? variant === "void"
-                  ? "text-white"
-                  : "text-red-600"
-                : "text-zinc-600"
-            )}
-          >
-            {selectedOption?.label || placeholder}
-          </span>
-          <ChevronDown
-            size={18}
-            strokeWidth={1.5}
-            className={cn(
-              // Text style
+              "font-serif text-sm uppercase tracking-widest cursor-pointer w-fit",
               variant === "void" ? "text-white" : "text-red-600",
-              "transition-transform duration-300",
-              isOpen && "rotate-180"
+              props.disabled && "opacity-50 cursor-not-allowed"
             )}
-          />
-        </button>
-        {isOpen && (
-          <div
-            className={cn(
-              "absolute z-50 w-full mt-1 bg-black border-2",
-              // Border style
-              variant === "void" ? "border-white" : "border-red-900",
-              // Shadow style
-              variant === "void"
-                ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
-            )}
-            role="listbox"
-            tabIndex={-1}
           >
-            {options.map((option, idx) => (
-              <button
-                key={option.value}
-                type="button"
-                role="option"
-                aria-selected={option.value === value}
-                onClick={() => {
-                  onChange?.(option.value);
-                  setIsOpen(false);
-                  setFocusedIndex(-1);
-                }}
-                className={cn(
-                  "w-full px-4 py-3 text-left font-sans text-sm",
-                  // Text style
-                  variant === "void" ? "text-white" : "text-red-600",
-                  "transition-colors duration-300",
-                  option.value === value && "bg-zinc-900",
-                  focusedIndex === idx ? "bg-zinc-800" : "hover:bg-zinc-900"
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+            {label}
+          </label>
         )}
+
+        <div className="relative group w-full" ref={containerRef}>
+          <button
+            ref={ref}
+            type="button"
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            onClick={() => !props.disabled && setIsOpen(!isOpen)}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              "w-full bg-black border-2 flex items-center justify-between transition-all duration-300 outline-none",
+              // Variant Colors
+              variant === "void" ? "border-white" : "border-red-900",
+              // Size
+              size === "sm" && "px-2 py-1.5 min-h-[32px]",
+              size === "md" && "px-4 py-3 min-h-[48px]",
+              size === "lg" && "px-7 py-6 min-h-[64px]",
+              // Focus Styles
+              variant === "void"
+                ? "focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]"
+                : "focus-visible:shadow-[6px_6px_0px_0px_rgba(136,8,8,0.6)]",
+              // Hover Styles
+              isOpen
+                ? variant === "void"
+                  ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
+                : variant === "void"
+                ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+                : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+              // Disabled
+              props.disabled &&
+                "opacity-50 cursor-not-allowed hover:shadow-none",
+              className
+            )}
+            {...props}
+          >
+            <span
+              className={cn(
+                "font-sans text-sm truncate pr-4",
+                selectedOption
+                  ? variant === "void"
+                    ? "text-white"
+                    : "text-red-600"
+                  : "text-zinc-600"
+              )}
+            >
+              {selectedOption?.label || placeholder}
+            </span>
+            <ChevronDown
+              size={18}
+              className={cn(
+                variant === "void" ? "text-white" : "text-red-600",
+                "transition-transform duration-300 flex-shrink-0",
+                isOpen && "rotate-180"
+              )}
+            />
+          </button>
+
+          {isOpen && (
+            <div
+              ref={listRef}
+              role="listbox"
+              tabIndex={-1}
+              className={cn(
+                "absolute top-full left-0 z-50 w-full mt-1 bg-black border-2 max-h-60 overflow-y-auto custom-scrollbar",
+                variant === "void" ? "border-white" : "border-red-900",
+                variant === "void"
+                  ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
+              )}
+            >
+              {options.map((option, idx) => {
+                const isActive = idx === highlightedIndex;
+                const isSelected = option.value === value;
+                return (
+                  <div
+                    key={option.value}
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      onChange?.(option.value);
+                      setIsOpen(false);
+                      setHighlightedIndex(-1);
+                    }}
+                    onMouseEnter={() => setHighlightedIndex(idx)}
+                    className={cn(
+                      "px-4 py-3 cursor-pointer font-sans text-sm transition-colors duration-200",
+                      variant === "void" ? "text-white" : "text-red-600",
+                      isActive ? "bg-zinc-800" : "bg-black",
+                      isSelected && "font-bold tracking-wide"
+                    )}
+                  >
+                    {option.label}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+RitualSelect.displayName = "RitualSelect";

@@ -1,8 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import React, { useState, useRef, useLayoutEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { cn } from "../utils/cn";
 
 interface GrimoireAccordionItem {
@@ -29,79 +29,59 @@ export const GrimoireAccordion = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className={cn("flex flex-col", className)} {...props}>
       {items.map((item, index) => {
-        const contentId = `accordion-content-${item.id}`;
-        const titleId = `accordion-title-${item.id}`;
         const isOpen = openId === item.id;
         const isFirst = index === 0;
-        const contentRef = useRef<HTMLDivElement>(null);
-        const [height, setHeight] = useState(0);
-
-        // mede a altura real do conteúdo sempre que abre
-        useLayoutEffect(() => {
-          if (contentRef.current) {
-            setHeight(contentRef.current.scrollHeight);
-          }
-        }, [isOpen]);
 
         return (
           <div
             key={item.id}
             className={cn(
-              "bg-black border-2",
-              // Border color
+              "bg-black border-2 transition-shadow duration-300",
               variant === "void" ? "border-white" : "border-red-900",
-              // Space y
-              !isFirst && "-mt-0.5",
+              !isFirst && "-mt-0.5", // Overlap borders
+              // Hover Shadow
               "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
-              className
+              // Focus Within Shadow (para acessibilidade quando foca no botão)
+              "focus-within:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)] focus-within:z-10 relative"
             )}
-            {...props}
           >
-            {/* Header fixo */}
             <button
-              aria-expanded={isOpen}
-              aria-controls={contentId}
               onClick={() => toggle(item.id)}
-              className="w-full flex items-center justify-between p-4 text-left"
+              aria-expanded={isOpen}
+              className="w-full flex items-center justify-between p-4 text-left focus:outline-none"
             >
-              <span
-                id={titleId}
-                className="font-serif text-lg uppercase tracking-tighter text-white"
-              >
+              <span className="font-serif text-lg uppercase tracking-tighter text-white">
                 {item.title}
               </span>
-              <ChevronDown
-                size={20}
-                strokeWidth={1.5}
-                className={cn(
-                  // Icon color
-                  variant === "void" ? "text-white" : "text-red-600",
-                  "transition-transform duration-300",
-                  isOpen && "rotate-180"
-                )}
-              />
+              <motion.div
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown
+                  size={20}
+                  className={variant === "void" ? "text-white" : "text-red-600"}
+                />
+              </motion.div>
             </button>
 
-            {/* Painel animado com altura dinâmica */}
-            <motion.div
-              key={`motion-content-${item.id}`}
-              role="region"
-              id={contentId}
-              aria-labelledby={titleId}
-              className="overflow-hidden w-full"
-              initial={{ maxHeight: 0 }}
-              animate={{ maxHeight: isOpen ? height : 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <div
-                ref={contentRef}
-                className="px-4 pb-4 text-zinc-500 text-sm font-sans leading-relaxed"
-              >
-                {item.content}
-              </div>
-            </motion.div>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div
+                  key="content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 text-zinc-500 text-sm font-sans leading-relaxed border-t border-zinc-900/50 pt-4">
+                    {item.content}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       })}

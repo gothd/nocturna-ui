@@ -2,89 +2,148 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Nocturna UI - Teste CDN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nocturna UI v0.0.4 - CDN Ritual</title>
+
     <link rel="stylesheet" href="../../dist/style.css" />
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+
     <script src="../../dist/index.umd.js"></script>
+
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+      }
+      /* Utilitário simples para layout */
+      .layout-container {
+        width: 100%;
+        max-width: 600px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .code-block {
+        background: #18181b;
+        padding: 1rem;
+        border: 1px solid #27272a;
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #a1a1aa;
+        margin-top: 1rem;
+      }
+    </style>
   </head>
-  <body
-    style="
-      background: #000;
-      display: flex;
-      height: 100vh;
-      align-items: center;
-      justify-content: center;
-    "
-  >
+  <body>
     <div id="root"></div>
 
     <script>
-      const { VoidButton, GrimoireAccordion, AbyssSeparator } =
-        window.NocturnaUI;
+      // 1. Desconstrução dos Primitivos Globais
+      const {
+        VoidButton,
+        NocturnaCard,
+        AbyssSeparator,
+        OmenToastProvider,
+        SigilBadge,
+      } = window.NocturnaUI;
+
       const React = window.React;
       const ReactDOM = window.ReactDOM;
 
+      // 2. Componente da Aplicação (Layout)
       function App() {
-        const items = [
-          {
-            id: "1",
-            title: "O Chamado do CDN",
-            content:
-              "Carregando componentes góticos diretamente do éter digital sem gerenciadores de pacotes.",
-          },
-          {
-            id: "2",
-            title: "Poder da Proveniência",
-            content:
-              "Build verificado e assinado via GitHub Actions para segurança total.",
-          },
-        ];
+        // Função para disparar o Toast usando a Bridge Global
+        const summonToast = () => {
+          // Verifica se a bridge foi injetada
+          if (window.NocturnaUI.toaster) {
+            window.NocturnaUI.toaster.toast({
+              title: "Invocação CDN",
+              description:
+                "O sistema de Toasts funciona perfeitamente via UMD.",
+              variant: "blood",
+              type: "success",
+              duration: 4000,
+            });
+          } else {
+            alert("O Provider ainda não inicializou a bridge.");
+          }
+        };
 
         return React.createElement(
           "div",
-          { className: "p-8 max-w-2xl mx-auto" },
-          React.createElement(
-            "h1",
-            { className: "text-5xl uppercase tracking-tighter mb-4" },
-            "Nocturna CDN"
-          ),
-          React.createElement(AbyssSeparator, { label: "✦" }),
+          { className: "layout-container" },
+
+          // Cabeçalho
           React.createElement(
             "div",
-            { className: "my-8" },
-            React.createElement(GrimoireAccordion, {
-              items: items,
-              variant: "blood",
-            })
+            { style: { textAlign: "center" } },
+            React.createElement(
+              "h1",
+              {
+                className:
+                  "text-4xl font-serif uppercase tracking-tighter mb-2",
+              },
+              "Nocturna CDN"
+            ),
+            React.createElement(
+              SigilBadge,
+              { variant: "void", styleType: "outline" },
+              "v0.0.4"
+            )
           ),
+
+          React.createElement(AbyssSeparator, { label: "♦" }),
+
+          // Card de Demonstração
           React.createElement(
-            VoidButton,
+            NocturnaCard,
             {
-              variant: "blood",
-              onClick: () => alert("O pacto foi selado."),
+              title: "Ambiente Híbrido",
+              variant: "void",
             },
-            "Iniciar Ritual"
+            React.createElement(
+              "p",
+              { style: { color: "#71717a", marginBottom: "1rem" } },
+              "Este exemplo roda React sem compilador (JSX), carregando os componentes diretamente do arquivo dist local."
+            ),
+            React.createElement(
+              VoidButton,
+              {
+                variant: "blood",
+                onClick: summonToast, // Chama a função que usa a Bridge
+                style: { width: "100%" },
+              },
+              "Invocar Toast"
+            ),
+            // Exibição de código para instrução
+            React.createElement(
+              "div",
+              { className: "code-block" },
+              "window.NocturnaUI.toaster.toast({ title: '...' })"
+            )
           )
         );
       }
 
-      const root = ReactDOM.createRoot(document.getElementById("root"));
-      root.render(React.createElement(App));
+      // 3. Inicialização do React
+      const rootElement = document.getElementById("root");
+      const root = ReactDOM.createRoot(rootElement);
 
-      /*       const { VoidButton, GrimoireAccordion } = window.NocturnaUI;
-      const root = ReactDOM.createRoot(document.getElementById("root"));
-
+      // OBRIGATÓRIO: Envolver a App no Provider para que os Toasts funcionem
       root.render(
-        React.createElement(
-          VoidButton,
-          {
-            variant: "blood",
-          },
-          "O Vazio é Real"
-        )
-      ); */
+        React.createElement(OmenToastProvider, null, React.createElement(App))
+      );
     </script>
   </body>
 </html>
