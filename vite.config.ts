@@ -9,8 +9,11 @@ export default defineConfig({
       // Força o uso de React.createElement em vez de _jsx
       jsxRuntime: "classic",
     }),
-    // Gera os arquivos .d.ts automaticamente
-    dts({ insertTypesEntry: true }),
+    // Gera os arquivos .d.ts automaticamente (excluindo os testes)
+    dts({
+      insertTypesEntry: true,
+      exclude: ["src/**/__tests__/**", "**/*.test.tsx", "**/*.spec.tsx"],
+    }),
   ],
   css: {
     postcss: "./postcss.config.js",
