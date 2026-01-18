@@ -30,9 +30,10 @@ interface AltarMenuProps extends React.HTMLAttributes<HTMLDivElement> {
 export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
   (
     { items, variant = "void", trigger, align = "right", className, ...props },
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
+    const prevIsOpen = useRef(isOpen);
     const containerRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -54,22 +55,20 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
 
     // Gestão de Foco: Menu Aberto -> Foca item; Menu Fechado -> Retorna ao Trigger
     useEffect(() => {
-      if (isOpen) {
+      if (isOpen && !prevIsOpen.current) {
         // Pequeno delay para garantir renderização antes do foco
         requestAnimationFrame(() => {
           const firstItem = menuRef.current?.querySelector(
-            '[role="menuitem"]:not([disabled])'
+            '[role="menuitem"]:not([disabled])',
           ) as HTMLElement;
           firstItem?.focus();
         });
-      } else {
-        if (
-          triggerRef.current &&
-          document.activeElement !== triggerRef.current
-        ) {
+      } else if (!isOpen && prevIsOpen.current) {
+        if (triggerRef.current) {
           triggerRef.current.focus();
         }
       }
+      prevIsOpen.current = isOpen;
     }, [isOpen]);
 
     // Navegação Teclado (Setas, Home, End, Esc)
@@ -78,11 +77,11 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
 
       const menuItems = Array.from(
         menuRef.current?.querySelectorAll(
-          '[role="menuitem"]:not([disabled])'
-        ) || []
+          '[role="menuitem"]:not([disabled])',
+        ) || [],
       ) as HTMLElement[];
       const currentIndex = menuItems.indexOf(
-        document.activeElement as HTMLElement
+        document.activeElement as HTMLElement,
       );
 
       switch (event.key) {
@@ -165,7 +164,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
             "hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
             variant === "void"
               ? "focus-visible:outline-none focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]"
-              : "focus-visible:outline-none focus-visible:shadow-[4px_4px_0px_0px_rgba(136,8,8,0.5)]"
+              : "focus-visible:outline-none focus-visible:shadow-[4px_4px_0px_0px_rgba(136,8,8,0.5)]",
           )}
         >
           {trigger || <MoreVertical size={20} strokeWidth={1.5} />}
@@ -197,7 +196,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
             // Variant Colors & Shadows
             variant === "void"
               ? "border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-              : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
+              : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
           )}
         >
           {items.map((item, index) => (
@@ -232,7 +231,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
                     ? "border-b border-zinc-900"
                     : "border-b border-red-900/30"),
                 // Keyboard Focus Style
-                "focus:outline-none focus:bg-zinc-900 focus:text-white"
+                "focus:outline-none focus:bg-zinc-900 focus:text-white",
               )}
             >
               {item.icon && (
@@ -242,8 +241,8 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
                     item.danger
                       ? "text-red-500"
                       : variant === "void"
-                      ? "text-white"
-                      : "text-red-600"
+                        ? "text-white"
+                        : "text-red-600",
                   )}
                 >
                   {item.icon}
@@ -255,7 +254,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 AltarMenu.displayName = "AltarMenu";

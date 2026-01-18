@@ -1,12 +1,25 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface VoidButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface VoidButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /**
+   * Define o estilo visual do botão.
+   * - `void`: Estilo padrão preto e branco.
+   * - `blood`: Estilo vermelho escuro para ações perigosas ou destaque.
+   * @default "void"
+   */
   variant?: "void" | "blood";
+  /**
+   * Controla o tamanho e o padding do botão.
+   * @default "md"
+   */
   size?: "sm" | "md" | "lg";
 }
 
+/**
+ * O botão primário da Nocturna UI.
+ * Utiliza sombras rígidas e transições brutas.
+ */
 export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
   (
     {
@@ -17,7 +30,7 @@ export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <button
@@ -43,12 +56,12 @@ export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
           // Disabled State
           disabled &&
             "opacity-50 cursor-not-allowed hover:shadow-none hover:bg-transparent hover:text-inherit pointer-events-none",
-          className
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 
 VoidButton.displayName = "VoidButton";

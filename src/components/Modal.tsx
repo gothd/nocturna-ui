@@ -26,7 +26,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Refs
     const internalRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +70,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
 
       const modal = internalRef.current;
       const focusableElements = modal.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
       const firstElement = focusableElements[0];
@@ -155,18 +155,18 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
             variant === "void"
               ? "border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
               : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
-            className
+            className,
           )}
           {...props}
         >
           <button
             onClick={() => onCloseRef.current()}
-            aria-label="Close modal"
+            aria-label="Fechar modal"
             className={cn(
               "absolute top-4 right-4 p-1 transition-all duration-300 focus:outline-none",
               variant === "void"
                 ? "text-white hover:bg-white hover:text-black focus-visible:bg-white focus-visible:text-black"
-                : "text-red-600 hover:bg-red-900 hover:text-white focus-visible:bg-red-900 focus-visible:text-white"
+                : "text-red-600 hover:bg-red-900 hover:text-white focus-visible:bg-red-900 focus-visible:text-white",
             )}
           >
             <X size={24} strokeWidth={1.5} />
@@ -176,7 +176,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
             id="crypt-modal-title"
             className={cn(
               "font-serif text-2xl uppercase tracking-tighter mb-2 pr-8",
-              variant === "void" ? "text-white" : "text-red-600"
+              variant === "void" ? "text-white" : "text-red-600",
             )}
           >
             {title}
@@ -194,9 +194,9 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
           <div className="mt-4 text-zinc-400">{children}</div>
         </div>
       </div>,
-      document.body
+      document.body,
     );
-  }
+  },
 );
 
 CryptModal.displayName = "CryptModal";

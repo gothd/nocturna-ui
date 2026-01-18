@@ -3,7 +3,7 @@ import { cn } from "../utils/cn";
 
 interface NocturnaCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "void" | "blood";
-  title: string;
+  title?: string;
   description?: string;
   headingLevel?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"; // Controle de hierarquia
   as?: React.ElementType; // Polimorfismo (div, section, article)
@@ -21,7 +21,7 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
       as: Component = "div", // Default div
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <Component
@@ -35,33 +35,35 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
           variant === "void"
             ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
             : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
-          className
+          className,
         )}
         {...props}
       >
-        <div className="mb-4 space-y-2">
-          <Heading
-            className={cn(
-              "font-serif text-2xl uppercase tracking-tighter leading-none",
-              // Text style
-              variant === "void" ? "text-white" : "text-red-600"
-            )}
-          >
-            {title}
-          </Heading>
+        {(title || description) && (
+          <div className="mb-4 space-y-2">
+            <Heading
+              className={cn(
+                "font-serif text-2xl uppercase tracking-tighter leading-none",
+                // Text style
+                variant === "void" ? "text-white" : "text-red-600",
+              )}
+            >
+              {title}
+            </Heading>
 
-          {description && (
-            <p className="text-zinc-500 text-sm font-sans leading-relaxed">
-              {description}
-            </p>
-          )}
-        </div>
+            {description && (
+              <p className="text-zinc-500 text-sm font-sans leading-relaxed">
+                {description}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Content Area - cresce para ocupar espaço se necessário */}
         <div className="mt-auto">{children}</div>
       </Component>
     );
-  }
+  },
 );
 
 NocturnaCard.displayName = "NocturnaCard";

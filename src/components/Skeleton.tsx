@@ -19,7 +19,7 @@ export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
           variant === "void"
             ? "border-zinc-800 bg-zinc-900"
             : "border-red-950 bg-red-950/30",
-          className
+          className,
         )}
         style={{
           width,
@@ -29,15 +29,25 @@ export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
         {...props}
       />
     );
-  }
+  },
 );
 SpectreSkeleton.displayName = "SpectreSkeleton";
 
-// --- PRESETS (Avatar, Card) ---
+// --- PRESETS (Line, Avatar, Card) ---
 // Wrappers convenientes que usam o componente base
 
-interface SpectreSkeletonAvatarProps
-  extends Omit<SpectreSkeletonProps, "width" | "height"> {
+export const SpectreSkeletonLine = forwardRef<
+  HTMLDivElement,
+  SpectreSkeletonProps
+>(({ width = "100%", height = "1rem", ...props }, ref) => {
+  return <SpectreSkeleton ref={ref} width={width} height={height} {...props} />;
+});
+SpectreSkeletonLine.displayName = "SpectreSkeletonLine";
+
+interface SpectreSkeletonAvatarProps extends Omit<
+  SpectreSkeletonProps,
+  "width" | "height"
+> {
   size?: "sm" | "md" | "lg";
 }
 
@@ -61,49 +71,56 @@ export const SpectreSkeletonAvatar = forwardRef<
 });
 SpectreSkeletonAvatar.displayName = "SpectreSkeletonAvatar";
 
-interface SpectreSkeletonCardProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface SpectreSkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "void" | "blood";
   lines?: number;
+  hasTitle?: boolean;
 }
 
 export const SpectreSkeletonCard = forwardRef<
   HTMLDivElement,
   SpectreSkeletonCardProps
->(({ variant = "void", lines = 3, className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "border-2 p-6 max-w-sm w-full",
-        variant === "void"
-          ? "border-zinc-800 bg-black"
-          : "border-red-950 bg-black",
-        className
-      )}
-      {...props}
-    >
-      {/* Título simulado */}
-      <SpectreSkeleton
-        variant={variant}
-        height="1.5rem"
-        width="60%"
-        className="mb-4"
-      />
-
-      {/* Linhas de corpo */}
-      <div className="flex flex-col gap-2">
-        {Array.from({ length: lines }).map((_, i) => (
-          <SpectreSkeleton
-            key={i}
+>(
+  (
+    { variant = "void", lines = 3, hasTitle = true, className, ...props },
+    ref,
+  ) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "border-2 p-6 max-w-sm w-full",
+          variant === "void"
+            ? "border-zinc-800 bg-black"
+            : "border-red-950 bg-black",
+          className,
+        )}
+        {...props}
+      >
+        {/* Título simulado (Condicional) */}
+        {hasTitle && (
+          <SpectreSkeletonLine
             variant={variant}
-            height="0.875rem"
-            // A última linha é um pouco menor para dar efeito visual de parágrafo
-            width={i === lines - 1 ? "80%" : "100%"}
+            height="1.5rem"
+            width="60%"
+            className="mb-4"
           />
-        ))}
+        )}
+
+        {/* Linhas de corpo */}
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: lines }).map((_, i) => (
+            <SpectreSkeletonLine
+              key={i}
+              variant={variant}
+              height="0.875rem"
+              // A última linha é um pouco menor para dar efeito visual de parágrafo
+              {...(i === lines - 1 && { width: "80%" })}
+            />
+          ))}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 SpectreSkeletonCard.displayName = "SpectreSkeletonCard";

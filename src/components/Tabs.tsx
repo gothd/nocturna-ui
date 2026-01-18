@@ -40,11 +40,10 @@ export const SoulTabs = forwardRef<HTMLDivElement, SoulTabsProps>(
         {...props}
       >
         <div
-          // Alterações aqui: hide-scrollbar no webkit e estilos inline para firefox
           className="flex border-b-2 border-zinc-900 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           role="tablist"
-          aria-label="Soul Tabs"
+          aria-label="Abas"
         >
           {tabs.map((tab, index) => {
             const isActive = activeTab === tab.id;
@@ -76,7 +75,7 @@ export const SoulTabs = forwardRef<HTMLDivElement, SoulTabsProps>(
                   // Focus
                   variant === "void"
                     ? "focus-visible:shadow-[inset_0_0_0_2px_#000,0_0_20px_rgba(255,255,255,0.5)]"
-                    : "focus-visible:shadow-[inset_0_0_0_2px_#000,0_0_20px_rgba(136,8,8,0.5)]"
+                    : "focus-visible:shadow-[inset_0_0_0_2px_#000,0_0_20px_rgba(136,8,8,0.5)]",
                 )}
               >
                 {tab.label}
@@ -96,7 +95,7 @@ export const SoulTabs = forwardRef<HTMLDivElement, SoulTabsProps>(
                 "text-zinc-500 font-sans leading-relaxed outline-none",
                 activeTab === tab.id
                   ? "animate-in fade-in slide-in-from-bottom-2 duration-500"
-                  : "hidden"
+                  : "hidden",
               )}
               tabIndex={0}
             >
@@ -106,7 +105,7 @@ export const SoulTabs = forwardRef<HTMLDivElement, SoulTabsProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 SoulTabs.displayName = "SoulTabs";
