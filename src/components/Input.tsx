@@ -1,18 +1,51 @@
 import React, { forwardRef, useId } from "react";
 import { cn } from "../utils/cn";
 
-interface VeinInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+interface VeinInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
+  /**
+   * Define o tema visual do input.
+   * - `void`: Padrão monocromático (Borda Branca).
+   * - `blood`: Tema vermelho escuro (Borda Vermelha e Texto Vermelho).
+   * @default "void"
+   */
   variant?: "void" | "blood";
+
+  /**
+   * Dimensões do input (altura e padding).
+   * - `sm`: Compacto para formulários densos.
+   * - `md`: Tamanho padrão para legibilidade.
+   * @default "md"
+   */
   size?: "sm" | "md";
+
+  /**
+   * Texto do rótulo exibido acima do campo.
+   * Automaticamente vinculado ao input via `htmlFor` e `id`.
+   */
   label?: string;
+
+  /**
+   * Mensagem de erro.
+   * Se fornecido:
+   * 1. Altera a cor da borda para vermelho.
+   * 2. Exibe a mensagem abaixo do input.
+   * 3. Adiciona `aria-invalid="true"` e vincula a mensagem via `aria-describedby` para leitores de tela.
+   */
   error?: string;
 }
 
+/**
+ * Campo de entrada de texto com estética brutalista.
+ * Prioriza acessibilidade automática (vínculo label-input e tratamento de erros ARIA).
+ * O foco gera uma sombra rígida (hard shadow) característica da Nocturna UI.
+ */
 export const VeinInput = forwardRef<HTMLInputElement, VeinInputProps>(
   (
     { variant = "void", size = "md", label, error, className, ...props },
-    ref
+    ref,
   ) => {
     // Gera um ID único para garantir vínculo label-input mesmo sem ID manual
     const generatedId = useId();
@@ -27,7 +60,7 @@ export const VeinInput = forwardRef<HTMLInputElement, VeinInputProps>(
             className={cn(
               "font-serif uppercase tracking-widest cursor-pointer",
               size === "sm" ? "text-xs" : "text-sm",
-              variant === "void" ? "text-white" : "text-red-600"
+              variant === "void" ? "text-white" : "text-red-600",
             )}
           >
             {label}
@@ -45,8 +78,8 @@ export const VeinInput = forwardRef<HTMLInputElement, VeinInputProps>(
             error
               ? "border-red-600 animate-pulse focus:border-red-600"
               : variant === "void"
-              ? "border-white focus:border-white"
-              : "border-red-900 focus:border-red-900",
+                ? "border-white focus:border-white"
+                : "border-red-900 focus:border-red-900",
             // Size
             size === "sm" ? "px-2 py-1.5 text-xs" : "px-4 py-3 text-sm",
             // Text Color
@@ -55,7 +88,7 @@ export const VeinInput = forwardRef<HTMLInputElement, VeinInputProps>(
             variant === "void"
               ? "focus:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
               : "focus:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
-            className
+            className,
           )}
           {...props}
         />
@@ -70,7 +103,7 @@ export const VeinInput = forwardRef<HTMLInputElement, VeinInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 VeinInput.displayName = "VeinInput";

@@ -16,7 +16,7 @@ import {
 } from "../components/Toast";
 
 // Tipos para o Hook
-type ToastOptions = {
+export type ToastOptions = {
   title: string;
   description?: string;
   variant?: ToastVariant;
@@ -60,7 +60,10 @@ export const useToast = () => {
   return context;
 };
 
-// O Provider que fica no topo da aplicação
+/**
+ * Provider que gerencia a fila de Toasts.
+ * Deve envolver a aplicação (geralmente no App.tsx ou layout raiz).
+ */
 export const OmenToastProvider = ({
   children,
 }: {
@@ -83,7 +86,7 @@ export const OmenToastProvider = ({
         { id, title, description, variant, type, duration, onClose: dismiss },
       ]);
     },
-    []
+    [],
   );
 
   const dismiss = useCallback((id: string) => {
@@ -122,6 +125,6 @@ const ToasterViewport = ({ toasts }: { toasts: OmenToastProps[] }) => {
         <OmenToast key={toast.id} {...toast} />
       ))}
     </div>,
-    document.body
+    document.body,
   );
 };

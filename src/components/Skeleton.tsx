@@ -2,11 +2,27 @@ import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
 interface SpectreSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Define o tema visual do esqueleto.
+   * - `void`: Cinza escuro/preto (Padrão).
+   * - `blood`: Vermelho escuro translúcido.
+   * @default "void"
+   */
   variant?: "void" | "blood";
+  /** Largura manual (ex: "100%", 200). */
   width?: string | number;
+  /** Altura manual (ex: "1rem", 40). */
   height?: string | number;
 }
 
+/**
+ * Primitiva de carregamento (Skeleton Loader).
+ * Renderiza um bloco pulsante para indicar conteúdo pendente.
+ *
+ * **Acessibilidade:**
+ * Possui `aria-hidden="true"` automaticamente, pois é um elemento puramente visual
+ * e não deve ser lido por leitores de tela.
+ */
 export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
   ({ variant = "void", width, height, className, style, ...props }, ref) => {
     return (
@@ -34,13 +50,35 @@ export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
 SpectreSkeleton.displayName = "SpectreSkeleton";
 
 // --- PRESETS (Line, Avatar, Card) ---
-// Wrappers convenientes que usam o componente base
 
+interface SpectreSkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Define o tema visual do esqueleto.
+   * @default "void"
+   */
+  variant?: "void" | "blood";
+  /**
+   * Largura manual.
+   * @default "100%"
+   */
+  width?: string | number;
+  /**
+   * Altura manual.
+   * @default "1rem"
+   */
+  height?: string | number;
+}
+
+/**
+ * Wrapper conveniente para simular linhas de texto.
+ * Altura padrão de 1rem.
+ */
 export const SpectreSkeletonLine = forwardRef<
   HTMLDivElement,
-  SpectreSkeletonProps
->(({ width = "100%", height = "1rem", ...props }, ref) => {
-  return <SpectreSkeleton ref={ref} width={width} height={height} {...props} />;
+  SpectreSkeletonLineProps
+>((props, ref) => {
+  const { width = "100%", height = "1rem", ...rest } = props;
+  return <SpectreSkeleton ref={ref} width={width} height={height} {...rest} />;
 });
 SpectreSkeletonLine.displayName = "SpectreSkeletonLine";
 
@@ -48,9 +86,19 @@ interface SpectreSkeletonAvatarProps extends Omit<
   SpectreSkeletonProps,
   "width" | "height"
 > {
+  /**
+   * Tamanhos predefinidos para avatares.
+   * - `sm`: 32px (w-8)
+   * - `md`: 48px (w-12)
+   * - `lg`: 64px (w-16)
+   * @default "md"
+   */
   size?: "sm" | "md" | "lg";
 }
 
+/**
+ * Wrapper quadrado para simular avatares ou ícones de perfil.
+ */
 export const SpectreSkeletonAvatar = forwardRef<
   HTMLDivElement,
   SpectreSkeletonAvatarProps
@@ -73,10 +121,16 @@ SpectreSkeletonAvatar.displayName = "SpectreSkeletonAvatar";
 
 interface SpectreSkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "void" | "blood";
+  /** Número de linhas de texto simuladas no corpo do card. */
   lines?: number;
+  /** Se verdadeiro, renderiza uma linha de título mais larga. */
   hasTitle?: boolean;
 }
 
+/**
+ * Padrão composto que simula um Card completo (Título + Texto).
+ * Útil para estados de loading de feeds ou grids.
+ */
 export const SpectreSkeletonCard = forwardRef<
   HTMLDivElement,
   SpectreSkeletonCardProps

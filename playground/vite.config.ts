@@ -47,12 +47,12 @@ const reactDocgenTypescript = () => {
         if (!componentDocs.length) return;
 
         // Injeta a propriedade __docgenInfo no código do componente
-        const docInfo = componentDocs[0];
-        const docgenInfoString = JSON.stringify(docInfo);
+        const docInfo = componentDocs;
+        const docgenInfoString = docInfo.map((info) => JSON.stringify(info));
 
         // Adiciona o código JS para anexar os dados ao componente
         return {
-          code: `${code}\n;try{ ${docInfo.displayName}.__docgenInfo = ${docgenInfoString}; } catch(e) {}`,
+          code: `${code}\n;try{ ${docInfo.map((info, i) => `${info.displayName}.__docgenInfo = ${docgenInfoString[i]}`)};\n } catch(e) {}`,
           map: null,
         };
       } catch {

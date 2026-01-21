@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nocturna UI v0.0.4 - CDN Ritual</title>
+    <title>Nocturna UI v0.0.5 - CDN Ritual</title>
 
     <link rel="stylesheet" href="../../dist/style.css" />
 
@@ -17,7 +17,10 @@
       body {
         background-color: #000;
         color: #fff;
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -94,13 +97,13 @@
                 className:
                   "text-4xl font-serif uppercase tracking-tighter mb-2",
               },
-              "Nocturna CDN"
+              "Nocturna CDN",
             ),
             React.createElement(
               SigilBadge,
               { variant: "void", styleType: "outline" },
-              "v0.0.4"
-            )
+              "v0.0.5",
+            ),
           ),
 
           React.createElement(AbyssSeparator, { label: "♦" }),
@@ -115,7 +118,7 @@
             React.createElement(
               "p",
               { style: { color: "#71717a", marginBottom: "1rem" } },
-              "Este exemplo roda React sem compilador (JSX), carregando os componentes diretamente do arquivo dist local."
+              "Este exemplo roda React sem compilador (JSX), carregando os componentes diretamente do arquivo dist local.",
             ),
             React.createElement(
               VoidButton,
@@ -124,15 +127,15 @@
                 onClick: summonToast, // Chama a função que usa a Bridge
                 style: { width: "100%" },
               },
-              "Invocar Toast"
+              "Invocar Toast",
             ),
             // Exibição de código para instrução
             React.createElement(
               "div",
               { className: "code-block" },
-              "window.NocturnaUI.toaster.toast({ title: '...' })"
-            )
-          )
+              "window.NocturnaUI.toaster.toast({ title: '...' })",
+            ),
+          ),
         );
       }
 
@@ -142,7 +145,7 @@
 
       // OBRIGATÓRIO: Envolver a App no Provider para que os Toasts funcionem
       root.render(
-        React.createElement(OmenToastProvider, null, React.createElement(App))
+        React.createElement(OmenToastProvider, null, React.createElement(App)),
       );
     </script>
   </body>

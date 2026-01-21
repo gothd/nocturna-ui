@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# 🦇 Nocturna UI - Playground & Docs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o ambiente de desenvolvimento e documentação oficial da biblioteca **Nocturna UI**. Ele serve tanto como um "Playground" para testar componentes isoladamente quanto como o site estático de documentação gerado via `react-docgen-typescript`.
 
-Currently, two official plugins are available:
+## 🛠️ Setup Local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Como este playground está dentro do monorepo (ou estrutura de pastas) da biblioteca, certifique-se de que as dependências da raiz e da biblioteca estejam instaladas.
 
-## React Compiler
+1. **Instalar Dependências**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. **Rodar o Servidor de Desenvolvimento**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+**Rode `npm run dev`, ou `npm run build` uma vez, na raiz para buildar o pacote nocturna-ui localmente. Que é consumido pelo playground no package.json.**
+
+O playground estará acessível em `http://localhost:5173/nocturna-ui/`.
+
+## 📦 Estrutura
+
+- **`src/pages`**: Contém as páginas de exemplo para cada componente.
+- **`src/examples`**: Exemplos de código limpos exibidos no `DocsViewer`.
+- **`src/layout`**: Layout principal da documentação (Sidebar, Header).
+- **`vite.config.ts`**: Configurado com um plugin customizado para extrair JSDocs dos componentes automaticamente.
+
+## 🚀 Deploy (GitHub Pages)
+
+O projeto está configurado para ser buildado e hospedado no GitHub Pages.
+
+1. **Build**
+
+```bash
+npm run build
+```
+
+Isso gerará os arquivos estáticos na pasta `dist`. 2. **Configurações Importantes**
+
+- **`vite.config.ts`**: A propriedade `base: "/nocturna-ui/"` garante que os assets (CSS/JS) sejam carregados corretamente no subdiretório do GitHub.
+- **`App.tsx`**: Utilizamos `HashRouter` para evitar problemas de roteamento (erros 404) em servidores estáticos.
+
+---
+
+_Ambiente focado em Alta Entropia e Design Brutalista._

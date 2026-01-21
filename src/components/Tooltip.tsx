@@ -4,12 +4,40 @@ import React, { forwardRef, useId, useState } from "react";
 import { cn } from "../utils/cn";
 
 interface RuneTooltipProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * O texto ou conteúdo a ser exibido dentro do tooltip.
+   */
   content: string;
+
+  /**
+   * O elemento que dispara o tooltip (gatilho).
+   * Deve ser um elemento interativo ou focado para garantir acessibilidade.
+   */
   children: React.ReactNode;
+
+  /**
+   * Define o tema visual.
+   * - `void`: Padrão monocromático (Branco/Preto).
+   * - `blood`: Tema avermelhado (Vermelho/Preto).
+   * @default "void"
+   */
   variant?: "void" | "blood";
+
+  /**
+   * Posição do tooltip em relação ao elemento filho.
+   * @default "top"
+   */
   position?: "top" | "bottom" | "left" | "right";
 }
 
+/**
+ * Tooltip minimalista com estética rúnica.
+ *
+ * **Features:**
+ * - **Acessibilidade:** Gerencia `aria-describedby` automaticamente via `useId`.
+ * - **Interação:** Ativa via Mouse (Hover) e Teclado (Focus).
+ * - **Animação:** Fade e Scale sutis na entrada/saída.
+ */
 export const RuneTooltip = forwardRef<HTMLDivElement, RuneTooltipProps>(
   (
     {
@@ -20,7 +48,7 @@ export const RuneTooltip = forwardRef<HTMLDivElement, RuneTooltipProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isVisible, setIsVisible] = useState(false);
     const tooltipId = useId(); // Garante ID único para acessibilidade
@@ -68,14 +96,14 @@ export const RuneTooltip = forwardRef<HTMLDivElement, RuneTooltipProps>(
             variant === "blood" && [
               "bg-black border-red-900 text-red-600",
               "shadow-[4px_4px_0px_0px_rgba(136,8,8,0.3)]",
-            ]
+            ],
           )}
         >
           {content}
         </div>
       </div>
     );
-  }
+  },
 );
 
 RuneTooltip.displayName = "RuneTooltip";

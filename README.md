@@ -2,61 +2,48 @@
 
 > **Primitivos góticos e brutalistas forjados para a web que não teme a escuridão.**
 
-A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de alto contraste, tipografia serifada e estética minimalista/gótica. Na **v0.0.4**, expandimos nosso arsenal com componentes de feedback, navegação e um sistema robusto de notificações (Toasts) desacoplado.
+A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de alto contraste, tipografia serifada e estética minimalista.
 
-[Showcase (DEMO)](https://gothd.github.io/nocturna-ui/) | [NPM](https://www.npmjs.com/package/nocturna-ui) | [UNPKG](https://unpkg.com/nocturna-ui/)
+Na **v0.0.5**, introduzimos o sistema de **Aliases**, permitindo importações mais limpas (ex: `Button` ao invés de `VoidButton`), e melhoramos a cobertura de testes.
+
+[![NPM Version](https://img.shields.io/npm/v/nocturna-ui?color=000000&label=npm&style=flat-square)](https://www.npmjs.com/package/nocturna-ui)
+[![Tests](https://github.com/gothd/nocturna-ui/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/gothd/nocturna-ui/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/gothd/nocturna-ui?style=flat-square&color=white)](https://codecov.io/gh/gothd/nocturna-ui)
 
 ---
 
-## 🕸️ Arsenal de Componentes
+## 🔮 Documentação Completa
 
-| Primitivo                  | Descrição                                                     |
-| :------------------------- | :------------------------------------------------------------ |
-| **VoidButton**             | Botão brutalista com suporte a tamanhos sm/md/lg.             |
-| **CryptModal**             | Modal com portal, trava de foco e suporte a tecla ESC.        |
-| **RitualSelect**           | Select customizado com suporte total a navegação via teclado. |
-| **AltarMenu** `Novo`       | Menu dropdown acessível para ações e navegação.               |
-| **GrimoireAccordion**      | Acordeão com animação de altura dinâmica via Framer Motion.   |
-| **SoulTabs**               | Sistema de abas para organização de conteúdos densos.         |
-| **VeinInput**              | Input de texto com labels integrados e validação visual.      |
-| **HexCheckbox**            | Checkbox temático com animação de escala e ícone custom.      |
-| **OmenToast** `Novo`       | Sistema de notificações (Toasts) via Hook ou Global.          |
-| **RuneTooltip** `Novo`     | Tooltips informativos com posicionamento automático.          |
-| **VesselProgress** `Novo`  | Barras de progresso (Valor ou Timer/Indeterminate).           |
-| **AbyssScroll** `Novo`     | Container com scrollbar customizada cross-browser.            |
-| **SpectreSkeleton** `Novo` | Placeholders de carregamento (Avatar, Card).                  |
-| **SigilBadge**             | Emblemas para status e tags em versões Solid ou Outline.      |
-| **AbyssSeparator**         | Divisor de seção com suporte a labels e sigilos.              |
-| **NocturnaCard**           | Container clássico com sombras rígidas (hard shadows).        |
+Para ver os componentes em ação, tabelas de propriedades interativas e exemplos avançados, visite nosso Grimório Digital:
+
+### [👉 Acessar Documentação (Playground)](https://gothd.github.io/nocturna-ui/)
 
 ---
 
 ## 🌑 Instalação
 
-### 1. Instale o pacote
-
 ```bash
 npm install nocturna-ui
 ```
 
-### 2. Dependências (Peer Dependencies)
+### Dependências
 
-Para garantir animações fluidas e evitar conflitos de versão do React, certifique-se de ter instalado:
+A biblioteca requer React e Framer Motion.
 
 ```bash
 npm install react react-dom framer-motion
 ```
 
-_(Nota: Os ícones internos utilizam Lucide React e já estão inclusos no pacote. Você não precisa instalá-lo separadamente, a menos que queira usar os mesmos ícones em sua aplicação)._
+---
 
-### 3. Setup do Provider
+## 🩸 Setup Inicial
 
-Para que o sistema de **Toasts** (OmenToast) funcione, você deve envolver sua aplicação com o `OmenToastProvider`:
+Para que os componentes funcionem corretamente, você deve importar o CSS global e envolver sua aplicação no `OmenToastProvider` (mesmo que não use notificações imediatamente, ele configura contextos globais).
 
 ```tsx
-// src/App.tsx ou src/layout.tsx
+// No seu arquivo raiz (main.tsx ou App.tsx)
 import { OmenToastProvider } from "nocturna-ui";
-import "nocturna-ui/dist/style.css"; // Importação vital dos estilos
+import "nocturna-ui/style.css"; // ⚠️ Importação vital dos estilos
 
 export default function App({ children }) {
   return <OmenToastProvider>{children}</OmenToastProvider>;
@@ -65,106 +52,86 @@ export default function App({ children }) {
 
 ---
 
-## 🩸 Como Usar
+## 🕸️ Uso Básico (Aliases)
 
-### Componentes Básicos
-
-```tsx
-import { VoidButton, SigilBadge } from "nocturna-ui";
-
-export const Ritual = () => (
-  <div className="flex gap-4">
-    <SigilBadge variant="blood">Status: Ativo</SigilBadge>
-    <VoidButton variant="void" onClick={() => console.log("Invocado")}>
-      Iniciar Ritual
-    </VoidButton>
-  </div>
-);
-```
-
-### Hook de Toast (React)
-
-Dentro de qualquer componente filho do Provider:
+Você não precisa mais decorar nomes místicos como `VoidButton` ou `CryptModal`. Utilize os Aliases funcionais:
 
 ```tsx
-import { useToast, VoidButton } from "nocturna-ui";
+import { Button, Card, Badge, useToast } from "nocturna-ui";
 
-export const SummonToast = () => {
+export const Ritual = () => {
   const { toast } = useToast();
 
   return (
-    <VoidButton
-      onClick={() =>
-        toast({
-          title: "Oferenda Aceita",
-          description: "Os dados foram salvos no grimório.",
-          type: "success",
-          variant: "void",
-        })
-      }
-    >
-      Salvar
-    </VoidButton>
+    <Card title="Invocação">
+      <div className="flex gap-4 mb-4">
+        <Badge variant="blood">Status: Pendente</Badge>
+      </div>
+
+      <Button
+        variant="void"
+        onClick={() => toast({ title: "Pacto Realizado", type: "success" })}
+      >
+        Confirmar
+      </Button>
+    </Card>
   );
 };
 ```
 
+### Tabela de Aliases
+
+| Alias      | Componente Original | Função               |
+| ---------- | ------------------- | -------------------- |
+| `Button`   | `VoidButton`        | Ações principais     |
+| `Input`    | `VeinInput`         | Entrada de dados     |
+| `Select`   | `RitualSelect`      | Seleção acessível    |
+| `Modal`    | `CryptModal`        | Diálogos e alertas   |
+| `Toast`    | `OmenToast`         | Notificações         |
+| `Menu`     | `AltarMenu`         | Dropdowns            |
+| `Tabs`     | `SoulTabs`          | Navegação em abas    |
+| `Card`     | `NocturnaCard`      | Container estrutural |
+| `Skeleton` | `SpectreSkeleton`   | Estados de loading   |
+
+_Consulte a [documentação completa](https://gothd.github.io/nocturna-ui/) para a lista total de props e variantes._
+
 ---
 
-## 📜 Uso via CDN (Vanilla JS / HTML)
+## 📜 Uso via CDN (Vanilla JS)
 
-A **Nocturna UI** injeta uma ponte global (`window.NocturnaUI`) quando carregada via script tag, permitindo o uso do sistema de Toasts mesmo fora do React.
-
-**Ordem de Importação:**
+A biblioteca injeta uma ponte global `window.NocturnaUI` para uso sem bundlers.
 
 ```html
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
 <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
 
-<script src="https://unpkg.com/nocturna-ui@0.0.4/dist/index.umd.js"></script>
+<script src="https://unpkg.com/nocturna-ui@0.0.5/dist/index.umd.js"></script>
 <link
   rel="stylesheet"
-  href="https://unpkg.com/nocturna-ui@0.0.4/dist/style.css"
+  href="https://unpkg.com/nocturna-ui@0.0.5/dist/style.css"
 />
-```
 
-**Inicialização e Uso:**
-
-```html
 <div id="root"></div>
 
 <script>
-  // 1. Inicializa o Provider (Necessário para a Bridge funcionar)
+  const { ToastProvider, Button } = window.NocturnaUI;
+
+  // Renderização manual necessária em Vanilla JS
   const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(React.createElement(window.NocturnaUI.OmenToastProvider));
-
-  // 2. Dispara Toasts via JavaScript Puro
-  function invocarMensagem() {
-    if (window.NocturnaUI && window.NocturnaUI.toaster) {
-      window.NocturnaUI.toaster.toast({
-        title: "Vanilla JS",
-        description: "O sistema de notificações funciona sem build steps.",
-        variant: "blood",
-        type: "warning",
-      });
-    }
-  }
+  root.render(React.createElement(ToastProvider));
 </script>
-
-<button onclick="invocarMensagem()">Testar Toast</button>
 ```
 
----
-
-## 🛠️ Tecnologias
-
-- **TypeScript** - Tipagem estrita para rituais seguros.
-- **Tailwind CSS** - Estilização atômica encapsulada (sem conflitos de classe).
-- **Framer Motion** - Animações de entrada e saída (Accordions, Modais, Toasts).
-- **Lucide React** - Iconografia leve e consistente.
+_Veja o [exemplo de uso completo pela CDN, com o ToastProvider](./examples/cdn/index.html)._
 
 ---
 
-Desenvolvido com 🖤 por **gothd**. ☕️
+## 🧪 Desenvolvimento
+
+```bash
+npm test               # Roda testes unitários
+npm run test:coverage  # Relatório de cobertura
+```
+
+Desenvolvido com 🖤 por **gothd**.

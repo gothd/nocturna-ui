@@ -4,25 +4,70 @@ import { ChevronDown } from "lucide-react";
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 
-interface RitualSelectOption {
+export interface RitualSelectOption {
   value: string;
   label: string;
 }
 
-interface RitualSelectProps
-  extends Omit<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    "onChange" | "value"
-  > {
-  options: RitualSelectOption[];
+interface RitualSelectProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "onChange" | "value"
+> {
+  /**
+   * Lista de opções disponíveis para seleção.
+   */
+  options: Array<{
+    /** Valor único da opção (enviado no onChange). */
+    value: string;
+    /** Texto exibido para o usuário. */
+    label: string;
+  }>;
+
+  /**
+   * Valor atual selecionado (Componente Controlado).
+   * Deve corresponder ao `value` de uma das opções.
+   */
   value?: string;
+
+  /**
+   * Callback disparado quando uma opção é selecionada.
+   * Retorna apenas o `value` da opção (string).
+   */
   onChange?: (value: string) => void;
+
+  /**
+   * Texto exibido quando nenhum valor está selecionado.
+   * @default "Select..."
+   */
   placeholder?: string;
+
+  /**
+   * Rótulo opcional exibido acima do select.
+   */
   label?: string;
+
+  /**
+   * Define o tema visual.
+   * - `void`: Padrão monocromático.
+   * - `blood`: Tema avermelhado (Erro/Alerta).
+   * @default "void"
+   */
   variant?: "void" | "blood";
+
+  /**
+   * Altura do componente.
+   * - `sm`: Compacto (32px).
+   * - `md`: Padrão (48px).
+   * - `lg`: Expandido (64px).
+   * @default "md"
+   */
   size?: "sm" | "md" | "lg";
 }
 
+/**
+ * Select customizado (Combobox) com suporte a navegação por teclado e estética brutalista.
+ * Substitui o `<select>` nativo para permitir estilização profunda do dropdown.
+ */
 export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
   (
     {
@@ -36,7 +81,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -62,7 +107,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
         document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Scroll automático
+    // Scroll automático para o item destacado
     useEffect(() => {
       if (isOpen && highlightedIndex >= 0 && listRef.current) {
         const optionNode = listRef.current.children[
@@ -95,13 +140,13 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
         case "ArrowDown":
           e.preventDefault();
           setHighlightedIndex((prev) =>
-            prev < options.length - 1 ? prev + 1 : 0
+            prev < options.length - 1 ? prev + 1 : 0,
           );
           break;
         case "ArrowUp":
           e.preventDefault();
           setHighlightedIndex((prev) =>
-            prev > 0 ? prev - 1 : options.length - 1
+            prev > 0 ? prev - 1 : options.length - 1,
           );
           break;
         case "Enter":
@@ -119,14 +164,14 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
     };
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full">
         {label && (
           <label
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
             className={cn(
-              "font-serif text-sm uppercase tracking-widest cursor-pointer w-fit",
+              "font-serif text-sm uppercase tracking-widest cursor-pointer w-fit select-none",
               variant === "void" ? "text-white" : "text-red-600",
-              props.disabled && "opacity-50 cursor-not-allowed"
+              props.disabled && "opacity-50 cursor-not-allowed",
             )}
           >
             {label}
@@ -142,8 +187,9 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
             aria-expanded={isOpen}
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
             onKeyDown={handleKeyDown}
+            disabled={props.disabled}
             className={cn(
-              "w-full bg-black border-2 flex items-center justify-between transition-all duration-300 outline-none",
+              "w-full bg-black border-2 flex items-center justify-between transition-all duration-300 outline-none select-none text-left",
               // Variant Colors
               variant === "void" ? "border-white" : "border-red-900",
               // Size
@@ -154,29 +200,30 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
               variant === "void"
                 ? "focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]"
                 : "focus-visible:shadow-[6px_6px_0px_0px_rgba(136,8,8,0.6)]",
-              // Hover Styles
-              isOpen
-                ? variant === "void"
-                  ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
-                : variant === "void"
-                ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+              // Hover Styles (Only if not disabled)
+              !props.disabled &&
+                (isOpen
+                  ? variant === "void"
+                    ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+                    : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
+                  : variant === "void"
+                    ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
+                    : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"),
               // Disabled
               props.disabled &&
                 "opacity-50 cursor-not-allowed hover:shadow-none",
-              className
+              className,
             )}
             {...props}
           >
             <span
               className={cn(
-                "font-sans text-sm truncate pr-4",
+                "font-sans text-sm truncate pr-4 block",
                 selectedOption
                   ? variant === "void"
                     ? "text-white"
                     : "text-red-600"
-                  : "text-zinc-600"
+                  : "text-zinc-600",
               )}
             >
               {selectedOption?.label || placeholder}
@@ -186,7 +233,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
               className={cn(
                 variant === "void" ? "text-white" : "text-red-600",
                 "transition-transform duration-300 flex-shrink-0",
-                isOpen && "rotate-180"
+                isOpen && "rotate-180",
               )}
             />
           </button>
@@ -201,7 +248,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
                 variant === "void" ? "border-white" : "border-red-900",
                 variant === "void"
                   ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
+                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
               )}
             >
               {options.map((option, idx) => {
@@ -222,7 +269,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
                       "px-4 py-3 cursor-pointer font-sans text-sm transition-colors duration-200",
                       variant === "void" ? "text-white" : "text-red-600",
                       isActive ? "bg-zinc-800" : "bg-black",
-                      isSelected && "font-bold tracking-wide"
+                      isSelected && "font-bold tracking-wide bg-zinc-900",
                     )}
                   >
                     {option.label}
@@ -234,7 +281,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 RitualSelect.displayName = "RitualSelect";

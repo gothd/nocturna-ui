@@ -9,12 +9,31 @@ export type ToastVariant = "void" | "blood";
 export type ToastType = "info" | "success" | "warning" | "error";
 
 export interface OmenToastProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** ID único gerado automaticamente pelo Provider. */
   id: string;
+  /** Título principal da notificação. */
   title: string;
+  /** Descrição detalhada opcional. */
   description?: string;
-  variant?: ToastVariant;
-  type?: ToastType;
-  duration?: number; // 0 = persistente
+  /**
+   * Define o tema visual.
+   * - `void`: Padrão monocromático.
+   * - `blood`: Tema avermelhado.
+   * @default "void"
+   */
+  variant?: "void" | "blood";
+  /**
+   * Define o ícone semântico.
+   * @default "info"
+   */
+  type?: "info" | "success" | "warning" | "error";
+  /**
+   * Tempo em ms para fechar automaticamente.
+   * Use `0` para persistir até o usuário fechar.
+   * @default 5000
+   */
+  duration?: number;
+  /** Callback interno de fechamento. */
   onClose: (id: string) => void;
 }
 
@@ -25,6 +44,10 @@ const iconMap: Record<ToastType, React.ReactNode> = {
   error: <XCircle size={20} strokeWidth={1.5} />,
 };
 
+/**
+ * Componente de notificação flutuante (Toast).
+ * Normalmente invocado via hook `useToast()`.
+ */
 export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
   (
     {
@@ -38,7 +61,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isExiting, setIsExiting] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
@@ -79,7 +102,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
           isExiting
             ? "translate-x-full opacity-0" // Saída
             : "animate-in slide-in-from-right-full fade-in duration-300", // Entrada
-          className
+          className,
         )}
         {...props}
       >
@@ -87,7 +110,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
           <span
             className={cn(
               "shrink-0 mt-0.5",
-              variant === "void" ? "text-white" : "text-red-600"
+              variant === "void" ? "text-white" : "text-red-600",
             )}
           >
             {iconMap[type]}
@@ -97,7 +120,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
             <h4
               className={cn(
                 "font-serif text-sm uppercase tracking-widest leading-none",
-                variant === "void" ? "text-white" : "text-red-600"
+                variant === "void" ? "text-white" : "text-red-600",
               )}
             >
               {title}
@@ -115,7 +138,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
               "shrink-0 transition-opacity duration-200 hover:opacity-70 focus:outline-none",
               variant === "void"
                 ? "text-zinc-400 hover:text-white"
-                : "text-red-800 hover:text-red-600"
+                : "text-red-800 hover:text-red-600",
             )}
             aria-label="Fechar notificação"
           >
@@ -137,7 +160,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 OmenToast.displayName = "OmenToast";

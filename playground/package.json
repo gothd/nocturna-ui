@@ -1,11 +1,11 @@
 {
   "name": "playground",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -17,6 +17,9 @@
     "nocturna-ui": "file:..",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.12.0",
+    "react-syntax-highlighter": "^16.1.0",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^3.4.0"
   },
@@ -25,6 +28,7 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@types/styled-components": "^5.1.36",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",

@@ -3,17 +3,43 @@
 import React, { forwardRef, useRef, useState } from "react";
 import { cn } from "../utils/cn";
 
-interface Tab {
+export interface Tab {
   id: string;
   label: string;
   content: React.ReactNode;
 }
 
 interface SoulTabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  tabs: Tab[];
+  /**
+   * Array de objetos que definem as abas.
+   * Cada objeto deve conter `{ id, label, content }`.
+   */
+  tabs: Array<{
+    /** Identificador único da aba. */
+    id: string;
+    /** Texto exibido no botão da aba. */
+    label: string;
+    /** Conteúdo renderizado quando a aba está ativa. */
+    content: React.ReactNode;
+  }>;
+
+  /**
+   * Define o tema visual.
+   * - `void`: Padrão monocromático (Branco/Preto).
+   * - `blood`: Tema avermelhado (Vermelho/Preto).
+   * @default "void"
+   */
   variant?: "void" | "blood";
 }
 
+/**
+ * Componente de navegação em abas acessível.
+ *
+ * **Features:**
+ * - **Acessibilidade de Teclado:** Suporte completo para navegação com setas (Esquerda/Direita).
+ * - **Animações:** Transição suave (fade/slide) ao trocar de conteúdo.
+ * - **ARIA:** Roles e atributos corretos (`tablist`, `tab`, `tabpanel`).
+ */
 export const SoulTabs = forwardRef<HTMLDivElement, SoulTabsProps>(
   ({ tabs, variant = "void", className, ...props }, ref) => {
     const [activeTab, setActiveTab] = useState(tabs[0].id);

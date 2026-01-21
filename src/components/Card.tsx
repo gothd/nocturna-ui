@@ -2,13 +2,45 @@ import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
 interface NocturnaCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Define o tema visual do card.
+   * - `void`: Borda branca e sombra branca no hover.
+   * - `blood`: Borda vermelha escura e sombra avermelhada no hover.
+   * @default "void"
+   */
   variant?: "void" | "blood";
+
+  /**
+   * Título principal do card. Renderizado em uppercase e fonte serifada.
+   * Se omitido, o cabeçalho não será renderizado.
+   */
   title?: string;
+
+  /**
+   * Texto de apoio renderizado logo abaixo do título em fonte sans-serif.
+   */
   description?: string;
-  headingLevel?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"; // Controle de hierarquia
-  as?: React.ElementType; // Polimorfismo (div, section, article)
+
+  /**
+   * Controla a tag HTML usada para o título (acessibilidade).
+   * Permite ajustar a hierarquia semântica sem mudar o estilo visual.
+   * @default "h3"
+   */
+  headingLevel?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+
+  /**
+   * Polimorfismo: Define qual elemento HTML raiz será renderizado.
+   * Útil para semântica (ex: transformar em `section`, `article` ou `li`).
+   * @default "div"
+   */
+  as?: React.ElementType;
 }
 
+/**
+ * Container fundamental da Nocturna UI.
+ * Possui comportamento de Flex Column para garantir que o conteúdo ocupe a altura disponível,
+ * além de sombras rígidas (hard shadows) interativas no hover.
+ */
 export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
   (
     {
@@ -17,8 +49,8 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
       variant = "void",
       className,
       children,
-      headingLevel: Heading = "h3", // Default h3
-      as: Component = "div", // Default div
+      headingLevel: Heading = "h3",
+      as: Component = "div",
       ...props
     },
     ref,
@@ -60,7 +92,9 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
         )}
 
         {/* Content Area - cresce para ocupar espaço se necessário */}
-        <div className="mt-auto">{children}</div>
+        <div className={cn((title || description) && "mt-auto")}>
+          {children}
+        </div>
       </Component>
     );
   },

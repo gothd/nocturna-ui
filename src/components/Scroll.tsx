@@ -2,11 +2,36 @@ import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
 interface AbyssScrollProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Conteúdo que será rolado.
+   * Deve exceder a altura definida em `maxHeight` para ativar a rolagem.
+   */
   children: React.ReactNode;
+
+  /**
+   * Define o tema visual da barra de rolagem.
+   * - `void`: Trilho escuro com polegar (thumb) branco.
+   * - `blood`: Trilho e polegar em tons de vermelho sangue.
+   * @default "void"
+   */
   variant?: "void" | "blood";
+
+  /**
+   * Altura máxima do container antes de ativar a rolagem.
+   * Aceita valores CSS válidos (ex: "400px", "50vh", 300).
+   * @default "400px"
+   */
   maxHeight?: string | number;
 }
 
+/**
+ * Container de rolagem com scrollbar customizada cross-browser (Webkit & Firefox).
+ *
+ * **Features:**
+ * - Acessível via teclado (`tabindex="0"` permite foco e uso das setas).
+ * - Estilização profunda de scrollbar para manter a imersão gótica.
+ * - Suporte a conteúdo dinâmico.
+ */
 export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
   (
     {
@@ -17,7 +42,7 @@ export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
       style,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
@@ -63,14 +88,14 @@ export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
             "[scrollbar-color:#7f1d1d_black]",
           ],
 
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 AbyssScroll.displayName = "AbyssScroll";

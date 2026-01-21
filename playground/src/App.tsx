@@ -1,86 +1,58 @@
-import { AbyssSeparator, OmenToastProvider } from "nocturna-ui";
-import styled from "styled-components";
-import { ShowcaseContent } from "./components/ShowcaseContent";
-
-// --- Styled Components Globais do App ---
-
-const ShowcaseContainer = styled.main`
-  min-height: 100vh;
-  background-color: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4rem 1rem;
-  font-family: "Playfair Display", serif;
-`;
-
-const Header = styled.header`
-  text-align: center;
-  max-width: 800px;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: clamp(3rem, 10vw, 5rem);
-  letter-spacing: -4px;
-  text-transform: uppercase;
-  line-height: 0.9;
-  margin-bottom: 1rem;
-`;
-
-const Subtitle = styled.p`
-  color: #a1a1aa;
-  font-style: italic;
-  font-size: 1.2rem;
-  letter-spacing: 0.1em;
-`;
-
-const TabContentWrapper = styled.div`
-  width: 100%;
-  max-width: 1100px;
-  margin-top: 2rem;
-`;
-
-const Footer = styled.div`
-  margin-top: 5rem;
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
-
-  p {
-    color: #71717a;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    font-size: 0.75rem;
-    margin-top: 1rem;
-  }
-`;
+import { OmenToastProvider } from "nocturna-ui";
+import { HashRouter, Route, Routes } from "react-router-dom"; // Troca para HashRouter
+import { DocsLayout } from "./layout/DocsLayout";
+import { AccordionPage } from "./pages/AccordionPage";
+import { BadgePage } from "./pages/BadgePage";
+import { ButtonPage } from "./pages/ButtonPage";
+import { CardPage } from "./pages/CardPage";
+import { CheckboxPage } from "./pages/CheckboxPage";
+import { Home } from "./pages/Home";
+import { InputPage } from "./pages/InputPage";
+import { MenuPage } from "./pages/MenuPage";
+import { ModalPage } from "./pages/ModalPage";
+import { ProgressPage } from "./pages/ProgressPage";
+import { ScrollPage } from "./pages/ScrollPage";
+import { SelectPage } from "./pages/SelectPage";
+import { SeparatorPage } from "./pages/SeparatorPage";
+import { SkeletonPage } from "./pages/SkeletonPage";
+import { TabsPage } from "./pages/TabsPage";
+import { TooltipPage } from "./pages/TooltipPage";
+import { ToastPage } from "./pages/ToastPage";
 
 function App() {
   return (
     <OmenToastProvider>
-      <ShowcaseContainer>
-        <Header>
-          <Title>Nocturna UI</Title>
-          <Subtitle>
-            Componentes forjados no brutalismo e na estética gótica.
-          </Subtitle>
-        </Header>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<DocsLayout />}>
+            <Route index element={<Home />} />
 
-        <AbyssSeparator label="♱" />
+            <Route path="accordion" element={<AccordionPage />} />
+            <Route path="badge" element={<BadgePage />} />
+            <Route path="button" element={<ButtonPage />} />
+            <Route path="card" element={<CardPage />} />
+            <Route path="checkbox" element={<CheckboxPage />} />
+            <Route path="input" element={<InputPage />} />
+            <Route path="menu" element={<MenuPage />} />
+            <Route path="modal" element={<ModalPage />} />
+            <Route path="progress" element={<ProgressPage />} />
+            <Route path="scroll" element={<ScrollPage />} />
+            <Route path="select" element={<SelectPage />} />
+            <Route path="separator" element={<SeparatorPage />} />
+            <Route path="skeleton" element={<SkeletonPage />} />
+            <Route path="tabs" element={<TabsPage />} />
+            <Route path="toast" element={<ToastPage />} />
+            <Route path="tooltip" element={<TooltipPage />} />
 
-        <TabContentWrapper>
-          <ShowcaseContent />
-        </TabContentWrapper>
-
-        <Footer>
-          <AbyssSeparator label="Finis" variant="void" />
-          <p>
-            v0.0.4 • Desenvolvido com 🖤 por <b>gothd</b>
-          </p>
-        </Footer>
-      </ShowcaseContainer>
+            <Route
+              path="*"
+              element={
+                <div className="p-10">Página não encontrada no abismo.</div>
+              }
+            />
+          </Route>
+        </Routes>
+      </HashRouter>
     </OmenToastProvider>
   );
 }

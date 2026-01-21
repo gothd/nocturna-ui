@@ -6,14 +6,53 @@ import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { createPortal } from "react-dom";
 
 interface CryptModalProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Controla a visibilidade do modal.
+   * O componente é renderizado via React Portal no `document.body`.
+   */
   isOpen: boolean;
+
+  /**
+   * Função chamada quando o modal solicita fechamento.
+   * Disparada por: tecla ESC, clique no overlay ou clique no botão 'X'.
+   */
   onClose: () => void;
-  title: string;
+
+  /**
+   * Título principal do modal.
+   * Se fornecido, renderiza um `h2` padrão e configura `aria-labelledby`.
+   * Se omitido, você deve fornecer seu próprio cabeçalho dentro de `children` para acessibilidade visual.
+   */
+  title?: string;
+
+  /**
+   * Descrição opcional abaixo do título.
+   * Usada automaticamente para o atributo `aria-describedby`.
+   */
   description?: string;
+
+  /**
+   * Conteúdo interno do modal.
+   */
   children?: React.ReactNode;
+
+  /**
+   * Define o tema visual.
+   * - `void`: Monocromático (Borda Branca).
+   * - `blood`: Tema de alerta/erro (Borda Vermelha).
+   * @default "void"
+   */
   variant?: "void" | "blood";
 }
 
+/**
+ * Modal acessível com estética brutalista (Crypt).
+ *
+ * **Features Automáticas:**
+ * - **Focus Trap:** Mantém o foco do teclado preso dentro do modal.
+ * - **Scroll Lock:** Impede a rolagem da página de fundo.
+ * - **Close on ESC:** Fecha ao pressionar Escape.
+ */
 export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
   (
     {
@@ -40,7 +79,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       return () => setMounted(false);
     }, []);
 
-    // Atualiza a ref sempre que a prop onClose mudar, sem disparar o efeito principal
+    // Atualiza a ref sempre que a prop onClose mudar
     useEffect(() => {
       onCloseRef.current = onClose;
     }, [onClose]);
@@ -54,7 +93,6 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
         }
       } else {
         document.body.style.overflow = "unset";
-        // DEVOLVE o foco ao fechar
         if (lastFocusedElement.current) {
           lastFocusedElement.current.focus();
         }
@@ -64,7 +102,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       };
     }, [isOpen]);
 
-    // Focus Trap & Escape (Global Listener)
+    // Focus Trap & Escape
     useEffect(() => {
       if (!isOpen || !internalRef.current) return;
 
@@ -76,7 +114,6 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
 
-      // Foca no primeiro elemento APENAS ao abrir (Mount do efeito)
       const focusTimeout = setTimeout(() => {
         if (firstElement) {
           firstElement.focus();
@@ -86,14 +123,12 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       }, 10);
 
       const handleKeyDown = (e: KeyboardEvent) => {
-        // ESCAPE (Usa a ref para garantir a versão mais recente da função)
         if (e.key === "Escape") {
           e.preventDefault();
           onCloseRef.current();
           return;
         }
 
-        // TAB (Trap)
         if (e.key === "Tab") {
           if (focusableElements.length === 0) {
             e.preventDefault();
@@ -115,7 +150,6 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
       };
 
       document.addEventListener("keydown", handleKeyDown);
-
       return () => {
         document.removeEventListener("keydown", handleKeyDown);
         clearTimeout(focusTimeout);
@@ -129,7 +163,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="crypt-modal-title"
+        aria-labelledby={title ? "crypt-modal-title" : undefined}
         aria-describedby={description ? "crypt-modal-desc" : undefined}
       >
         <div
@@ -139,15 +173,12 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
         />
 
         <div
-          // Ref Merge
           ref={(node) => {
             internalRef.current = node;
-            if (typeof ref === "function") {
-              ref(node);
-            } else if (ref) {
+            if (typeof ref === "function") ref(node);
+            else if (ref)
               (ref as React.MutableRefObject<HTMLDivElement | null>).current =
                 node;
-            }
           }}
           tabIndex={-1}
           className={cn(
@@ -172,15 +203,17 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
             <X size={24} strokeWidth={1.5} />
           </button>
 
-          <h2
-            id="crypt-modal-title"
-            className={cn(
-              "font-serif text-2xl uppercase tracking-tighter mb-2 pr-8",
-              variant === "void" ? "text-white" : "text-red-600",
-            )}
-          >
-            {title}
-          </h2>
+          {title && (
+            <h2
+              id="crypt-modal-title"
+              className={cn(
+                "font-serif text-2xl uppercase tracking-tighter mb-2 pr-8",
+                variant === "void" ? "text-white" : "text-red-600",
+              )}
+            >
+              {title}
+            </h2>
+          )}
 
           {description && (
             <p
@@ -191,7 +224,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
             </p>
           )}
 
-          <div className="mt-4 text-zinc-400">{children}</div>
+          <div className={cn(title && "mt-4", "text-zinc-400")}>{children}</div>
         </div>
       </div>,
       document.body,
