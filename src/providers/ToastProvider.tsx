@@ -1,19 +1,8 @@
 "use client";
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  OmenToast,
-  OmenToastProps,
-  ToastType,
-  ToastVariant,
-} from "../components/Toast";
+import { Toast, ToastProps, ToastType, ToastVariant } from "../components/Toast";
 
 // Tipos para o Hook
 export type ToastOptions = {
@@ -64,22 +53,12 @@ export const useToast = () => {
  * Provider que gerencia a fila de Toasts.
  * Deve envolver a aplicação (geralmente no App.tsx ou layout raiz).
  */
-export const OmenToastProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [toasts, setToasts] = useState<OmenToastProps[]>([]);
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
   // Adiciona um novo toast
   const toast = useCallback(
-    ({
-      title,
-      description,
-      variant = "void",
-      type = "info",
-      duration = 5000,
-    }: ToastOptions) => {
+    ({ title, description, variant, type = "info", duration = 5000 }: ToastOptions) => {
       const id = Math.random().toString(36).substring(2, 9);
       setToasts((prev) => [
         ...prev,
@@ -107,7 +86,7 @@ export const OmenToastProvider = ({
 };
 
 // Componente interno que renderiza a lista no canto da tela
-const ToasterViewport = ({ toasts }: { toasts: OmenToastProps[] }) => {
+const ToasterViewport = ({ toasts }: { toasts: ToastProps[] }) => {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -122,7 +101,7 @@ const ToasterViewport = ({ toasts }: { toasts: OmenToastProps[] }) => {
       aria-live="polite"
     >
       {toasts.map((toast) => (
-        <OmenToast key={toast.id} {...toast} />
+        <Toast key={toast.id} {...toast} />
       ))}
     </div>,
     document.body,

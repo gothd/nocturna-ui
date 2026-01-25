@@ -1,39 +1,41 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SoulTabs } from "../Tabs";
+import { Tabs } from "../Tabs";
 
 const tabs = [
   { id: "tab1", label: "Aba 1", content: "Conteúdo 1" },
   { id: "tab2", label: "Aba 2", content: "Conteúdo 2" },
 ];
 
-describe("SoulTabs", () => {
-  it("deve renderizar os botões das abas e o conteúdo da primeira aba ativa", () => {
-    render(<SoulTabs tabs={tabs} />);
+describe("Tabs", () => {
+  it("deve renderizar e aplicar estilos da variante primary (padrão)", () => {
+    render(<Tabs tabs={tabs} variant="primary" />);
 
-    expect(screen.getByRole("tab", { name: "Aba 1" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    expect(screen.getByRole("tab", { name: "Aba 2" })).toHaveAttribute(
-      "aria-selected",
-      "false",
-    );
-
-    expect(screen.getByText("Conteúdo 1")).toBeVisible();
-    // Conteúdo 2 existe no DOM mas está hidden
-    expect(screen.getByText("Conteúdo 2")).not.toBeVisible();
+    const activeTab = screen.getByRole("tab", { name: "Aba 1" });
+    expect(activeTab).toHaveAttribute("aria-selected", "true");
+    // Primary active style: bg-white text-black
+    expect(activeTab.className).toContain("bg-white");
   });
 
-  it("deve alternar conteúdo ao clicar na aba", () => {
-    render(<SoulTabs tabs={tabs} />);
+  it("deve aplicar estilos da variante secondary na aba ativa", () => {
+    render(<Tabs tabs={tabs} variant="secondary" />);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Aba 2" }));
+    const activeTab = screen.getByRole("tab", { name: "Aba 1" });
+    // Secondary active style: bg-secondary text-black
+    expect(activeTab.className).toContain("bg-secondary");
+  });
 
-    expect(screen.getByRole("tab", { name: "Aba 2" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+  it("deve navegar entre abas com as setas do teclado", () => {
+    render(<Tabs tabs={tabs} />);
+    const tab1 = screen.getByRole("tab", { name: "Aba 1" });
+
+    // Foca na primeira aba e aperta Seta Direita
+    tab1.focus();
+    fireEvent.keyDown(tab1, { key: "ArrowRight" });
+
+    // A segunda aba deve estar ativa e focada
+    const tab2 = screen.getByRole("tab", { name: "Aba 2" });
+    expect(tab2).toHaveAttribute("aria-selected", "true");
+    expect(tab2).toHaveFocus();
     expect(screen.getByText("Conteúdo 2")).toBeVisible();
-    expect(screen.getByText("Conteúdo 1")).not.toBeVisible();
   });
 });

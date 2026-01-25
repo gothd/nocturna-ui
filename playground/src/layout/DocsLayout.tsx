@@ -1,11 +1,11 @@
-import { AbyssSeparator } from "nocturna-ui";
+import { Separator } from "nocturna-ui";
 import { NavLink, Outlet } from "react-router-dom";
 import styled from "styled-components";
 
 const LayoutContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  background-color: #000;
+  background-color: #050505; /* Abyss Black */
   color: #fff;
   font-family: "Playfair Display", serif;
 
@@ -34,6 +34,7 @@ const Logo = styled(NavLink)`
   line-height: 0.9;
   letter-spacing: -0.04em;
   margin-bottom: 1.5rem;
+  text-decoration: none;
   background: linear-gradient(to bottom, #fff, #71717a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -41,8 +42,10 @@ const Logo = styled(NavLink)`
   span {
     font-family: serif;
     font-style: italic;
-    color: #ef4444; /* red-500 */
-    -webkit-text-fill-color: #ef4444;
+    /* Cyber Goth Accent (Phantom Pink) */
+    color: #ff007f;
+    -webkit-text-fill-color: #ff007f;
+    text-shadow: 0px 0px 8px rgba(255, 0, 127, 0.5);
   }
 `;
 
@@ -57,18 +60,21 @@ const StyledLink = styled(NavLink)`
   color: #a1a1aa;
   font-size: 0.9rem;
   padding: 0.5rem;
-  border-radius: 4px;
+  border-radius: 0;
   transition: all 0.2s;
   font-family: system-ui, sans-serif;
+  border-left: 1px solid transparent;
 
   &:hover {
     color: #fff;
     background-color: #18181b;
+    border-left-color: #52525b;
   }
 
   &.active {
     color: #fff;
-    background-color: #27272a;
+    background-color: #101010;
+    /* Active Border: Primary (White) */
     border-left: 2px solid #fff;
   }
 `;
@@ -110,7 +116,7 @@ export const DocsLayout = () => {
           Nocturna <span>UI</span>
         </Logo>
 
-        <AbyssSeparator label="Componentes" variant="void" />
+        <Separator label="Componentes" variant="primary" />
 
         <NavList>
           {nav

@@ -1,27 +1,40 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { VeinInput } from "../Input";
+import { Input } from "../Input";
 
-describe("VeinInput", () => {
+describe("Input", () => {
   it("deve renderizar label e input", () => {
-    render(<VeinInput label="Nome" placeholder="Digite seu nome" />);
+    render(<Input label="Nome" placeholder="Digite seu nome" />);
     expect(screen.getByLabelText("Nome")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Digite seu nome")).toBeInTheDocument();
   });
 
-  it("deve mostrar mensagem de erro e aplicar aria-invalid", () => {
-    render(<VeinInput label="Email" error="Email inválido" />);
-    const input = screen.getByLabelText("Email");
+  it("deve aplicar a variante accent no estado normal", () => {
+    render(<Input label="Senha" variant="accent" />);
+    const input = screen.getByLabelText("Senha");
+    expect(input.className).toContain("border-accent");
+    expect(input.className).toContain("text-accent");
+  });
 
-    expect(screen.getByText("Email inválido")).toBeInTheDocument();
+  it("deve forçar estilo danger quando houver erro", () => {
+    // Mesmo pedindo variante 'primary', o erro deve vencer
+    render(<Input label="Email" variant="primary" error="Email inválido" />);
+
+    const input = screen.getByLabelText("Email");
+    const errorMessage = screen.getByText("Email inválido");
+
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage.className).toContain("text-danger");
+
+    // O input deve ter borda danger
+    expect(input.className).toContain("border-danger");
+
+    // Acessibilidade
     expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAttribute(
-      "aria-describedby",
-      expect.stringContaining("error"),
-    );
+    expect(input).toHaveAttribute("aria-describedby", expect.stringContaining("error"));
   });
 
   it("deve aceitar digitação", () => {
-    render(<VeinInput label="Teste" />);
+    render(<Input label="Teste" />);
     const input = screen.getByLabelText("Teste") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "Novo Valor" } });
     expect(input.value).toBe("Novo Valor");

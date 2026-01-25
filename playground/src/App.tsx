@@ -1,4 +1,4 @@
-import { OmenToastProvider } from "nocturna-ui";
+import { ToastProvider } from "nocturna-ui";
 import { HashRouter, Route, Routes } from "react-router-dom"; // Troca para HashRouter
 import { DocsLayout } from "./layout/DocsLayout";
 import { AccordionPage } from "./pages/AccordionPage";
@@ -21,7 +21,7 @@ import { ToastPage } from "./pages/ToastPage";
 
 function App() {
   return (
-    <OmenToastProvider>
+    <ToastProvider>
       <HashRouter>
         <Routes>
           <Route path="/" element={<DocsLayout />}>
@@ -46,14 +46,12 @@ function App() {
 
             <Route
               path="*"
-              element={
-                <div className="p-10">Página não encontrada no abismo.</div>
-              }
+              element={<div className="p-10">Página não encontrada no abismo.</div>}
             />
           </Route>
         </Routes>
       </HashRouter>
-    </OmenToastProvider>
+    </ToastProvider>
   );
 }
 

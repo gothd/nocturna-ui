@@ -1,14 +1,12 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface SpectreSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Define o tema visual do esqueleto.
-   * - `void`: Cinza escuro/preto (Padrão).
-   * - `blood`: Vermelho escuro translúcido.
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /** Largura manual (ex: "100%", 200). */
   width?: string | number;
   /** Altura manual (ex: "1rem", 40). */
@@ -23,20 +21,22 @@ interface SpectreSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
  * Possui `aria-hidden="true"` automaticamente, pois é um elemento puramente visual
  * e não deve ser lido por leitores de tela.
  */
-export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
-  ({ variant = "void", width, height, className, style, ...props }, ref) => {
+export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
+  ({ variant = "primary", width, height, className, style, ...props }, ref) => {
+    // Skeletons usam cores de fundo muito sutis e bordas correspondentes
+    const variantStyles = {
+      primary: "border-zinc-800 bg-zinc-900",
+      secondary: "border-secondary/30 bg-secondary/10",
+      accent: "border-accent/30 bg-accent/10",
+      danger: "border-danger/30 bg-danger/10",
+      warning: "border-warning/30 bg-warning/10",
+    };
+
     return (
       <div
         ref={ref}
         aria-hidden="true" // Skeletons são visuais, leitores de tela devem ignorar
-        className={cn(
-          "animate-pulse border-2",
-          // Variant Logic
-          variant === "void"
-            ? "border-zinc-800 bg-zinc-900"
-            : "border-red-950 bg-red-950/30",
-          className,
-        )}
+        className={cn("animate-pulse border-2", variantStyles[variant], className)}
         style={{
           width,
           height,
@@ -47,16 +47,16 @@ export const SpectreSkeleton = forwardRef<HTMLDivElement, SpectreSkeletonProps>(
     );
   },
 );
-SpectreSkeleton.displayName = "SpectreSkeleton";
+Skeleton.displayName = "Skeleton";
 
 // --- PRESETS (Line, Avatar, Card) ---
 
-interface SpectreSkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Define o tema visual do esqueleto.
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /**
    * Largura manual.
    * @default "100%"
@@ -73,19 +73,13 @@ interface SpectreSkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> 
  * Wrapper conveniente para simular linhas de texto.
  * Altura padrão de 1rem.
  */
-export const SpectreSkeletonLine = forwardRef<
-  HTMLDivElement,
-  SpectreSkeletonLineProps
->((props, ref) => {
+export const SkeletonLine = forwardRef<HTMLDivElement, SkeletonLineProps>((props, ref) => {
   const { width = "100%", height = "1rem", ...rest } = props;
-  return <SpectreSkeleton ref={ref} width={width} height={height} {...rest} />;
+  return <Skeleton ref={ref} width={width} height={height} {...rest} />;
 });
-SpectreSkeletonLine.displayName = "SpectreSkeletonLine";
+SkeletonLine.displayName = "SkeletonLine";
 
-interface SpectreSkeletonAvatarProps extends Omit<
-  SpectreSkeletonProps,
-  "width" | "height"
-> {
+interface SkeletonAvatarProps extends Omit<SkeletonProps, "width" | "height"> {
   /**
    * Tamanhos predefinidos para avatares.
    * - `sm`: 32px (w-8)
@@ -99,28 +93,21 @@ interface SpectreSkeletonAvatarProps extends Omit<
 /**
  * Wrapper quadrado para simular avatares ou ícones de perfil.
  */
-export const SpectreSkeletonAvatar = forwardRef<
-  HTMLDivElement,
-  SpectreSkeletonAvatarProps
->(({ size = "md", className, ...props }, ref) => {
-  const sizeClasses = {
-    sm: "w-8 h-8",
-    md: "w-12 h-12",
-    lg: "w-16 h-16",
-  };
+export const SkeletonAvatar = forwardRef<HTMLDivElement, SkeletonAvatarProps>(
+  ({ size = "md", className, ...props }, ref) => {
+    const sizeClasses = {
+      sm: "w-8 h-8",
+      md: "w-12 h-12",
+      lg: "w-16 h-16",
+    };
 
-  return (
-    <SpectreSkeleton
-      ref={ref}
-      className={cn(sizeClasses[size], className)}
-      {...props}
-    />
-  );
-});
-SpectreSkeletonAvatar.displayName = "SpectreSkeletonAvatar";
+    return <Skeleton ref={ref} className={cn(sizeClasses[size], className)} {...props} />;
+  },
+);
+SkeletonAvatar.displayName = "SkeletonAvatar";
 
-interface SpectreSkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "void" | "blood";
+interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /** Número de linhas de texto simuladas no corpo do card. */
   lines?: number;
   /** Se verdadeiro, renderiza uma linha de título mais larga. */
@@ -131,40 +118,32 @@ interface SpectreSkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> 
  * Padrão composto que simula um Card completo (Título + Texto).
  * Útil para estados de loading de feeds ou grids.
  */
-export const SpectreSkeletonCard = forwardRef<
-  HTMLDivElement,
-  SpectreSkeletonCardProps
->(
-  (
-    { variant = "void", lines = 3, hasTitle = true, className, ...props },
-    ref,
-  ) => {
+export const SkeletonCard = forwardRef<HTMLDivElement, SkeletonCardProps>(
+  ({ variant = "primary", lines = 3, hasTitle = true, className, ...props }, ref) => {
+    // Container do card também segue o tema
+    const cardStyles = {
+      primary: "border-zinc-800 bg-black",
+      secondary: "border-secondary/30 bg-black",
+      accent: "border-accent/30 bg-black",
+      danger: "border-danger/30 bg-black",
+      warning: "border-warning/30 bg-black",
+    };
+
     return (
       <div
         ref={ref}
-        className={cn(
-          "border-2 p-6 max-w-sm w-full",
-          variant === "void"
-            ? "border-zinc-800 bg-black"
-            : "border-red-950 bg-black",
-          className,
-        )}
+        className={cn("border-2 p-6 max-w-sm w-full", cardStyles[variant], className)}
         {...props}
       >
         {/* Título simulado (Condicional) */}
         {hasTitle && (
-          <SpectreSkeletonLine
-            variant={variant}
-            height="1.5rem"
-            width="60%"
-            className="mb-4"
-          />
+          <SkeletonLine variant={variant} height="1.5rem" width="60%" className="mb-4" />
         )}
 
         {/* Linhas de corpo */}
         <div className="flex flex-col gap-2">
           {Array.from({ length: lines }).map((_, i) => (
-            <SpectreSkeletonLine
+            <SkeletonLine
               key={i}
               variant={variant}
               height="0.875rem"
@@ -177,4 +156,4 @@ export const SpectreSkeletonCard = forwardRef<
     );
   },
 );
-SpectreSkeletonCard.displayName = "SpectreSkeletonCard";
+SkeletonCard.displayName = "SkeletonCard";

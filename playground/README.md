@@ -24,9 +24,9 @@ O playground estará acessível em `http://localhost:5173/nocturna-ui/`.
 
 ## 📦 Estrutura
 
-- **`src/pages`**: Contém as páginas de exemplo para cada componente.
-- **`src/examples`**: Exemplos de código limpos exibidos no `DocsViewer`.
-- **`src/layout`**: Layout principal da documentação (Sidebar, Header).
+- **`src/pages`**: Páginas de documentação para cada componente.
+- **`src/examples`**: Exemplos de código "Copy & Paste" exibidos no site.
+- **`src/layout`**: Layout principal (Sidebar, Tema Cyber Goth).
 - **`vite.config.ts`**: Configurado com um plugin customizado para extrair JSDocs dos componentes automaticamente.
 
 ## 🚀 Deploy (GitHub Pages)

@@ -1,7 +1,7 @@
 import React, { type ReactNode } from "react";
 import styled from "styled-components";
 import Markdown from "react-markdown";
-import { AbyssSeparator, NocturnaCard, SigilBadge } from "nocturna-ui";
+import { Separator, Card, Badge } from "nocturna-ui";
 
 interface DocgenType {
   name: string;
@@ -51,7 +51,7 @@ const ViewerWrapper = styled.div`
 
 const HeaderSection = styled.div`
   padding: 2rem 1.5rem;
-  background-color: #000;
+  background-color: #050505;
   @media (max-width: 768px) {
     padding: 1.5rem;
   }
@@ -63,9 +63,6 @@ const ComponentTitle = styled.h2`
   color: #fff;
   margin-bottom: 0.75rem;
   letter-spacing: -0.025em;
-  @media (min-width: 768px) {
-    font-size: 2.5rem;
-  }
 `;
 
 const PresetTitle = styled.h3`
@@ -74,9 +71,6 @@ const PresetTitle = styled.h3`
   color: #fff;
   margin-bottom: 0.75rem;
   letter-spacing: -0.025em;
-  @media (min-width: 768px) {
-    font-size: 1.75rem;
-  }
 `;
 
 const ComponentDescription = styled.div`
@@ -86,7 +80,6 @@ const ComponentDescription = styled.div`
   line-height: 1.75;
   max-width: 48rem;
 
-  /* Estilos para Markdown */
   strong {
     color: #fff;
     font-weight: 600;
@@ -103,24 +96,12 @@ const ComponentDescription = styled.div`
   p {
     margin-bottom: 0.75rem;
   }
-  p:last-child {
-    margin-bottom: 0;
-  }
-  ul {
-    list-style: disc;
-    padding-left: 1.5rem;
-    margin-bottom: 0.75rem;
-  }
-  li {
-    margin-bottom: 0.25rem;
-  }
 `;
 
 const PresetDescription = styled(ComponentDescription)`
   font-size: 1rem;
 `;
 
-// Header da Tabela
 const GridHeader = styled.div`
   display: none;
   @media (min-width: 768px) {
@@ -149,7 +130,7 @@ const PropRow = styled.div`
   padding: 1.5rem;
   border-bottom: 1px solid rgba(24, 24, 27, 0.5);
   transition: background-color 0.2s;
-  position: relative; /* Contexto para o sticky do filho */
+  position: relative;
 
   &:hover {
     background-color: rgba(24, 24, 27, 0.3);
@@ -167,20 +148,18 @@ const PropRow = styled.div`
 `;
 
 const NameCol = styled.div`
-  /* Mobile: Sticky ativado */
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #000; /* Fundo opaco para não misturar texto ao rolar */
-  margin: -1.5rem -1.5rem 0 -1.5rem; /* Compensa o padding do PropRow */
-  padding: 1.5rem 1.5rem 1rem 1.5rem; /* Recoloca o padding + respiro */
-  border-bottom: 1px solid #18181b; /* Separador sutil no mobile */
+  background-color: #050505;
+  margin: -1.5rem -1.5rem 0 -1.5rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #18181b;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 
-  /* Desktop: Sticky removido */
   @media (min-width: 768px) {
     grid-column: span 3 / span 3;
-    position: static; /* Remove sticky */
+    position: static;
     background-color: transparent;
     margin: 0;
     padding: 0;
@@ -202,16 +181,18 @@ const PropNameWrapper = styled.div`
 const PropName = styled.span`
   font-family: monospace;
   font-size: 0.875rem;
-  color: #ddd6fe;
+  /* Accent Pink para destacar chaves de propriedade */
+  color: #ff007f;
   font-weight: 700;
   word-break: break-all;
 `;
 
 const RequiredBadge = styled.span`
   font-size: 0.625rem;
-  color: #ef4444;
-  border: 1px solid rgba(127, 29, 29, 0.5);
-  background-color: rgba(69, 10, 10, 0.1);
+  /* Danger Red */
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  background-color: rgba(220, 38, 38, 0.1);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   text-transform: uppercase;
@@ -261,7 +242,6 @@ const DescriptionText = styled.div`
   line-height: 1.6;
   text-wrap: balance;
 
-  /* Estilos para Markdown dentro da tabela */
   strong {
     color: #fff;
     font-weight: 600;
@@ -277,17 +257,6 @@ const DescriptionText = styled.div`
   }
   p {
     margin-bottom: 0.5rem;
-  }
-  p:last-child {
-    margin-bottom: 0;
-  }
-  ul {
-    list-style: disc;
-    padding-left: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-  li {
-    margin-bottom: 0.25rem;
   }
 `;
 
@@ -323,32 +292,19 @@ const formatType = (type: DocgenType): string[] => {
     parts = parts.replace(/^\(|\)$/g, "");
   }
   // Se for objeto literal ou arrow function retorna em um array
-  if (
-    typeof parts === "string" &&
-    (parts.startsWith("{") || parts.startsWith("("))
-  ) {
+  if (typeof parts === "string" && (parts.startsWith("{") || parts.startsWith("("))) {
     return [parts];
   }
   return parts.split(" | ");
 };
 
-export const DocsViewer = ({
-  children,
-  component,
-  presets,
-}: DocsViewerProps) => {
+export const DocsViewer = ({ children, component, presets }: DocsViewerProps) => {
   const docs = component.__docgenInfo;
-  const presetsDocs =
-    presets && presets.map((p) => p.__docgenInfo).filter((p) => !!p);
+  const presetsDocs = presets && presets.map((p) => p.__docgenInfo).filter((p) => !!p);
   console.log(docs);
 
   if (!docs) {
-    return (
-      <ErrorBox>
-        Documentação não encontrada. Verifique se o componente está na pasta
-        src/components e se o plugin do Vite está ativo.
-      </ErrorBox>
-    );
+    return <ErrorBox>Documentação não encontrada.</ErrorBox>;
   }
 
   const hasProps = Object.keys(docs.props).length > 0;
@@ -356,7 +312,7 @@ export const DocsViewer = ({
   return (
     <ViewerWrapper>
       {/* Overflow visible para sticky funcionar */}
-      <NocturnaCard variant="void" style={{ padding: 0, overflow: "visible" }}>
+      <Card variant="primary" style={{ padding: 0, overflow: "visible" }}>
         <HeaderSection>
           <ComponentTitle>{docs.displayName}</ComponentTitle>
           <ComponentDescription>
@@ -368,14 +324,10 @@ export const DocsViewer = ({
         {children}
 
         <div className="hidden md:block">
-          <AbyssSeparator
-            label="API Reference"
-            variant="void"
-            style={{ margin: 0 }}
-          />
+          <Separator label="API Reference" variant="primary" style={{ margin: 0 }} />
         </div>
         <div className="block md:hidden">
-          <AbyssSeparator label="API" variant="void" style={{ margin: 0 }} />
+          <Separator label="API" variant="primary" style={{ margin: 0 }} />
         </div>
 
         {hasProps ? (
@@ -397,9 +349,7 @@ export const DocsViewer = ({
                     <NameCol>
                       <PropNameWrapper>
                         <PropName>{prop.name}</PropName>
-                        {prop.required && (
-                          <RequiredBadge>Obrigatório</RequiredBadge>
-                        )}
+                        {prop.required && <RequiredBadge>Obrigatório</RequiredBadge>}
                       </PropNameWrapper>
                     </NameCol>
 
@@ -408,14 +358,12 @@ export const DocsViewer = ({
                       <TypeBadgesWrapper>
                         {formatType(prop.type).map((typePart) => (
                           <div key={typePart} style={{ maxWidth: "100%" }}>
-                            <SigilBadge
+                            <Badge
                               size="sm"
-                              variant="void"
+                              variant="accent"
                               styleType="outline"
                               style={{
                                 textTransform: "none",
-                                borderColor: "#3f3f46",
-                                color: "#d4d4d8",
                                 fontFamily: "monospace",
                                 whiteSpace: "normal",
                                 textAlign: "left",
@@ -423,7 +371,7 @@ export const DocsViewer = ({
                               }}
                             >
                               {typePart.replace(/^"|"$/g, "")}
-                            </SigilBadge>
+                            </Badge>
                           </div>
                         ))}
                       </TypeBadgesWrapper>
@@ -433,9 +381,7 @@ export const DocsViewer = ({
                       <MobileLabel>Padrão</MobileLabel>
                       <div>
                         {prop.defaultValue ? (
-                          <DefaultValue>
-                            {prop.defaultValue.value.replace(/"/g, "")}
-                          </DefaultValue>
+                          <DefaultValue>{prop.defaultValue.value.replace(/"/g, "")}</DefaultValue>
                         ) : (
                           <span
                             style={{
@@ -456,9 +402,7 @@ export const DocsViewer = ({
                         {prop.description ? (
                           <Markdown>{prop.description}</Markdown>
                         ) : (
-                          <span style={{ fontStyle: "italic", opacity: 0.3 }}>
-                            Sem descrição disponível.
-                          </span>
+                          <span style={{ fontStyle: "italic", opacity: 0.3 }}>Sem descrição.</span>
                         )}
                       </DescriptionText>
                     </DataCol>
@@ -489,13 +433,10 @@ export const DocsViewer = ({
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     {(Object.values(docs.props) as DocgenProp[]).map((prop) => (
                       <PropRow key={prop.name}>
-                        {/* Nome da Propriedade (Sticky no Mobile) */}
                         <NameCol>
                           <PropNameWrapper>
                             <PropName>{prop.name}</PropName>
-                            {prop.required && (
-                              <RequiredBadge>Obrigatório</RequiredBadge>
-                            )}
+                            {prop.required && <RequiredBadge>Obrigatório</RequiredBadge>}
                           </PropNameWrapper>
                         </NameCol>
 
@@ -504,14 +445,12 @@ export const DocsViewer = ({
                           <TypeBadgesWrapper>
                             {formatType(prop.type).map((typePart) => (
                               <div key={typePart} style={{ maxWidth: "100%" }}>
-                                <SigilBadge
+                                <Badge
                                   size="sm"
-                                  variant="void"
+                                  variant="accent"
                                   styleType="outline"
                                   style={{
                                     textTransform: "none",
-                                    borderColor: "#3f3f46",
-                                    color: "#d4d4d8",
                                     fontFamily: "monospace",
                                     whiteSpace: "normal",
                                     textAlign: "left",
@@ -519,7 +458,7 @@ export const DocsViewer = ({
                                   }}
                                 >
                                   {typePart.replace(/^"|"$/g, "")}
-                                </SigilBadge>
+                                </Badge>
                               </div>
                             ))}
                           </TypeBadgesWrapper>
@@ -552,10 +491,8 @@ export const DocsViewer = ({
                             {prop.description ? (
                               <Markdown>{prop.description}</Markdown>
                             ) : (
-                              <span
-                                style={{ fontStyle: "italic", opacity: 0.3 }}
-                              >
-                                Sem descrição disponível.
+                              <span style={{ fontStyle: "italic", opacity: 0.3 }}>
+                                Sem descrição.
                               </span>
                             )}
                           </DescriptionText>
@@ -568,11 +505,9 @@ export const DocsViewer = ({
             ))}
           </>
         ) : (
-          <EmptyState>
-            Este componente é puro e não aceita configurações externas.
-          </EmptyState>
+          <EmptyState>Este componente é puro e não aceita configurações externas.</EmptyState>
         )}
-      </NocturnaCard>
+      </Card>
     </ViewerWrapper>
   );
 };

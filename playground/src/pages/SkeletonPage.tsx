@@ -1,9 +1,4 @@
-import {
-  Skeleton,
-  SpectreSkeletonAvatar,
-  SpectreSkeletonCard,
-  SpectreSkeletonLine,
-} from "nocturna-ui";
+import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonLine } from "nocturna-ui";
 import { DocsViewer, type ComponentWithDocgen } from "../components/DocsViewer";
 import { ComponentShowcase } from "../components/ComponentShowcase";
 
@@ -14,13 +9,7 @@ export const SkeletonPage = () => {
   return (
     <DocsViewer
       component={Skeleton as ComponentWithDocgen}
-      presets={
-        [
-          SpectreSkeletonLine,
-          SpectreSkeletonCard,
-          SpectreSkeletonAvatar,
-        ] as ComponentWithDocgen[]
-      }
+      presets={[SkeletonLine, SkeletonCard, SkeletonAvatar] as ComponentWithDocgen[]}
     >
       <ComponentShowcase title="Uso Básico" code={basicUsageSource}>
         <BasicUsage />

@@ -1,26 +1,34 @@
 import { render, screen } from "@testing-library/react";
-import { SigilBadge } from "../Badge";
+import { Badge } from "../Badge";
 
-describe("SigilBadge", () => {
+describe("Badge", () => {
   it("deve renderizar o children corretamente", () => {
-    render(<SigilBadge>Status</SigilBadge>);
+    render(<Badge>Status</Badge>);
     expect(screen.getByText("Status")).toBeInTheDocument();
   });
 
-  it("deve aplicar classes da variante blood", () => {
-    render(<SigilBadge variant="blood">Blood</SigilBadge>);
-    const badge = screen.getByText("Blood");
-    expect(badge.className).toContain("text-red-600");
+  it("deve aplicar classes da variante accent", () => {
+    render(<Badge variant="accent">New</Badge>);
+    const badge = screen.getByText("New");
+    expect(badge.className).toContain("text-accent");
+    expect(badge.className).toContain("border-accent");
   });
 
-  it("deve aplicar estilo solid", () => {
+  it("deve aplicar estilo solid corretamente", () => {
     render(
-      <SigilBadge styleType="solid" variant="void">
-        Solid
-      </SigilBadge>,
+      <Badge styleType="solid" variant="secondary">
+        Success
+      </Badge>,
     );
-    const badge = screen.getByText("Solid");
-    expect(badge.className).toContain("bg-white");
+    const badge = screen.getByText("Success");
+    expect(badge.className).toContain("bg-secondary");
+    // No tema solid secondary, o texto é preto
     expect(badge.className).toContain("text-black");
+  });
+
+  it("deve aplicar tamanho small", () => {
+    render(<Badge size="sm">Small</Badge>);
+    const badge = screen.getByText("Small");
+    expect(badge.className).toContain("text-[10px]");
   });
 });

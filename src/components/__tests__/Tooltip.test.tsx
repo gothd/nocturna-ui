@@ -1,26 +1,54 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { RuneTooltip } from "../Tooltip";
+import { Tooltip } from "../Tooltip";
 
-describe("RuneTooltip", () => {
-  it("deve mostrar o tooltip ao passar o mouse (hover)", () => {
+describe("Tooltip", () => {
+  it("deve mostrar o tooltip ao passar o mouse", () => {
     render(
-      <RuneTooltip content="Informação Secreta">
+      <Tooltip content="Info" variant="accent">
         <button>Hover Me</button>
-      </RuneTooltip>,
+      </Tooltip>,
     );
 
-    // O tooltip começa no documento, mas invisível (opacity-0) ou fora da tela.
-    const tooltipContent = screen.getByText("Informação Secreta");
+    const tooltip = screen.getByRole("tooltip", { hidden: true }); // hidden: true pois começa opacity-0
+    expect(tooltip).toBeInTheDocument();
 
-    // Verifica estado inicial (invisível)
-    expect(tooltipContent.className).toContain("opacity-0");
+    // Verifica se tem as classes da variante Accent
+    expect(tooltip.className).toContain("border-accent");
+    expect(tooltip.className).toContain("text-accent");
 
     // Simula Hover
     fireEvent.mouseEnter(screen.getByText("Hover Me"));
-    expect(tooltipContent.className).toContain("opacity-100");
+    expect(tooltip.className).toContain("opacity-100");
+  });
 
-    // Simula Saída
-    fireEvent.mouseLeave(screen.getByText("Hover Me"));
-    expect(tooltipContent.className).toContain("opacity-0");
+  it("deve aplicar classes de posicionamento (bottom)", () => {
+    render(
+      <Tooltip content="Info" position="bottom">
+        <button>Btn</button>
+      </Tooltip>,
+    );
+
+    const tooltip = screen.getByRole("tooltip", { hidden: true });
+    // Verifica lógica de posicionamento (top-full, mt-2, etc)
+    expect(tooltip.className).toContain("top-full");
+  });
+
+  it("deve ser acessível via teclado (focus)", () => {
+    render(
+      <Tooltip content="Info">
+        <button>Focus Me</button>
+      </Tooltip>,
+    );
+
+    const button = screen.getByText("Focus Me");
+    const tooltip = screen.getByRole("tooltip", { hidden: true });
+
+    // Foca no botão
+    fireEvent.focus(button);
+    expect(tooltip.className).toContain("opacity-100");
+
+    // Remove o foco
+    fireEvent.blur(button);
+    expect(tooltip.className).toContain("opacity-0");
   });
 });

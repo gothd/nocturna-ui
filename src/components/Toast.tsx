@@ -3,12 +3,9 @@
 import { AlertTriangle, CheckCircle, Info, X, XCircle } from "lucide-react";
 import React, { forwardRef, useEffect, useState } from "react";
 import { cn } from "../utils/cn";
-import { VesselProgress } from "./Progress";
+import { Progress } from "./Progress";
 
-export type ToastVariant = "void" | "blood";
-export type ToastType = "info" | "success" | "warning" | "error";
-
-export interface OmenToastProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   /** ID único gerado automaticamente pelo Provider. */
   id: string;
   /** Título principal da notificação. */
@@ -17,11 +14,9 @@ export interface OmenToastProps extends React.HTMLAttributes<HTMLDivElement> {
   description?: string;
   /**
    * Define o tema visual.
-   * - `void`: Padrão monocromático.
-   * - `blood`: Tema avermelhado.
    * @default "void"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /**
    * Define o ícone semântico.
    * @default "info"
@@ -37,6 +32,16 @@ export interface OmenToastProps extends React.HTMLAttributes<HTMLDivElement> {
   onClose: (id: string) => void;
 }
 
+export type ToastType = Required<ToastProps>["type"];
+export type ToastVariant = Required<ToastProps>["variant"];
+
+const typeToVariantMap: Record<ToastType, ToastVariant> = {
+  info: "primary", // Info -> Branco
+  success: "secondary", // Success -> Verde
+  warning: "warning", // Warning -> Gold
+  error: "danger", // Error -> Vermelho
+};
+
 const iconMap: Record<ToastType, React.ReactNode> = {
   info: <Info size={20} strokeWidth={1.5} />,
   success: <CheckCircle size={20} strokeWidth={1.5} />,
@@ -48,14 +53,14 @@ const iconMap: Record<ToastType, React.ReactNode> = {
  * Componente de notificação flutuante (Toast).
  * Normalmente invocado via hook `useToast()`.
  */
-export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
+export const Toast = forwardRef<HTMLDivElement, ToastProps>(
   (
     {
       id,
       title,
       description,
-      variant = "void",
       type = "info",
+      variant,
       duration = 5000,
       onClose,
       className,
@@ -65,6 +70,24 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
   ) => {
     const [isExiting, setIsExiting] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+
+    const activeVariant = variant || typeToVariantMap[type];
+
+    const variantStyles = {
+      primary: "border-primary text-primary shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary text-secondary shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent text-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger text-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.3)]",
+      warning: "border-warning text-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const closeButtonStyles = {
+      primary: "text-zinc-500 hover:text-primary",
+      secondary: "text-zinc-500 hover:text-secondary",
+      accent: "text-zinc-500 hover:text-accent",
+      danger: "text-zinc-500 hover:text-danger",
+      warning: "text-zinc-500 hover:text-warning",
+    };
 
     // Lógica de Auto-Dismiss com Pause on Hover
     useEffect(() => {
@@ -92,12 +115,7 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
         onMouseLeave={() => setIsPaused(false)}
         className={cn(
           "pointer-events-auto relative w-full max-w-sm overflow-hidden border-2 bg-black p-4 shadow-xl transition-all duration-300",
-          // Variants
-          variant === "void" ? "border-white" : "border-red-900",
-          // Shadows (Hard)
-          variant === "void"
-            ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-            : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+          variantStyles[activeVariant],
           // Animations (Slide In / Fade Out)
           isExiting
             ? "translate-x-full opacity-0" // Saída
@@ -107,38 +125,23 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
         {...props}
       >
         <div className="flex items-start gap-4 mb-3">
-          <span
-            className={cn(
-              "shrink-0 mt-0.5",
-              variant === "void" ? "text-white" : "text-red-600",
-            )}
-          >
-            {iconMap[type]}
-          </span>
+          <span className="shrink-0 mt-0.5 text-current">{iconMap[type]}</span>
 
           <div className="flex-1 space-y-1">
-            <h4
-              className={cn(
-                "font-serif text-sm uppercase tracking-widest leading-none",
-                variant === "void" ? "text-white" : "text-red-600",
-              )}
-            >
+            <h4 className="font-serif text-sm uppercase tracking-widest leading-none text-current">
               {title}
             </h4>
             {description && (
-              <p className="text-zinc-500 text-xs font-sans leading-relaxed">
-                {description}
-              </p>
+              <p className="text-zinc-500 text-xs font-sans leading-relaxed">{description}</p>
             )}
           </div>
 
           <button
             onClick={handleClose}
             className={cn(
-              "shrink-0 transition-opacity duration-200 hover:opacity-70 focus:outline-none",
-              variant === "void"
-                ? "text-zinc-400 hover:text-white"
-                : "text-red-800 hover:text-red-600",
+              "shrink-0 transition-opacity duration-200 focus:outline-none",
+              closeButtonStyles[activeVariant],
+              "opacity-70 hover:opacity-100",
             )}
             aria-label="Fechar notificação"
           >
@@ -149,10 +152,10 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
         {/* Barra de progresso opcional para indicar tempo (Visual Flair) */}
         {duration > 0 && (
           <div className="absolute bottom-0 left-0 w-full">
-            <VesselProgress
+            <Progress
               mode="timer"
               duration={duration}
-              variant={variant}
+              variant={activeVariant}
               paused={isPaused}
               className="h-[2px] border-none shadow-none" // Override para ficar fininho
             />
@@ -163,4 +166,4 @@ export const OmenToast = forwardRef<HTMLDivElement, OmenToastProps>(
   },
 );
 
-OmenToast.displayName = "OmenToast";
+Toast.displayName = "Toast";

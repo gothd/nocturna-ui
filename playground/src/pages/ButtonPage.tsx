@@ -1,4 +1,4 @@
-import { VoidButton } from "nocturna-ui";
+import { Button } from "nocturna-ui";
 import { DocsViewer, type ComponentWithDocgen } from "../components/DocsViewer";
 import { ComponentShowcase } from "../components/ComponentShowcase";
 
@@ -7,7 +7,7 @@ import basicUsageSource from "../examples/button/BasicUsage?raw";
 
 export const ButtonPage = () => {
   return (
-    <DocsViewer component={VoidButton as ComponentWithDocgen}>
+    <DocsViewer component={Button as ComponentWithDocgen}>
       <ComponentShowcase title="Uso Básico" code={basicUsageSource}>
         <BasicUsage />
       </ComponentShowcase>

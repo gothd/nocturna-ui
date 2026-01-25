@@ -9,7 +9,7 @@ export interface RitualSelectOption {
   label: string;
 }
 
-interface RitualSelectProps extends Omit<
+export interface SelectProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "onChange" | "value"
 > {
@@ -48,11 +48,9 @@ interface RitualSelectProps extends Omit<
 
   /**
    * Define o tema visual.
-   * - `void`: Padrão monocromático.
-   * - `blood`: Tema avermelhado (Erro/Alerta).
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
    * Altura do componente.
@@ -68,15 +66,15 @@ interface RitualSelectProps extends Omit<
  * Select customizado (Combobox) com suporte a navegação por teclado e estética brutalista.
  * Substitui o `<select>` nativo para permitir estilização profunda do dropdown.
  */
-export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
+export const Select = forwardRef<HTMLButtonElement, SelectProps>(
   (
     {
       options,
       value,
       onChange,
-      placeholder = "Select...",
+      placeholder = "Selecionar...",
       label,
-      variant = "void",
+      variant = "primary",
       size = "md",
       className,
       ...props
@@ -85,34 +83,26 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
-
     const containerRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
-
     const selectedOption = options.find((opt) => opt.value === value);
 
     // Fecha ao clicar fora
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (
-          containerRef.current &&
-          !containerRef.current.contains(event.target as Node)
-        ) {
+        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
           setIsOpen(false);
           setHighlightedIndex(-1);
         }
       };
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     // Scroll automático para o item destacado
     useEffect(() => {
       if (isOpen && highlightedIndex >= 0 && listRef.current) {
-        const optionNode = listRef.current.children[
-          highlightedIndex
-        ] as HTMLElement;
+        const optionNode = listRef.current.children[highlightedIndex] as HTMLElement;
         if (optionNode) {
           optionNode.scrollIntoView({ block: "nearest" });
         }
@@ -139,15 +129,11 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
           break;
         case "ArrowDown":
           e.preventDefault();
-          setHighlightedIndex((prev) =>
-            prev < options.length - 1 ? prev + 1 : 0,
-          );
+          setHighlightedIndex((prev) => (prev < options.length - 1 ? prev + 1 : 0));
           break;
         case "ArrowUp":
           e.preventDefault();
-          setHighlightedIndex((prev) =>
-            prev > 0 ? prev - 1 : options.length - 1,
-          );
+          setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : options.length - 1));
           break;
         case "Enter":
         case " ":
@@ -163,6 +149,43 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
       }
     };
 
+    const labelStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
+    const triggerStyles = {
+      primary:
+        "border-primary focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary:
+        "border-secondary focus-visible:shadow-[6px_6px_0px_0px_rgba(0,255,65,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent:
+        "border-accent focus-visible:shadow-[6px_6px_0px_0px_rgba(255,0,127,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger:
+        "border-danger focus-visible:shadow-[6px_6px_0px_0px_rgba(220,38,38,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
+      warning:
+        "border-warning focus-visible:shadow-[6px_6px_0px_0px_rgba(255,215,0,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const dropdownBorderStyles = {
+      primary: "border-primary shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
+      warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const textStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
     return (
       <div className="flex flex-col gap-2 w-full">
         {label && (
@@ -170,7 +193,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
             className={cn(
               "font-serif text-sm uppercase tracking-widest cursor-pointer w-fit select-none",
-              variant === "void" ? "text-white" : "text-red-600",
+              labelStyles[variant],
               props.disabled && "opacity-50 cursor-not-allowed",
             )}
           >
@@ -190,28 +213,13 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
             disabled={props.disabled}
             className={cn(
               "w-full bg-black border-2 flex items-center justify-between transition-all duration-300 outline-none select-none text-left",
-              // Variant Colors
-              variant === "void" ? "border-white" : "border-red-900",
+              triggerStyles[variant],
               // Size
               size === "sm" && "px-2 py-1.5 min-h-[32px]",
               size === "md" && "px-4 py-3 min-h-[48px]",
               size === "lg" && "px-7 py-6 min-h-[64px]",
-              // Focus Styles
-              variant === "void"
-                ? "focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]"
-                : "focus-visible:shadow-[6px_6px_0px_0px_rgba(136,8,8,0.6)]",
-              // Hover Styles (Only if not disabled)
-              !props.disabled &&
-                (isOpen
-                  ? variant === "void"
-                    ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                    : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"
-                  : variant === "void"
-                    ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                    : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]"),
               // Disabled
-              props.disabled &&
-                "opacity-50 cursor-not-allowed hover:shadow-none",
+              props.disabled && "opacity-50 cursor-not-allowed hover:shadow-none",
               className,
             )}
             {...props}
@@ -219,11 +227,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
             <span
               className={cn(
                 "font-sans text-sm truncate pr-4 block",
-                selectedOption
-                  ? variant === "void"
-                    ? "text-white"
-                    : "text-red-600"
-                  : "text-zinc-600",
+                selectedOption ? textStyles[variant] : "text-zinc-600",
               )}
             >
               {selectedOption?.label || placeholder}
@@ -231,7 +235,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
             <ChevronDown
               size={18}
               className={cn(
-                variant === "void" ? "text-white" : "text-red-600",
+                textStyles[variant],
                 "transition-transform duration-300 flex-shrink-0",
                 isOpen && "rotate-180",
               )}
@@ -245,10 +249,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
               tabIndex={-1}
               className={cn(
                 "absolute top-full left-0 z-50 w-full mt-1 bg-black border-2 max-h-60 overflow-y-auto custom-scrollbar",
-                variant === "void" ? "border-white" : "border-red-900",
-                variant === "void"
-                  ? "shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-                  : "shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+                dropdownBorderStyles[variant],
               )}
             >
               {options.map((option, idx) => {
@@ -267,7 +268,7 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
                     onMouseEnter={() => setHighlightedIndex(idx)}
                     className={cn(
                       "px-4 py-3 cursor-pointer font-sans text-sm transition-colors duration-200",
-                      variant === "void" ? "text-white" : "text-red-600",
+                      textStyles[variant],
                       isActive ? "bg-zinc-800" : "bg-black",
                       isSelected && "font-bold tracking-wide bg-zinc-900",
                     )}
@@ -284,4 +285,4 @@ export const RitualSelect = forwardRef<HTMLButtonElement, RitualSelectProps>(
   },
 );
 
-RitualSelect.displayName = "RitualSelect";
+Select.displayName = "Select";

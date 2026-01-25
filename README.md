@@ -4,7 +4,7 @@
 
 A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de alto contraste, tipografia serifada e estética minimalista.
 
-Na **v0.0.5**, introduzimos o sistema de **Aliases**, permitindo importações mais limpas (ex: `Button` ao invés de `VoidButton`), e melhoramos a cobertura de testes.
+Na **v0.0.6**, introduzimos a identidade visual **Cyber Goth**, nomes de componentes padronizados (API Limpa) e tokens semânticos de cor.
 
 [![NPM Version](https://img.shields.io/npm/v/nocturna-ui?color=000000&label=npm&style=flat-square)](https://www.npmjs.com/package/nocturna-ui)
 [![Tests](https://github.com/gothd/nocturna-ui/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/gothd/nocturna-ui/actions)
@@ -38,23 +38,37 @@ npm install react react-dom framer-motion
 
 ## 🩸 Setup Inicial
 
-Para que os componentes funcionem corretamente, você deve importar o CSS global e envolver sua aplicação no `OmenToastProvider` (mesmo que não use notificações imediatamente, ele configura contextos globais).
+Importe o CSS global e envolva sua aplicação no `ToastProvider` para habilitar o sistema de notificações.
 
 ```tsx
 // No seu arquivo raiz (main.tsx ou App.tsx)
-import { OmenToastProvider } from "nocturna-ui";
+import { ToastProvider } from "nocturna-ui";
 import "nocturna-ui/style.css"; // ⚠️ Importação vital dos estilos
 
 export default function App({ children }) {
-  return <OmenToastProvider>{children}</OmenToastProvider>;
+  return <ToastProvider>{children}</ToastProvider>;
 }
 ```
 
 ---
 
-## 🕸️ Uso Básico (Aliases)
+## 🎨 Paleta Cyber Goth
 
-Você não precisa mais decorar nomes místicos como `VoidButton` ou `CryptModal`. Utilize os Aliases funcionais:
+A versão 0.0.6 introduz 5 variantes de cor principais que permeiam todos os componentes:
+
+| Token       | Cor (Hex) | Significado Semântico | Estética      |
+| ----------- | --------- | --------------------- | ------------- |
+| `primary`   | `#FFFFFF` | Padrão / Neutro       | Bone White    |
+| `secondary` | `#00FF41` | Sucesso               | Malware Green |
+| `accent`    | `#FF007F` | Destaque              | Phantom Pink  |
+| `danger`    | `#DC2626` | Erro / Perigo         | Sanguine Red  |
+| `warning`   | `#FFD700` | Alerta                | Cyber Gold    |
+
+---
+
+## 🕸️ Uso Básico
+
+Componentes padronizados e tipados:
 
 ```tsx
 import { Button, Card, Badge, useToast } from "nocturna-ui";
@@ -63,37 +77,29 @@ export const Ritual = () => {
   const { toast } = useToast();
 
   return (
-    <Card title="Invocação">
+    <Card title="Protocolo de Rede" variant="secondary">
       <div className="flex gap-4 mb-4">
-        <Badge variant="blood">Status: Pendente</Badge>
+        <Badge variant="secondary">Online</Badge>
+        <Badge variant="primary" styleType="solid">
+          v2.4
+        </Badge>
       </div>
 
       <Button
-        variant="void"
-        onClick={() => toast({ title: "Pacto Realizado", type: "success" })}
+        variant="accent"
+        onClick={() =>
+          toast({
+            title: "Upload Iniciado",
+            type: "success", // Automático: Usa cor secondary
+          })
+        }
       >
-        Confirmar
+        Transferir Dados
       </Button>
     </Card>
   );
 };
 ```
-
-### Tabela de Aliases
-
-| Alias      | Componente Original | Função               |
-| ---------- | ------------------- | -------------------- |
-| `Button`   | `VoidButton`        | Ações principais     |
-| `Input`    | `VeinInput`         | Entrada de dados     |
-| `Select`   | `RitualSelect`      | Seleção acessível    |
-| `Modal`    | `CryptModal`        | Diálogos e alertas   |
-| `Toast`    | `OmenToast`         | Notificações         |
-| `Menu`     | `AltarMenu`         | Dropdowns            |
-| `Tabs`     | `SoulTabs`          | Navegação em abas    |
-| `Card`     | `NocturnaCard`      | Container estrutural |
-| `Skeleton` | `SpectreSkeleton`   | Estados de loading   |
-
-_Consulte a [documentação completa](https://gothd.github.io/nocturna-ui/) para a lista total de props e variantes._
 
 ---
 
@@ -106,24 +112,20 @@ A biblioteca injeta uma ponte global `window.NocturnaUI` para uso sem bundlers.
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
 
-<script src="https://unpkg.com/nocturna-ui@0.0.5/dist/index.umd.js"></script>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/nocturna-ui@0.0.5/dist/style.css"
-/>
+<script src="https://unpkg.com/nocturna-ui@0.0.6/dist/index.umd.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/nocturna-ui@0.0.6/dist/style.css" />
 
 <div id="root"></div>
 
 <script>
   const { ToastProvider, Button } = window.NocturnaUI;
 
-  // Renderização manual necessária em Vanilla JS
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(React.createElement(ToastProvider));
 </script>
 ```
 
-_Veja o [exemplo de uso completo pela CDN, com o ToastProvider](./examples/cdn/index.html)._
+_Veja o [exemplo completo aqui](./examples/cdn/index.html)._
 
 ---
 
@@ -131,7 +133,7 @@ _Veja o [exemplo de uso completo pela CDN, com o ToastProvider](./examples/cdn/i
 
 ```bash
 npm test               # Roda testes unitários
-npm run test:coverage  # Relatório de cobertura
+npm run test:coverage  # Relatório detalhado
 ```
 
 Desenvolvido com 🖤 por **gothd**.

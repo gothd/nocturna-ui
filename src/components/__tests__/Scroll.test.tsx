@@ -1,32 +1,37 @@
 import { render, screen } from "@testing-library/react";
-import { AbyssScroll } from "../Scroll";
+import { Scroll } from "../Scroll";
 
-describe("AbyssScroll", () => {
-  it("deve renderizar children e aplicar classe de scrollbar", () => {
+describe("Scroll", () => {
+  it("deve renderizar children e aplicar max-height", () => {
     render(
-      <AbyssScroll variant="void" maxHeight="200px" className="custom-class">
+      <Scroll maxHeight="200px">
         <p>Conteúdo Longo</p>
-      </AbyssScroll>,
+      </Scroll>,
     );
 
     const content = screen.getByText("Conteúdo Longo");
     const container = content.parentElement;
-
-    expect(content).toBeInTheDocument();
     expect(container).toHaveStyle({ maxHeight: "200px" });
-    expect(container?.className).toContain("[scrollbar-color:white_black]");
-    expect(container?.className).toContain("custom-class");
   });
 
-  it("deve aplicar a classe blood quando variante é blood", () => {
+  it("deve aplicar estilos de scrollbar da variante danger", () => {
     render(
-      <AbyssScroll variant="blood">
-        <p>Conteúdo</p>
-      </AbyssScroll>,
+      <Scroll variant="danger">
+        <p>Erro</p>
+      </Scroll>,
     );
-    const content = screen.getByText("Conteúdo");
-    expect(content.parentElement?.className).toContain(
-      "[scrollbar-color:#7f1d1d_black]",
+    const container = screen.getByText("Erro").parentElement;
+    // Verifica tokens específicos do scrollbar-thumb
+    expect(container?.className).toContain("[&::-webkit-scrollbar-thumb]:bg-danger");
+  });
+
+  it("deve aplicar estilos de scrollbar da variante accent", () => {
+    render(
+      <Scroll variant="accent">
+        <p>Dados</p>
+      </Scroll>,
     );
+    const container = screen.getByText("Dados").parentElement;
+    expect(container?.className).toContain("[&::-webkit-scrollbar-thumb]:bg-accent");
   });
 });

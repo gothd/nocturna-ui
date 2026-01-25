@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface VesselProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Valor atual do progresso.
    * Utilizado apenas quando `mode="value"`.
@@ -17,11 +17,9 @@ interface VesselProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 
   /**
    * Define o tema visual da barra.
-   * - `void`: Padrão monocromático (Branco).
-   * - `blood`: Tema de perigo/erro (Vermelho Escuro).
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
    * Rótulo exibido acima da barra.
@@ -63,12 +61,12 @@ interface VesselProgressProps extends React.HTMLAttributes<HTMLDivElement> {
  * Barra de progresso multifuncional com estética brutalista.
  * Suporta exibição de valores percentuais, timers decrescentes e estados de carregamento indeterminado.
  */
-export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
+export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
   (
     {
       value = 0,
       max = 100,
-      variant = "void",
+      variant = "primary",
       label,
       showValue = false,
       mode = "value",
@@ -82,12 +80,32 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
     // Cálculo de porcentagem para o modo "value"
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
+    const borderStyles = {
+      primary: "border-primary shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary shadow-[4px_4px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent shadow-[4px_4px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger shadow-[4px_4px_0px_0px_rgba(220,38,38,0.2)]",
+      warning: "border-warning shadow-[4px_4px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const fillStyles = {
+      primary: "bg-primary",
+      secondary: "bg-secondary",
+      accent: "bg-accent",
+      danger: "bg-danger",
+      warning: "bg-warning",
+    };
+
+    const textStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
     return (
-      <div
-        ref={ref}
-        className={cn("flex flex-col gap-2 w-full", className)}
-        {...props}
-      >
+      <div ref={ref} className={cn("flex flex-col gap-2 w-full", className)} {...props}>
         {/* Cabeçalho (Label + Valor) */}
         {(label || (showValue && mode === "value")) && (
           <div className="flex justify-between items-end mb-1">
@@ -95,7 +113,7 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
               <span
                 className={cn(
                   "font-serif text-xs uppercase tracking-widest leading-none",
-                  variant === "void" ? "text-white" : "text-red-600",
+                  textStyles[variant],
                 )}
               >
                 {label}
@@ -105,7 +123,7 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
               <span
                 className={cn(
                   "font-sans text-xs font-bold tabular-nums leading-none",
-                  variant === "void" ? "text-white" : "text-red-600",
+                  textStyles[variant],
                 )}
               >
                 {Math.round(percentage)}%
@@ -123,9 +141,7 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
           className={cn(
             "h-4 w-full bg-black border-2 overflow-hidden relative",
             // Estilo da Borda e Sombra
-            variant === "void"
-              ? "border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]"
-              : "border-red-900 shadow-[4px_4px_0px_0px_rgba(136,8,8,0.3)]",
+            borderStyles[variant],
           )}
         >
           {/* A Barra de Preenchimento */}
@@ -133,7 +149,7 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
             className={cn(
               "h-full transition-all ease-linear",
               // Cores de Fundo
-              variant === "void" ? "bg-white" : "bg-red-900",
+              fillStyles[variant],
               // Lógica de Animação baseada no Modo
               mode === "value" && "duration-300", // Transição suave para mudanças de valor
               mode === "indeterminate" && "w-full animate-pulse origin-left", // Loading infinito
@@ -153,4 +169,4 @@ export const VesselProgress = forwardRef<HTMLDivElement, VesselProgressProps>(
   },
 );
 
-VesselProgress.displayName = "VesselProgress";
+Progress.displayName = "Progress";

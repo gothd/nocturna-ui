@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useToast, VoidButton, NocturnaCard } from "nocturna-ui";
+import { useToast, Button, Card } from "nocturna-ui";
 
 const Layout = styled.div`
   display: flex;
@@ -7,7 +7,6 @@ const Layout = styled.div`
   gap: 2rem;
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
 `;
 
 const ButtonGroup = styled.div`
@@ -21,83 +20,93 @@ export const BasicUsage = () => {
 
   return (
     <Layout>
-      <NocturnaCard title="Invocações (Toasts)">
-        <p
-          style={{
-            color: "#a1a1aa",
-            marginBottom: "1.5rem",
-            fontSize: "0.9rem",
-          }}
-        >
-          Utilize o hook <code>useToast()</code> para disparar notificações.
-          Elas persistem por 5 segundos por padrão ou até serem dispensadas.
+      <Card title="Central de Notificações">
+        <p style={{ color: "#a1a1aa", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
+          Dispare notificações flutuantes. As cores reagem automaticamente ao <code>type</code>{" "}
+          escolhido.
         </p>
 
         <ButtonGroup>
-          <VoidButton
+          <Button
             size="sm"
+            variant="secondary"
             onClick={() =>
               toast({
-                title: "Sincronização",
-                description: "Dados enviados para o abismo com sucesso.",
-                type: "success",
+                title: "Upload Concluído",
+                description: "Dados transferidos para o servidor local.",
+                type: "success", // Automático -> Secondary (Verde)
               })
             }
           >
             Success
-          </VoidButton>
+          </Button>
 
-          <VoidButton
+          <Button
             size="sm"
-            onClick={() =>
-              toast({
-                title: "Nova Mensagem",
-                description: "O sistema recebeu um sinal criptografado.",
-                type: "info",
-              })
-            }
-          >
-            Info
-          </VoidButton>
-
-          <VoidButton
-            size="sm"
+            variant="warning"
             onClick={() =>
               toast({
                 title: "Atenção",
-                description: "Níveis de entropia aumentando.",
-                type: "warning",
+                description: "Uso de memória acima de 80%.",
+                type: "warning", // Automático -> Warning (Gold)
               })
             }
           >
             Warning
-          </VoidButton>
-        </ButtonGroup>
-      </NocturnaCard>
+          </Button>
 
-      <NocturnaCard title="Protocolos de Sangue" variant="blood">
-        <ButtonGroup>
-          <VoidButton
-            variant="blood"
+          <Button
             size="sm"
+            variant="danger"
             onClick={() =>
               toast({
-                title: "Erro Crítico",
-                description: "Falha catastrófica no núcleo.",
-                variant: "blood",
-                type: "error",
-                duration: 0, // Persistente
+                title: "Falha Crítica",
+                description: "Não foi possível conectar ao banco de dados.",
+                type: "error", // Automático -> Danger (Vermelho)
               })
             }
           >
-            Erro Persistente
-          </VoidButton>
+            Error
+          </Button>
 
-          <VoidButton variant="void" size="sm" onClick={dismissAll}>
-            Limpar Tudo
-          </VoidButton>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() =>
+              toast({
+                title: "Nova Mensagem",
+                description: "Você recebeu um pacote de dados criptografado.",
+                type: "info", // Automático -> Primary (Branco)
+              })
+            }
+          >
+            Info
+          </Button>
         </ButtonGroup>
-      </NocturnaCard>
+      </Card>
+
+      <Card title="Controle Manual" variant="accent">
+        <ButtonGroup>
+          <Button variant="primary" size="sm" onClick={dismissAll}>
+            Limpar Tudo
+          </Button>
+
+          <Button
+            variant="accent"
+            size="sm"
+            onClick={() =>
+              toast({
+                title: "Estilo Forçado",
+                description: "Este toast usa variant='accent' explicitamente.",
+                variant: "accent",
+                type: "info",
+              })
+            }
+          >
+            Forçar Accent
+          </Button>
+        </ButtonGroup>
+      </Card>
     </Layout>
   );
 };

@@ -1,36 +1,57 @@
 import styled from "styled-components";
-import { VeinInput } from "nocturna-ui";
+import { Input, Card, Button } from "nocturna-ui";
 
 const Layout = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: 600px;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
 export const BasicUsage = () => {
   return (
     <Layout>
-      {/* Input Padrão */}
-      <VeinInput label="Nome de Usuário" placeholder="Digite seu codinome..." />
+      <Card title="Credenciais de Acesso">
+        <FormGroup>
+          <Input label="Usuário" placeholder="Digite seu codinome..." variant="primary" />
 
-      {/* Input com Erro */}
-      <VeinInput
-        label="Senha do Cofre"
-        type="password"
-        defaultValue="12345"
-        error="Senha muito fraca. O abismo exige mais complexidade."
-      />
+          <Input
+            label="Chave de Acesso (Accent)"
+            type="password"
+            placeholder="••••••••"
+            variant="accent"
+          />
 
-      {/* Variante Blood + Tamanho Small */}
-      <VeinInput
-        variant="blood"
-        size="sm"
-        label="Protocolo de Emergência"
-        placeholder="EX: CODE-RED"
-      />
+          <Input
+            label="Servidor de Destino (Secondary)"
+            defaultValue="192.168.0.X"
+            variant="secondary"
+          />
+        </FormGroup>
+      </Card>
+
+      <Card title="Validação de Erro" variant="danger">
+        <FormGroup>
+          <p style={{ color: "#a1a1aa", fontSize: "0.9rem" }}>
+            Quando a prop <code>error</code> é passada, o componente assume o estado{" "}
+            <strong>Danger</strong> automaticamente.
+          </p>
+
+          <Input
+            label="Email Corporativo"
+            defaultValue="admin@arasaka"
+            error="Domínio não autorizado. Violação de protocolo detectada."
+          />
+
+          <Button variant="danger">Tentar Novamente</Button>
+        </FormGroup>
+      </Card>
     </Layout>
   );
 };

@@ -1,61 +1,63 @@
+import { Accordion, Badge, Card } from "nocturna-ui";
 import styled from "styled-components";
-import { GrimoireAccordion } from "nocturna-ui";
 
-// Layout apenas para limitar a largura do exemplo
 const Layout = styled.div`
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 `;
 
 export const BasicUsage = () => {
-  // A estrutura de dados deve seguir o padrão: id, title, content
-  const faqItems = [
+  const systemItems = [
     {
-      id: "q1",
-      title: "O que é o Vazio?",
-      content:
-        "O Vazio é a ausência de cor e a presença de estrutura. Nossa UI prioriza contraste e forma sobre ornamentos desnecessários.",
-    },
-    {
-      id: "q2",
-      title: "Como instalar?",
+      id: "term",
+      title: "Terminal Root",
       content: (
-        <span>
-          Execute{" "}
-          <code style={{ color: "#ef4444" }}>npm install nocturna-ui</code> no
-          seu terminal.
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <p>Acesso de superusuário concedido.</p>
+          <code style={{ fontSize: "0.75rem", lineHeight: "1rem", color: "#71717a" }}>
+            $ sudo apt-get install nocturna-ui
+          </code>
+        </div>
       ),
     },
     {
-      id: "q3",
-      title: "Suporte a Animações?",
-      content:
-        "Utilizamos Framer Motion internamente para transições suaves de altura e opacidade.",
+      id: "cpu",
+      title: "Processamento Neural",
+      content: "Alocação de núcleos: 8/12. Temperatura estável em 45°C.",
+    },
+  ];
+
+  const securityItems = [
+    {
+      id: "firewall",
+      title: "Status do Firewall",
+      content: (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>Tráfego de entrada bloqueado.</span>
+          <Badge variant="danger" size="sm" styleType="solid">
+            BLOCK
+          </Badge>
+        </div>
+      ),
+    },
+    {
+      id: "breach",
+      title: "Relatório de Intrusão",
+      content: "Nenhuma tentativa de acesso não autorizado nas últimas 24h.",
     },
   ];
 
   return (
     <Layout>
-      {/* Exemplo Padrão (Void) */}
-      <GrimoireAccordion items={faqItems} />
+      <Card title="Documentação do Sistema">
+        <Accordion items={systemItems} variant="primary" />
+      </Card>
 
-      {/* Exemplo Variante Blood */}
-      <GrimoireAccordion
-        variant="blood"
-        items={[
-          {
-            id: "alert",
-            title: "Zona de Perigo",
-            content:
-              "Este acordeão utiliza o tema 'blood' para indicar ações destrutivas ou avisos críticos.",
-          },
-        ]}
-      />
+      <Card title="Protocolos de Segurança" variant="danger">
+        <Accordion items={securityItems} variant="danger" />
+      </Card>
     </Layout>
   );
 };

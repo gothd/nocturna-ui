@@ -1,14 +1,12 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface AbyssSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Define o tema visual das linhas e do texto.
-   * - `void`: Linhas brancas (Padrão).
-   * - `blood`: Linhas vermelho-sangue (Para áreas de perigo ou destaque).
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
    * Texto opcional exibido no centro do separador.
@@ -29,26 +27,35 @@ interface AbyssSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
  * Divisor visual com estética brutalista.
  * Cria uma linha horizontal (ou duas, se houver rótulo) para separar seções de conteúdo.
  */
-export const AbyssSeparator = forwardRef<HTMLDivElement, AbyssSeparatorProps>(
-  (
-    { variant = "void", label, as: Component = "div", className, ...props },
-    ref,
-  ) => {
+export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
+  ({ variant = "primary", label, as: Component = "div", className, ...props }, ref) => {
+    const borderStyles = {
+      primary: "border-primary",
+      secondary: "border-secondary",
+      accent: "border-accent",
+      danger: "border-danger",
+      warning: "border-warning",
+    };
+    const textStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
     return (
       <Component
         ref={ref}
         role={!label ? "separator" : undefined} // Se tiver label, deixa de ser puramente decorativo para leitores
-        className={cn(
-          "relative flex items-center py-8 w-full select-none",
-          className,
-        )}
+        className={cn("relative flex items-center py-8 w-full select-none", className)}
         {...props}
       >
         {/* Linha Esquerda */}
         <div
           className={cn(
             "flex-grow border-t-2 transition-colors duration-300",
-            variant === "void" ? "border-white" : "border-red-900",
+            borderStyles[variant],
           )}
         />
 
@@ -57,7 +64,7 @@ export const AbyssSeparator = forwardRef<HTMLDivElement, AbyssSeparatorProps>(
           <span
             className={cn(
               "flex-none px-4 font-serif text-sm uppercase tracking-[0.2em]",
-              variant === "void" ? "text-white" : "text-red-600",
+              textStyles[variant],
             )}
           >
             {label}
@@ -68,7 +75,7 @@ export const AbyssSeparator = forwardRef<HTMLDivElement, AbyssSeparatorProps>(
         <div
           className={cn(
             "flex-grow border-t-2 transition-colors duration-300",
-            variant === "void" ? "border-white" : "border-red-900",
+            borderStyles[variant],
           )}
         />
       </Component>
@@ -76,4 +83,4 @@ export const AbyssSeparator = forwardRef<HTMLDivElement, AbyssSeparatorProps>(
   },
 );
 
-AbyssSeparator.displayName = "AbyssSeparator";
+Separator.displayName = "Separator";

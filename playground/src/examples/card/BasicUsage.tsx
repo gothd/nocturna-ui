@@ -1,65 +1,64 @@
 import styled from "styled-components";
-import { NocturnaCard, VoidButton } from "nocturna-ui";
+import { Card, Button, Badge } from "nocturna-ui";
 
-// Grid layout para organizar os cards lado a lado
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
+  gap: 2rem;
+`;
+
+const Content = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 export const BasicUsage = () => {
   return (
     <Grid>
-      {/* 1. Card Simples (Apenas Children) */}
-      <NocturnaCard>
-        <p style={{ color: "#a1a1aa" }}>
-          Um card básico sem título. O conteúdo interno é livre e o container
-          aplica o padding e as bordas padrão.
-        </p>
-      </NocturnaCard>
+      {/* Exemplo Primary */}
+      <Card title="Sistema Neural" description="Conexão estável.">
+        <Content>
+          <p style={{ color: "#71717a", fontSize: "0.9rem" }}>
+            O núcleo processa dados em velocidade quântica. Nenhuma anomalia detectada.
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Badge variant="primary">Online</Badge>
+            <Badge variant="primary" styleType="solid">
+              V 2.0
+            </Badge>
+          </div>
+          <Button variant="primary" style={{ marginTop: "auto" }}>
+            Acessar Logs
+          </Button>
+        </Content>
+      </Card>
 
-      {/* 2. Card Completo (Título + Descrição + Ação) */}
-      <NocturnaCard
-        title="O Ritual"
-        description="Iniciação dos novos membros do círculo interno."
-        headingLevel="h2" // Semanticamente é um H2
-      >
-        <div style={{ marginTop: "1rem" }}>
-          <VoidButton size="sm" style={{ width: "100%" }}>
-            Confirmar Presença
-          </VoidButton>
-        </div>
-      </NocturnaCard>
+      {/* Exemplo Accent (Cyber Pink) */}
+      <Card title="Protocolo Phantom" description="Acesso Restrito detectado." variant="accent">
+        <Content>
+          <p style={{ color: "#71717a", fontSize: "0.9rem" }}>
+            Tentativa de intrusão no setor 7. Medidas de contra-ataque iniciadas.
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Badge variant="accent">Crítico</Badge>
+          </div>
+          <Button variant="accent">Neutralizar</Button>
+        </Content>
+      </Card>
 
-      {/* 3. Variante Blood (Alerta/Perigo) */}
-      <NocturnaCard
-        variant="blood"
-        title="Violação de Contrato"
-        description="Acesso negado ao servidor central."
-      >
-        <code style={{ color: "#ef4444", fontSize: "0.8rem" }}>
-          Error: 0x500 Internal Server Error
-        </code>
-      </NocturnaCard>
-
-      {/* 4. Polimorfismo (Renderizando como <article>) */}
-      <NocturnaCard
-        as="article"
-        title="Artigo Semântico"
-        description="Este card é renderizado como uma tag <article> no DOM."
-      >
-        <span
-          style={{
-            fontSize: "0.75rem",
-            color: "#71717a",
-            textTransform: "uppercase",
-          }}
-        >
-          SEO Friendly
-        </span>
-      </NocturnaCard>
+      {/* Exemplo Danger */}
+      <Card title="Falha de Contenção" variant="danger">
+        <Content>
+          <p style={{ color: "#ef4444", fontSize: "0.9rem" }}>
+            A integridade do firewall caiu para 12%. Evacuação de dados recomendada.
+          </p>
+          <Button variant="danger" size="sm">
+            Executar Purga
+          </Button>
+        </Content>
+      </Card>
     </Grid>
   );
 };

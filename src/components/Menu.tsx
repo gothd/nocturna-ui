@@ -12,22 +12,7 @@ import React, {
 } from "react";
 import { cn } from "../utils/cn";
 
-export interface AltarMenuItem {
-  /** Identificador único do item. */
-  id: string;
-  /** Texto do item. */
-  label: string;
-  /** Ícone opcional à esquerda. */
-  icon?: React.ReactNode;
-  /** Ação ao clicar. */
-  onClick: () => void;
-  /** Indica ação destrutiva (vermelho). */
-  danger?: boolean;
-  /** Desabilita o item. */
-  disabled?: boolean;
-}
-
-interface AltarMenuProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Lista de itens do menu. */
   items: Array<{
     /** Identificador único do item. */
@@ -38,13 +23,16 @@ interface AltarMenuProps extends React.HTMLAttributes<HTMLDivElement> {
     icon?: React.ReactNode;
     /** Ação ao clicar. */
     onClick: () => void;
-    /** Indica ação destrutiva (vermelho). */
+    /** Indica ação destrutiva. */
     danger?: boolean;
     /** Desabilita o item. */
     disabled?: boolean;
   }>;
-  /** Tema visual: 'void' (Padrão) ou 'blood' (Crítico). */
-  variant?: "void" | "blood";
+  /**
+   * Define o tema visual do menu.
+   * @default "primary"
+   */
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /** Elemento gatilho opcional. Se omitido, usa ícone padrão. */
   trigger?: React.ReactNode;
   /** Alinhamento do dropdown. */
@@ -61,28 +49,20 @@ interface AltarMenuProps extends React.HTMLAttributes<HTMLDivElement> {
  * - `Esc`: Fecha o menu e retorna foco ao gatilho.
  * - `Tab`: Fecha o menu e segue fluxo natural da página.
  */
-export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
-  (
-    { items, variant = "void", trigger, align = "right", className, ...props },
-    ref,
-  ) => {
+export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
+  ({ items, variant = "primary", trigger, align = "right", className, ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
-
     // Refs para elementos do DOM
     const containerRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-
     // Rastreia se a abertura foi via teclado para gerenciamento de foco inteligente
     const wasOpenedByKeyboard = useRef(false);
 
-    // 1. Fechar ao clicar fora (Click Outside)
+    // Fechar ao clicar fora (Click Outside)
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (
-          containerRef.current &&
-          !containerRef.current.contains(event.target as Node)
-        ) {
+        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
           setIsOpen(false);
         }
       };
@@ -95,7 +75,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
       };
     }, [isOpen]);
 
-    // 2. Focar no primeiro item quando abrir
+    // Focar no primeiro item quando abrir
     useEffect(() => {
       if (isOpen) {
         // setTimeout zero joga para o final da fila de execução do JS, garantindo que o DOM renderizou
@@ -109,7 +89,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
       }
     }, [isOpen]);
 
-    // 3. O "Cérebro" da Navegação - Centralizado no Container
+    // O "Cérebro" da Navegação - Centralizado no Container
     const handleKeyDown = useCallback(
       (event: React.KeyboardEvent) => {
         // Se estiver fechado, permite abrir com Enter/Espaço/Seta Baixo
@@ -125,9 +105,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
         // --- Lógica quando está ABERTO ---
 
         const menuItems = Array.from(
-          menuRef.current?.querySelectorAll(
-            '[role="menuitem"]:not([disabled])',
-          ) || [],
+          menuRef.current?.querySelectorAll('[role="menuitem"]:not([disabled])') || [],
         ) as HTMLElement[];
 
         const activeElement = document.activeElement as HTMLElement;
@@ -162,8 +140,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
               // Se foco está no botão, vai para o último
               menuItems[menuItems.length - 1]?.focus();
             } else {
-              const prevIndex =
-                (currentIndex - 1 + menuItems.length) % menuItems.length;
+              const prevIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
               menuItems[prevIndex]?.focus();
             }
             break;
@@ -186,7 +163,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
           case "Enter":
           case " ": // Space
             // Se o foco está no trigger e aperta enter, fecha (toggle)
-            // Se o foco está num item, o click nativo do button já resolve, não precisamos fazer nada
+            // Se o foco está num item, o click nativo do button já resolve, não precisa fazer nada
             if (activeElement === triggerRef.current) {
               event.preventDefault();
               setIsOpen(false);
@@ -196,6 +173,46 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
       },
       [isOpen],
     );
+
+    // Mapeamento de estilos
+    const triggerStyles = {
+      primary:
+        "border-primary bg-black text-primary hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]",
+      secondary:
+        "border-secondary bg-black text-secondary hover:shadow-[4px_4px_0px_0px_rgba(0,255,65,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(0,255,65,0.3)]",
+      accent:
+        "border-accent bg-black text-accent hover:shadow-[4px_4px_0px_0px_rgba(255,0,127,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(255,0,127,0.3)]",
+      danger:
+        "border-danger bg-black text-danger hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.3)]",
+      warning:
+        "border-warning bg-black text-warning hover:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.3)]",
+    };
+
+    const menuBorderStyles = {
+      primary: "border-primary shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
+      warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    // Usamos opacidade no background para dar efeito neon sem perder legibilidade
+    const itemInteractionStyles = {
+      primary: "hover:bg-zinc-900 hover:text-white focus:bg-zinc-900 focus:text-white",
+      secondary:
+        "hover:bg-secondary/10 hover:text-secondary focus:bg-secondary/10 focus:text-secondary",
+      accent: "hover:bg-accent/10 hover:text-accent focus:bg-accent/10 focus:text-accent",
+      danger: "hover:bg-danger/10 hover:text-danger focus:bg-danger/10 focus:text-danger",
+      warning: "hover:bg-warning/10 hover:text-warning focus:bg-warning/10 focus:text-warning",
+    };
+
+    const separatorStyles = {
+      primary: "border-b border-zinc-900",
+      secondary: "border-b border-secondary/20",
+      accent: "border-b border-accent/20",
+      danger: "border-b border-danger/20",
+      warning: "border-b border-warning/20",
+    };
 
     // Props para o Gatilho (Trigger)
     const triggerProps = {
@@ -225,9 +242,7 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
           else if (originalRef) originalRef.current = node;
 
           if (typeof ref === "function") ref(node);
-          else if (ref)
-            (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
-              node;
+          else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
         },
       });
     } else {
@@ -236,19 +251,12 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
           ref={(node) => {
             triggerRef.current = node;
             if (typeof ref === "function") ref(node);
-            else if (ref)
-              (
-                ref as React.MutableRefObject<HTMLButtonElement | null>
-              ).current = node;
+            else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
           }}
           {...triggerProps}
           className={cn(
-            "p-2 border-2 transition-all duration-300 flex items-center justify-center",
-            variant === "void"
-              ? "border-white bg-black text-white"
-              : "border-red-900 bg-black text-red-600",
-            "hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
-            "focus-visible:outline-none focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]",
+            "p-2 border-2 transition-all duration-300 flex items-center justify-center focus-visible:outline-none",
+            triggerStyles[variant],
           )}
         >
           {trigger || <MoreVertical size={20} />}
@@ -281,12 +289,10 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
               ? "opacity-100 scale-100 visible transition-all duration-100 ease-out"
               : "opacity-0 scale-95 invisible pointer-events-none duration-75 ease-in",
             // Cores
-            variant === "void"
-              ? "border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-              : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+            menuBorderStyles[variant],
           )}
         >
-          {items.map((item) => (
+          {items.map((item, index) => (
             <button
               key={item.id}
               role="menuitem"
@@ -302,28 +308,26 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
                 triggerRef.current?.focus(); // Retorna foco ao trigger após ação
               }}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 font-sans text-sm transition-colors duration-200 group text-left outline-none cursor-pointer",
-                // Cores Base
-                variant === "void"
-                  ? "text-zinc-400 hover:text-white hover:bg-zinc-900 focus:bg-zinc-900 focus:text-white"
-                  : "text-zinc-400 hover:text-red-500 hover:bg-red-950/30 focus:bg-red-950/30 focus:text-red-500",
-                // Danger
+                "w-full flex items-center gap-3 px-4 py-3 font-sans text-sm transition-colors duration-200 group text-left focus:outline-none cursor-pointer",
+                "text-zinc-400", // Cor Base
+                // Estilos de interação (hover + focus)
+                itemInteractionStyles[variant],
+                // Danger override
                 item.danger &&
-                  "text-red-600 hover:text-red-500 hover:bg-red-900/20 focus:text-red-500 focus:bg-red-900/20",
-                // Disabled
+                  "text-danger hover:text-danger hover:bg-danger/10 focus:text-danger focus:bg-danger/10",
+                // Disabled state
                 item.disabled &&
-                  "opacity-50 cursor-not-allowed pointer-events-none",
+                  "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400 pointer-events-none",
+                // Separator
+                index !== items.length - 1 && separatorStyles[variant],
               )}
             >
               {item.icon && (
                 <span
                   className={cn(
-                    "opacity-70 group-hover:opacity-100 group-focus:opacity-100",
-                    item.danger
-                      ? "text-red-600"
-                      : variant === "void"
-                        ? "text-white"
-                        : "text-red-600",
+                    "opacity-70 group-hover:opacity-100 transition-opacity",
+                    // Herda a cor do hover do pai via group-hover ou força danger
+                    item.danger ? "text-danger" : "text-inherit",
                   )}
                 >
                   {item.icon}
@@ -338,4 +342,4 @@ export const AltarMenu = forwardRef<HTMLButtonElement, AltarMenuProps>(
   },
 );
 
-AltarMenu.displayName = "AltarMenu";
+Menu.displayName = "Menu";

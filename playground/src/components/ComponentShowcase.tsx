@@ -8,10 +8,10 @@ import { Check, Copy, Code, Eye } from "lucide-react";
 
 const Wrapper = styled.div`
   margin: 2rem 0;
-  border: 1px solid #27272a; /* zinc-800 */
+  border: 1px solid #27272a;
   border-radius: 0; /* Brutalista */
   overflow: hidden;
-  background-color: #09090b; /* zinc-950 */
+  background-color: #050505;
   display: flex;
   flex-direction: column;
 `;
@@ -44,9 +44,8 @@ const TabButton = styled.button<{ $active: boolean }>`
   font-weight: 500;
   color: ${(props) => (props.$active ? "#fff" : "#71717a")};
 
-  /* Indicador de tab ativa (sublinhado gótico) */
-  border-bottom: 2px solid
-    ${(props) => (props.$active ? "#fff" : "transparent")};
+  /* Indicador de tab ativa (Primary White) */
+  border-bottom: 2px solid ${(props) => (props.$active ? "#fff" : "transparent")};
   transition: all 0.2s;
 
   &:hover {
@@ -63,7 +62,7 @@ const CopyButton = styled.button`
   color: #a1a1aa;
   cursor: pointer;
   padding: 0.4rem;
-  border-radius: 4px;
+  border-radius: 0;
   transition: all 0.2s;
 
   &:hover {
@@ -78,9 +77,9 @@ const PreviewArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000;
+  background-color: #050505;
 
-  /* Padrão de Grid Sutil (Cyber/Goth aesthetic) */
+  /* Grid Sutil */
   background-image:
     linear-gradient(to right, #18181b 1px, transparent 1px),
     linear-gradient(to bottom, #18181b 1px, transparent 1px);
@@ -96,7 +95,7 @@ const CodeWrapper = styled.div`
   max-height: 400px;
   overflow-y: auto;
 
-  /* Custom Scrollbar para combinar com a lib */
+  /* Custom Scrollbar */
   &::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -111,7 +110,6 @@ const CodeWrapper = styled.div`
     background: #3f3f46;
   }
 
-  /* Remove margens padrão do SyntaxHighlighter */
   & > pre {
     margin: 0 !important;
     border-radius: 0 !important;
@@ -121,18 +119,13 @@ const CodeWrapper = styled.div`
   }
 `;
 
-// --- Component Logic ---
-
 interface ComponentShowcaseProps {
-  children: React.ReactNode; // O componente renderizado
-  code: string; // O código fonte
+  children: React.ReactNode;
+  code: string;
   title?: string;
 }
 
-export const ComponentShowcase = ({
-  children,
-  code,
-}: ComponentShowcaseProps) => {
+export const ComponentShowcase = ({ children, code }: ComponentShowcaseProps) => {
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
 
@@ -146,23 +139,22 @@ export const ComponentShowcase = ({
     <Wrapper>
       <Toolbar>
         <Tabs>
-          <TabButton
-            $active={activeTab === "preview"}
-            onClick={() => setActiveTab("preview")}
-          >
+          <TabButton $active={activeTab === "preview"} onClick={() => setActiveTab("preview")}>
             <Eye size={16} strokeWidth={1.5} /> Preview
           </TabButton>
-          <TabButton
-            $active={activeTab === "code"}
-            onClick={() => setActiveTab("code")}
-          >
+          <TabButton $active={activeTab === "code"} onClick={() => setActiveTab("code")}>
             <Code size={16} strokeWidth={1.5} /> Código
           </TabButton>
         </Tabs>
 
         {activeTab === "code" && (
           <CopyButton onClick={handleCopy} title="Copiar código">
-            {copied ? <Check size={14} color="#4ade80" /> : <Copy size={14} />}
+            {copied ? (
+              // Secondary Color (Green)
+              <Check size={14} color="#00FF41" />
+            ) : (
+              <Copy size={14} />
+            )}
           </CopyButton>
         )}
       </Toolbar>

@@ -1,36 +1,54 @@
 import { act, render, screen } from "@testing-library/react";
-import { VoidButton } from "../../components/Button";
-import { OmenToastProvider, useToast } from "../../providers/ToastProvider";
+import { Button } from "../Button";
+import { ToastProvider, useToast } from "../../providers/ToastProvider";
 
-// Componente auxiliar para testar o hook
+// Componente auxiliar para disparar toasts com opções
 const TestComponent = () => {
   const { toast } = useToast();
   return (
-    <VoidButton
-      onClick={() => toast({ title: "Teste", description: "Funcionou" })}
-    >
-      Disparar
-    </VoidButton>
+    <div>
+      <Button onClick={() => toast({ title: "Success", type: "success" })}>Success Toast</Button>
+      <Button onClick={() => toast({ title: "Error", type: "error" })}>Error Toast</Button>
+    </div>
   );
 };
 
 describe("Toast System", () => {
-  it("deve adicionar um toast ao clicar", async () => {
+  it("deve renderizar um toast de sucesso com estilo secondary (verde)", async () => {
     render(
-      <OmenToastProvider>
+      <ToastProvider>
         <TestComponent />
-      </OmenToastProvider>,
+      </ToastProvider>,
     );
 
-    const button = screen.getByText("Disparar");
-
-    // Dispara a ação
     await act(async () => {
-      button.click();
+      screen.getByText("Success Toast").click();
     });
 
-    // Procura pelo Toast na tela (baseado no Título)
-    expect(await screen.findByText("Teste")).toBeInTheDocument();
-    expect(screen.getByText("Funcionou")).toBeInTheDocument();
+    const toast = await screen.findByText("Success");
+    const container = toast.closest("div[role='status']");
+
+    expect(toast).toBeInTheDocument();
+    // Success -> Secondary variant -> Text Secondary (Green)
+    expect(container?.className).toContain("text-secondary");
+    expect(container?.className).toContain("border-secondary");
+  });
+
+  it("deve renderizar um toast de erro com estilo danger (vermelho)", async () => {
+    render(
+      <ToastProvider>
+        <TestComponent />
+      </ToastProvider>,
+    );
+
+    await act(async () => {
+      screen.getByText("Error Toast").click();
+    });
+
+    const toast = await screen.findByText("Error");
+    const container = toast.closest("div[role='alert']");
+
+    expect(container?.className).toContain("text-danger");
+    expect(container?.className).toContain("border-danger");
   });
 });

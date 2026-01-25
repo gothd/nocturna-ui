@@ -1,14 +1,12 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface NocturnaCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Define o tema visual do card.
-   * - `void`: Borda branca e sombra branca no hover.
-   * - `blood`: Borda vermelha escura e sombra avermelhada no hover.
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
    * Título principal do card. Renderizado em uppercase e fonte serifada.
@@ -41,12 +39,12 @@ interface NocturnaCardProps extends React.HTMLAttributes<HTMLDivElement> {
  * Possui comportamento de Flex Column para garantir que o conteúdo ocupe a altura disponível,
  * além de sombras rígidas (hard shadows) interativas no hover.
  */
-export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
+export const Card = forwardRef<HTMLDivElement, CardProps>(
   (
     {
       title,
       description,
-      variant = "void",
+      variant = "primary",
       className,
       children,
       headingLevel: Heading = "h3",
@@ -55,18 +53,29 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
     },
     ref,
   ) => {
+    const containerStyles = {
+      primary: "border-primary hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary hover:shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent hover:shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger hover:shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
+      warning: "border-warning hover:shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const textStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
     return (
       <Component
         ref={ref}
         className={cn(
           "bg-black border-2 flex flex-col h-full", // Flex col para garantir altura
-          // Border style
-          variant === "void" ? "border-white" : "border-red-900",
           "p-6 transition-shadow duration-300",
-          // Shadow style (Hover)
-          variant === "void"
-            ? "hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-            : "hover:shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+          containerStyles[variant],
           className,
         )}
         {...props}
@@ -76,28 +85,23 @@ export const NocturnaCard = forwardRef<HTMLDivElement, NocturnaCardProps>(
             <Heading
               className={cn(
                 "font-serif text-2xl uppercase tracking-tighter leading-none",
-                // Text style
-                variant === "void" ? "text-white" : "text-red-600",
+                textStyles[variant],
               )}
             >
               {title}
             </Heading>
 
             {description && (
-              <p className="text-zinc-500 text-sm font-sans leading-relaxed">
-                {description}
-              </p>
+              <p className="text-zinc-500 text-sm font-sans leading-relaxed">{description}</p>
             )}
           </div>
         )}
 
         {/* Content Area - cresce para ocupar espaço se necessário */}
-        <div className={cn((title || description) && "mt-auto")}>
-          {children}
-        </div>
+        <div className={cn((title || description) && "mt-auto")}>{children}</div>
       </Component>
     );
   },
 );
 
-NocturnaCard.displayName = "NocturnaCard";
+Card.displayName = "Card";

@@ -2,13 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Personalidade Goth: Scrollbar e Seleção */
-::selection {
-  background-color: #660000; /* nocturna-blood */
-  color: white;
-}
+@layer base {
+  /* Reset básico e tipografia */
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  background-color: #050505;
-  color: #e0e0e0;
+  body {
+    /* Fundo Abyss Black (#050505) e Texto Bone White (#FFFFFF) */
+    @apply bg-background text-primary antialiased;
+  }
+
+  /* Personalidade Cyber Goth: Seleção de Texto */
+  /* O rosa neon (accent) com texto preto garante legibilidade e impacto */
+  ::selection {
+    @apply bg-accent text-black;
+  }
+
+  /* Scrollbar Global (Webkit - Chrome, Edge, Safari) */
+  /* Estilo brutalista: quadrado, sem bordas arredondadas, alto contraste */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* Trilho preto com uma borda sutil separando do conteúdo */
+    @apply bg-black border-l-2 border-zinc-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    /* Polegar cinza escuro que reage ao hover */
+    @apply bg-zinc-800 border-2 border-black hover:bg-zinc-600 transition-colors;
+  }
 }

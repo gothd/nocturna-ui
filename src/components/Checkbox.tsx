@@ -2,10 +2,7 @@ import { Check } from "lucide-react";
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface HexCheckboxProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "type"
-> {
+interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   /**
    * Texto opcional exibido ao lado do checkbox.
    * Renderizado com tipografia sans-serif e uppercase.
@@ -14,11 +11,9 @@ interface HexCheckboxProps extends Omit<
 
   /**
    * Define o tema visual do componente.
-   * - `void`: Padrão monocromático (Borda Branca / Check Preto).
-   * - `blood`: Tema vermelho escuro (Borda Vermelha / Check Branco).
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 }
 
 /**
@@ -26,8 +21,37 @@ interface HexCheckboxProps extends Omit<
  * Mantém acessibilidade total escondendo o input nativo (`sr-only`)
  * mas preservando a navegabilidade via teclado e leitores de tela.
  */
-export const HexCheckbox = forwardRef<HTMLInputElement, HexCheckboxProps>(
-  ({ label, variant = "void", className, ...props }, ref) => {
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+  ({ label, variant = "primary", className, ...props }, ref) => {
+    const boxStyles = {
+      primary:
+        "border-primary peer-checked:bg-primary peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]",
+      secondary:
+        "border-secondary peer-checked:bg-secondary peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(0,255,65,0.3)]",
+      accent:
+        "border-accent peer-checked:bg-accent peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,0,127,0.3)]",
+      danger:
+        "border-danger peer-checked:bg-danger peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.3)]",
+      warning:
+        "border-warning peer-checked:bg-warning peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.3)]",
+    };
+
+    const labelStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
+    const iconColorStyles = {
+      primary: "text-black",
+      secondary: "text-black",
+      accent: "text-black",
+      danger: "text-white",
+      warning: "text-black",
+    };
+
     return (
       <label className="inline-flex items-center gap-3 cursor-pointer group w-fit">
         <div className="relative flex items-center">
@@ -41,22 +65,12 @@ export const HexCheckbox = forwardRef<HTMLInputElement, HexCheckboxProps>(
           <div
             className={cn(
               "w-5 h-5 border-2 flex items-center justify-center bg-black transition-all duration-300",
-
-              // Cores da Caixa (Border & Background)
-              variant === "void"
-                ? "border-white peer-checked:bg-white"
-                : "border-red-900 peer-checked:bg-red-900",
-
+              boxStyles[variant],
               // Lógica de Visibilidade do Ícone Filho (CSS Puro)
               // Quando o input 'peer' está checado, o SVG filho ganha escala e opacidade
               "peer-checked:[&_svg]:scale-100 peer-checked:[&_svg]:opacity-100",
-
-              // Efeitos de Interação (Hover & Focus)
+              // Hover Effect (Sutil)
               "group-hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
-              variant === "void"
-                ? "peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]"
-                : "peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(136,8,8,0.5)]",
-
               className,
             )}
           >
@@ -66,8 +80,7 @@ export const HexCheckbox = forwardRef<HTMLInputElement, HexCheckboxProps>(
               aria-hidden="true"
               className={cn(
                 "transform scale-0 opacity-0 transition-all duration-200 ease-out",
-                // Cor do Ícone
-                variant === "void" ? "text-black" : "text-white",
+                iconColorStyles[variant],
               )}
             />
           </div>
@@ -76,7 +89,7 @@ export const HexCheckbox = forwardRef<HTMLInputElement, HexCheckboxProps>(
           <span
             className={cn(
               "font-sans text-sm uppercase tracking-wider select-none",
-              variant === "void" ? "text-white" : "text-red-600",
+              labelStyles[variant],
             )}
           >
             {label}
@@ -87,4 +100,4 @@ export const HexCheckbox = forwardRef<HTMLInputElement, HexCheckboxProps>(
   },
 );
 
-HexCheckbox.displayName = "HexCheckbox";
+Checkbox.displayName = "Checkbox";

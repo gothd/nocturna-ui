@@ -1,110 +1,88 @@
-import { Edit, Trash2, Share2, Settings, User } from "lucide-react";
 import styled from "styled-components";
-import { AltarMenu, VoidButton } from "nocturna-ui";
+import { Menu, Card, Button, useToast } from "nocturna-ui";
+import { Edit, Trash, Share, MoreHorizontal, FileText, ShieldAlert } from "lucide-react";
 
 const Layout = styled.div`
   display: flex;
-  gap: 3rem;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 350px; /* Altura para o menu não cortar */
-  padding-top: 2rem;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 8rem; /* Espaço para o menu abrir */
 `;
 
-const Section = styled.div`
+const Row = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
   align-items: center;
 `;
 
-const Label = styled.span`
-  color: #71717a;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-`;
-
 export const BasicUsage = () => {
+  const { toast } = useToast();
+
   const handleAction = (action: string) => {
-    console.log(`Ritual executado: ${action}`);
+    toast({ title: "Ação Disparada", description: `Executou: ${action}`, type: "info" });
   };
 
   return (
     <Layout>
-      {/* 1. Uso Padrão */}
-      <Section>
-        <Label>Standard</Label>
-        <AltarMenu
-          items={[
-            {
-              id: "1",
-              label: "Iniciar Ritual",
-              onClick: () => handleAction("Iniciar"),
-            },
-            {
-              id: "2",
-              label: "Abortar",
-              onClick: () => handleAction("Abortar"),
-            },
-          ]}
-        />
-      </Section>
+      <Card title="Ações de Contexto">
+        <Row>
+          <span style={{ color: "a1a1aa" }}>Arquivo_Confidencial.dat</span>
 
-      {/* 2. Custom Trigger */}
-      <Section>
-        <Label>Custom Trigger</Label>
-        <AltarMenu
-          items={[
-            {
-              id: "edit",
-              label: "Editar",
-              icon: <Edit size={16} />,
-              onClick: () => handleAction("Edit"),
-            },
-            {
-              id: "share",
-              label: "Compartilhar",
-              icon: <Share2 size={16} />,
-              onClick: () => handleAction("Share"),
-            },
-          ]}
-          trigger={
-            <VoidButton>
-              <Settings size={16} className="mr-2" />
-              Configurar
-            </VoidButton>
-          }
-        />
-      </Section>
+          <Menu
+            variant="primary"
+            items={[
+              {
+                id: "edit",
+                label: "Editar",
+                icon: <Edit size={16} />,
+                onClick: () => handleAction("Editar"),
+              },
+              {
+                id: "share",
+                label: "Compartilhar",
+                icon: <Share size={16} />,
+                onClick: () => handleAction("Compartilhar"),
+              },
+              {
+                id: "delete",
+                label: "Deletar",
+                icon: <Trash size={16} />,
+                danger: true,
+                onClick: () => handleAction("Deletar"),
+              },
+            ]}
+          />
+        </Row>
+      </Card>
 
-      {/* 3. Variante Blood + Danger */}
-      <Section>
-        <Label>Blood Mode</Label>
-        <AltarMenu
-          variant="blood"
-          trigger={
-            <VoidButton variant="blood">
-              <User size={16} />
-            </VoidButton>
-          }
-          items={[
-            {
-              id: "profile",
-              label: "Perfil",
-              icon: <User size={16} />,
-              onClick: () => {},
-            },
-            {
-              id: "delete",
-              label: "Banir Usuário",
-              icon: <Trash2 size={16} />,
-              onClick: () => alert("Banido!"),
-              danger: true,
-            },
-          ]}
-        />
-      </Section>
+      <Card title="Variantes de Tema" variant="secondary">
+        <Row>
+          <span style={{ color: "a1a1aa" }}>Opções do Sistema</span>
+
+          <Menu
+            variant="secondary"
+            trigger={
+              <Button size="sm" variant="secondary">
+                Opções <MoreHorizontal size={16} style={{ marginLeft: "0.5rem" }} />
+              </Button>
+            }
+            items={[
+              {
+                id: "logs",
+                label: "Ver Logs",
+                icon: <FileText size={16} />,
+                onClick: () => handleAction("Logs"),
+              },
+              {
+                id: "audit",
+                label: "Auditoria",
+                icon: <ShieldAlert size={16} />,
+                onClick: () => handleAction("Auditoria"),
+              },
+            ]}
+          />
+        </Row>
+      </Card>
     </Layout>
   );
 };

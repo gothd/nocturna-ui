@@ -1,62 +1,58 @@
 import styled from "styled-components";
-import { AbyssSeparator, NocturnaCard } from "nocturna-ui";
+import { Separator, Card, Button } from "nocturna-ui";
 
 const Layout = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 `;
 
-const TextBlock = styled.p`
-  color: #a1a1aa;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  text-align: justify;
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 export const BasicUsage = () => {
   return (
     <Layout>
-      <NocturnaCard title="Capítulo I: A Origem">
-        <TextBlock>
-          No início, havia apenas o código. Linhas intermináveis de lógica
-          fluindo através do silício, esperando para serem moldadas em algo
-          tangível. A estrutura era rígida, mas necessária.
-        </TextBlock>
+      <Card title="Divisores de Seção">
+        <Content>
+          <p style={{ color: "#a1a1aa" }}>Introdução ao capítulo 1.</p>
 
-        {/* 1. Separador Simples (Void) */}
-        <AbyssSeparator />
+          <Separator variant="primary" />
 
-        <TextBlock>
-          Então veio o design. Brutalista, direto, sem ornamentos
-          desnecessários. A forma seguia a função, e a função era absoluta.
-        </TextBlock>
+          <p style={{ color: "#a1a1aa" }}>Conteúdo principal do texto sagrado.</p>
 
-        {/* 2. Separador com Rótulo */}
-        <AbyssSeparator label="Fase II" />
+          <Separator variant="accent" label="Capítulo 2" />
 
-        <TextBlock>
-          A escuridão foi abraçada não como ausência de luz, mas como uma tela
-          para o contraste. O branco cortava o preto como um raio na tempestade.
-        </TextBlock>
-      </NocturnaCard>
+          <p style={{ color: "#a1a1aa" }}>Início da segunda parte da profecia.</p>
+        </Content>
+      </Card>
 
-      <div style={{ height: "2rem" }} />
+      <Card title="Zona Restrita" variant="danger">
+        <Content>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>Status: Comprometido</span>
+            <Button size="sm" variant="danger">
+              Reportar
+            </Button>
+          </div>
 
-      {/* 3. Variante Blood */}
-      <NocturnaCard title="Protocolo de Contenção" variant="blood">
-        <TextBlock style={{ color: "#fca5a5" }}>
-          ALERTA: Violação de integridade detectada no setor 7G. Iniciando
-          bloqueio de emergência.
-        </TextBlock>
+          <Separator variant="danger" label="Classified" />
 
-        <AbyssSeparator variant="blood" label="Sistemas Críticos" />
-
-        <TextBlock style={{ color: "#fca5a5" }}>
-          O firewall foi comprometido. As entidades externas estão tentando
-          reescrever o núcleo. Isolamento de rede em progresso...
-        </TextBlock>
-      </NocturnaCard>
+          <p
+            style={{
+              color: "#dc2626",
+              opacity: "0.8",
+              fontSize: "0.875rem",
+              lineHeight: "1.25rem",
+            }}
+          >
+            Estas informações são visíveis apenas para nível 5 de acesso.
+          </p>
+        </Content>
+      </Card>
     </Layout>
   );
 };

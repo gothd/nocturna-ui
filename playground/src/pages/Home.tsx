@@ -1,5 +1,5 @@
 import { Copy, Terminal } from "lucide-react";
-import { SigilBadge } from "nocturna-ui";
+import { Badge, useToast } from "nocturna-ui";
 import styled from "styled-components";
 
 // --- Styled Components ---
@@ -15,7 +15,7 @@ const HeroSection = styled.section`
   overflow: hidden;
   padding: 2rem;
 
-  /* Background Grid Effect */
+  /* Grid Cyber Goth */
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -39,8 +39,10 @@ const Title = styled.h1`
   span {
     font-family: serif;
     font-style: italic;
-    color: #ef4444; /* red-500 */
-    -webkit-text-fill-color: #ef4444;
+    /* Accent: Phantom Pink */
+    color: #ff007f;
+    -webkit-text-fill-color: #ff007f;
+    text-shadow: 0 0 20px rgba(255, 0, 127, 0.3);
   }
 `;
 
@@ -56,7 +58,6 @@ const Subtitle = styled.p`
 const FakeTerminal = styled.div`
   background: #09090b;
   border: 1px solid #27272a;
-  border-radius: 8px;
   padding: 1rem 1.5rem;
   font-family: monospace;
   color: #a1a1aa;
@@ -65,26 +66,35 @@ const FakeTerminal = styled.div`
   gap: 1rem;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.3s;
 
   &:hover {
-    border-color: #52525b;
-    color: #fff;
+    /* Secondary: Malware Green */
+    border-color: #00ff41;
+    color: #00ff41;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
   }
 `;
 
 export const Home = () => {
+  const { toast } = useToast();
+
   const copyInstall = () => {
     navigator.clipboard.writeText("npm install nocturna-ui");
-    alert("Comando copiado para a área de transferência.");
+    toast({
+      title: "Comando Copiado",
+      description: "npm install nocturna-ui",
+      type: "success",
+      duration: 2000,
+    });
   };
 
   return (
     <HeroSection>
       <BadgeWrapper>
-        <SigilBadge variant="void" styleType="outline" size="sm">
-          v0.0.5 Disponível • Aliases & Coverage
-        </SigilBadge>
+        <Badge variant="accent" styleType="outline" size="sm">
+          v0.0.6 • Cyber Goth Update
+        </Badge>
       </BadgeWrapper>
 
       <Title>
@@ -92,8 +102,8 @@ export const Home = () => {
       </Title>
 
       <Subtitle>
-        Uma biblioteca de componentes React forjada na estética brutalista e
-        gótica. Componentes acessíveis, tipados e prontos para a escuridão.
+        Primitivos góticos e brutalistas forjados para a web que não teme a escuridão. Agora com
+        paleta Cyber e tokens semânticos.
       </Subtitle>
 
       <FakeTerminal onClick={copyInstall} title="Clique para copiar">

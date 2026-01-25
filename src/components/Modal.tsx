@@ -1,11 +1,11 @@
 "use client";
 
-import { cn } from "../utils/cn";
 import { X } from "lucide-react";
-import React, { useEffect, useRef, useState, forwardRef } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../utils/cn";
 
-interface CryptModalProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Controla a visibilidade do modal.
    * O componente é renderizado via React Portal no `document.body`.
@@ -37,34 +37,23 @@ interface CryptModalProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 
   /**
-   * Define o tema visual.
-   * - `void`: Monocromático (Borda Branca).
-   * - `blood`: Tema de alerta/erro (Borda Vermelha).
-   * @default "void"
+   * Define o tema visual do modal.
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 }
 
 /**
- * Modal acessível com estética brutalista (Crypt).
+ * Modal acessível com estética brutalista.
  *
  * **Features Automáticas:**
  * - **Focus Trap:** Mantém o foco do teclado preso dentro do modal.
  * - **Scroll Lock:** Impede a rolagem da página de fundo.
  * - **Close on ESC:** Fecha ao pressionar Escape.
  */
-export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
+export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   (
-    {
-      isOpen,
-      onClose,
-      title,
-      description,
-      children,
-      variant = "void",
-      className,
-      ...props
-    },
+    { isOpen, onClose, title, description, children, variant = "primary", className, ...props },
     ref,
   ) => {
     // Refs
@@ -104,7 +93,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
 
     // Focus Trap & Escape
     useEffect(() => {
-      if (!isOpen || !internalRef.current) return;
+      if (!isOpen || !mounted || !internalRef.current) return;
 
       const modal = internalRef.current;
       const focusableElements = modal.querySelectorAll<HTMLElement>(
@@ -154,9 +143,38 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
         document.removeEventListener("keydown", handleKeyDown);
         clearTimeout(focusTimeout);
       };
-    }, [isOpen]);
+    }, [isOpen, mounted]);
 
     if (!mounted || !isOpen) return null;
+
+    const containerStyles = {
+      primary: "border-primary shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
+      secondary: "border-secondary shadow-[8px_8px_0px_0px_rgba(0,255,65,0.2)]",
+      accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
+      danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
+      warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+    };
+
+    const textStyles = {
+      primary: "text-primary",
+      secondary: "text-secondary",
+      accent: "text-accent",
+      danger: "text-danger",
+      warning: "text-warning",
+    };
+
+    const closeButtonStyles = {
+      primary:
+        "text-zinc-500 hover:text-primary hover:bg-zinc-800 focus:text-primary focus:bg-zinc-800 focus:ring-primary",
+      secondary:
+        "text-zinc-500 hover:text-secondary hover:bg-secondary/10 focus:text-secondary focus:bg-secondary/10 focus:ring-secondary",
+      accent:
+        "text-zinc-500 hover:text-accent hover:bg-accent/10 focus:text-accent focus:bg-accent/10 focus:ring-accent",
+      danger:
+        "text-zinc-500 hover:text-danger hover:bg-danger/10 focus:text-danger focus:bg-danger/10 focus:ring-danger",
+      warning:
+        "text-zinc-500 hover:text-warning hover:bg-warning/10 focus:text-warning focus:bg-warning/10 focus:ring-warning",
+    };
 
     return createPortal(
       <div
@@ -176,16 +194,12 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
           ref={(node) => {
             internalRef.current = node;
             if (typeof ref === "function") ref(node);
-            else if (ref)
-              (ref as React.MutableRefObject<HTMLDivElement | null>).current =
-                node;
+            else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
           }}
           tabIndex={-1}
           className={cn(
             "relative bg-black border-2 w-full max-w-lg mx-auto p-8 shadow-2xl animate-in zoom-in-95 duration-200 outline-none",
-            variant === "void"
-              ? "border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]"
-              : "border-red-900 shadow-[8px_8px_0px_0px_rgba(136,8,8,0.3)]",
+            containerStyles[variant],
             className,
           )}
           {...props}
@@ -195,9 +209,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
             aria-label="Fechar modal"
             className={cn(
               "absolute top-4 right-4 p-1 transition-all duration-300 focus:outline-none",
-              variant === "void"
-                ? "text-white hover:bg-white hover:text-black focus-visible:bg-white focus-visible:text-black"
-                : "text-red-600 hover:bg-red-900 hover:text-white focus-visible:bg-red-900 focus-visible:text-white",
+              closeButtonStyles[variant],
             )}
           >
             <X size={24} strokeWidth={1.5} />
@@ -208,7 +220,7 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
               id="crypt-modal-title"
               className={cn(
                 "font-serif text-2xl uppercase tracking-tighter mb-2 pr-8",
-                variant === "void" ? "text-white" : "text-red-600",
+                textStyles[variant],
               )}
             >
               {title}
@@ -232,4 +244,4 @@ export const CryptModal = forwardRef<HTMLDivElement, CryptModalProps>(
   },
 );
 
-CryptModal.displayName = "CryptModal";
+Modal.displayName = "Modal";

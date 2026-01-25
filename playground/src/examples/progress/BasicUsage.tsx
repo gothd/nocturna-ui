@@ -1,62 +1,56 @@
-import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { VesselProgress, VoidButton, NocturnaCard } from "nocturna-ui";
+import { Progress, Card, Button } from "nocturna-ui";
+import { useState, useEffect } from "react";
 
 const Layout = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
 `;
 
 export const BasicUsage = () => {
   const [progress, setProgress] = useState(10);
-  const [paused, setPaused] = useState(false);
 
-  // Simula um upload
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 10));
     }, 1000);
-    return () => clearInterval(interval);
+    return () => clearInterval(timer);
   }, []);
 
   return (
     <Layout>
-      {/* 1. Modo Valor (Upload) */}
-      <NocturnaCard title="Transferência de Dados">
-        <VesselProgress value={progress} label="Fazendo Upload..." showValue />
-        <p style={{ marginTop: "1rem", fontSize: "0.8rem", color: "#71717a" }}>
-          Atualiza dinamicamente conforme a prop value muda.
-        </p>
-      </NocturnaCard>
+      <Card title="Monitoramento de Processos">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <Progress value={progress} label="Download de Dados" showValue variant="secondary" />
 
-      {/* 2. Modo Timer (Cooldown) */}
-      <NocturnaCard title="Protocolo de Segurança" variant="blood">
-        <VesselProgress
-          mode="timer"
-          duration={10000} // 10 segundos
-          variant="blood"
-          label="Autodestruição em:"
-          paused={paused}
-        />
-        <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-          <VoidButton
-            size="sm"
-            variant="blood"
-            onClick={() => setPaused(!paused)}
-          >
-            {paused ? "Retomar" : "Pausar"} Contagem
-          </VoidButton>
+          <Progress value={75} label="Integridade do Casco" variant="primary" />
+
+          <Progress mode="indeterminate" label="Buscando Sinal..." variant="warning" />
         </div>
-      </NocturnaCard>
+      </Card>
 
-      {/* 3. Modo Indeterminado (Loading) */}
-      <NocturnaCard title="Aguardando Servidor">
-        <VesselProgress mode="indeterminate" label="Conectando ao Vazio..." />
-      </NocturnaCard>
+      <Card title="Modo Timer (Toast Style)" variant="accent">
+        <p
+          style={{
+            color: "#71717a",
+            marginBottom: "1rem",
+            fontSize: "0.875rem",
+            lineHeight: "1.25rem",
+          }}
+        >
+          Usado internamente nos Toasts, mas disponível para interfaces de tempo limitado.
+        </p>
+        <Progress mode="timer" duration={5000} variant="accent" />
+        <Button
+          size="sm"
+          variant="accent"
+          style={{ marginTop: "1rem" }}
+          onClick={() => window.location.reload()} // Hack simples para reiniciar a demo
+        >
+          Reiniciar Timer
+        </Button>
+      </Card>
     </Layout>
   );
 };

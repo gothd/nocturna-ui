@@ -1,40 +1,66 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { AltarMenu } from "../Menu";
+import { Menu } from "../Menu";
 
 const items = [
   { id: "1", label: "Editar", onClick: jest.fn() },
   { id: "2", label: "Excluir", onClick: jest.fn(), danger: true },
+  { id: "3", label: "Desabilitado", onClick: jest.fn(), disabled: true },
 ];
 
-describe("AltarMenu", () => {
+describe("Menu", () => {
   it("deve renderizar o trigger padrão se nenhum for passado", () => {
-    render(<AltarMenu items={items} />);
-
+    render(<Menu items={items} />);
     const trigger = screen.getByRole("button");
     expect(trigger).toBeInTheDocument();
   });
 
-  it("deve abrir o menu ao clicar no trigger e mostrar itens", () => {
-    render(<AltarMenu items={items} />);
+  it("deve aplicar estilos da variante accent", () => {
+    render(<Menu items={items} variant="accent" />);
+    const trigger = screen.getByRole("button");
+    // O trigger deve ter a cor do texto ou borda da variante
+    expect(trigger.className).toContain("text-accent");
+  });
 
+  it("deve abrir o menu e navegar via teclado (ArrowDown)", () => {
+    render(<Menu items={items} />);
+    const trigger = screen.getByRole("button");
+
+    // Abre o menu
+    fireEvent.click(trigger);
+    expect(screen.getByText("Editar")).toBeVisible();
+
+    // Foca no primeiro item
+    const firstItem = screen.getByText("Editar").closest("button");
+    firstItem?.focus();
+    expect(firstItem).toHaveFocus();
+
+    // Navega para baixo
+    fireEvent.keyDown(firstItem!, { key: "ArrowDown" });
+    const secondItem = screen.getByText("Excluir").closest("button");
+    expect(secondItem).toHaveFocus();
+  });
+
+  it("não deve chamar onClick de item desabilitado", () => {
+    render(<Menu items={items} />);
+    fireEvent.click(screen.getByRole("button")); // Abre
+
+    const disabledItem = screen.getByText("Desabilitado");
+    fireEvent.click(disabledItem);
+
+    expect(items[2].onClick).not.toHaveBeenCalled();
+  });
+
+  it("deve fechar ao pressionar ESC", async () => {
+    render(<Menu items={items} />);
     const trigger = screen.getByRole("button");
     fireEvent.click(trigger);
 
-    expect(screen.getByText("Editar")).toBeVisible();
-    expect(screen.getByText("Excluir")).toBeVisible();
-  });
+    // Simula ESC dentro do menu
+    const menu = screen.getByRole("menu");
+    fireEvent.keyDown(menu, { key: "Escape" });
 
-  it("deve chamar onClick do item e fechar menu", async () => {
-    render(<AltarMenu items={items} />);
-
-    fireEvent.click(screen.getByRole("button"));
-    fireEvent.click(screen.getByText("Editar"));
-
-    expect(items[0].onClick).toHaveBeenCalled();
     await waitFor(() => {
-      const menu = screen.getByText("Editar").closest("div")?.parentElement;
-      // O menu wrapper tem a classe "invisible" quando fechado
-      expect(menu?.querySelector('[role="menu"]')).toHaveClass("invisible");
+      expect(menu).toHaveClass("invisible");
     });
   });
 });

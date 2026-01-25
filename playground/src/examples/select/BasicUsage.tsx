@@ -1,66 +1,56 @@
-import { useState } from "react";
 import styled from "styled-components";
-import { RitualSelect, NocturnaCard } from "nocturna-ui";
+import { Select, Card } from "nocturna-ui";
+import { useState } from "react";
 
 const Layout = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: 500px;
 `;
 
-const options = [
-  { value: "void", label: "Caminho do Vazio" },
-  { value: "shadow", label: "Manipulação de Sombras" },
-  { value: "blood", label: "Magia de Sangue" },
-  { value: "astral", label: "Projeção Astral" },
-];
-
 export const BasicUsage = () => {
-  const [classValue, setClassValue] = useState("");
-  const [serverValue, setServerValue] = useState("br");
+  const [server, setServer] = useState("sa-east-1");
+
+  const options = [
+    { value: "us-east-1", label: "US East (N. Virginia)" },
+    { value: "eu-west-1", label: "EU West (Ireland)" },
+    { value: "sa-east-1", label: "SA East (São Paulo)" },
+    { value: "ap-northeast-1", label: "Asia Pacific (Tokyo)" },
+  ];
 
   return (
     <Layout>
-      {/* 1. Uso Padrão (Void) */}
-      <NocturnaCard title="Seleção de Classe">
-        <RitualSelect
-          label="Especialização"
-          placeholder="Escolha seu caminho..."
-          options={options}
-          value={classValue}
-          onChange={setClassValue}
-        />
-      </NocturnaCard>
+      <Card title="Configuração de Rede">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <Select
+            label="Região do Servidor"
+            options={options}
+            value={server}
+            onChange={setServer}
+            variant="secondary"
+          />
 
-      {/* 2. Variante Blood e Tamanho Pequeno */}
-      <NocturnaCard title="Configuração de Servidor" variant="blood">
-        <RitualSelect
-          variant="blood"
-          size="sm"
-          label="Região (Crítico)"
-          value={serverValue}
-          onChange={setServerValue}
-          options={[
-            { value: "br", label: "São Paulo (BR-1)" },
-            { value: "us", label: "N. Virginia (US-East)" },
-            { value: "eu", label: "Frankfurt (EU-Central)" },
-          ]}
-        />
+          <Select
+            label="Protocolo de Criptografia"
+            placeholder="Selecione um método..."
+            options={[
+              { value: "aes", label: "AES-256 (Padrão)" },
+              { value: "rsa", label: "RSA-4096 (Lento)" },
+              { value: "chacha", label: "ChaCha20 (Rápido)" },
+            ]}
+            variant="accent"
+          />
 
-        <div style={{ marginTop: "1rem" }}>
-          <RitualSelect
-            variant="blood"
-            size="sm"
-            label="Instância (Offline)"
-            placeholder="Manutenção..."
+          <Select
+            label="Nível de Acesso (Disabled)"
+            placeholder="Root"
             disabled
             options={[]}
+            variant="primary"
           />
         </div>
-      </NocturnaCard>
+      </Card>
     </Layout>
   );
 };

@@ -1,11 +1,5 @@
 import styled from "styled-components";
-import {
-  SpectreSkeleton,
-  SpectreSkeletonAvatar,
-  SpectreSkeletonLine,
-  SpectreSkeletonCard,
-  NocturnaCard,
-} from "nocturna-ui";
+import { Skeleton, SkeletonAvatar, SkeletonLine, SkeletonCard, Card } from "nocturna-ui";
 
 const Layout = styled.div`
   display: grid;
@@ -28,52 +22,37 @@ const Column = styled.div`
   flex: 1;
 `;
 
-const CardGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const ErrorText = styled.p`
-  color: #f87171; /* red-400 */
-  font-size: 0.875rem; /* text-sm */
-  margin-bottom: 1rem;
-`;
-
 export const BasicUsage = () => {
   return (
     <Layout>
-      {/* 1. Composição Manual (Perfil) */}
-      <NocturnaCard title="Perfil de Usuário (Loading)">
+      {/* 1. Composição Manual */}
+      <Card title="Carregando Perfil...">
         <Row>
-          <SpectreSkeletonAvatar size="lg" />
+          <SkeletonAvatar size="lg" />
           <Column>
-            <SpectreSkeletonLine width="60%" height="1.2rem" />
-            <SpectreSkeletonLine width="40%" />
+            <SkeletonLine width="60%" height="1.2rem" />
+            <SkeletonLine width="40%" />
           </Column>
         </Row>
-        <SpectreSkeleton height="100px" style={{ marginTop: "1rem" }} />
-      </NocturnaCard>
+        <Skeleton height="100px" style={{ marginTop: "1rem" }} />
+      </Card>
 
-      {/* 2. Preset de Card */}
-      <NocturnaCard title="Feed de Notícias">
-        <CardGroup>
-          <SpectreSkeletonCard />
-          <SpectreSkeletonCard lines={2} hasTitle={false} />
-        </CardGroup>
-      </NocturnaCard>
+      {/* 2. Preset de Card (Secondary Theme) */}
+      <Card title="Feed (Secondary)" variant="secondary">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <SkeletonCard variant="secondary" />
+          <SkeletonCard variant="secondary" lines={2} hasTitle={false} />
+        </div>
+      </Card>
 
-      {/* 3. Variante Blood */}
-      <NocturnaCard title="Erro de Carregamento" variant="blood">
-        <ErrorText>
-          Falha ao recuperar dados vitais. Tentando reconexão...
-        </ErrorText>
+      {/* 3. Variante Accent */}
+      <Card title="Dados Críticos (Accent)" variant="accent">
         <Row>
-          <SpectreSkeletonAvatar variant="blood" size="md" />
-          <SpectreSkeletonLine variant="blood" />
+          <SkeletonAvatar variant="accent" size="md" />
+          <SkeletonLine variant="accent" />
         </Row>
-        <SpectreSkeletonCard variant="blood" lines={4} />
-      </NocturnaCard>
+        <SkeletonCard variant="accent" lines={4} />
+      </Card>
     </Layout>
   );
 };

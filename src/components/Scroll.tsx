@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface AbyssScrollProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ScrollProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Conteúdo que será rolado.
    * Deve exceder a altura definida em `maxHeight` para ativar a rolagem.
@@ -10,11 +10,9 @@ interface AbyssScrollProps extends React.HTMLAttributes<HTMLDivElement> {
 
   /**
    * Define o tema visual da barra de rolagem.
-   * - `void`: Trilho escuro com polegar (thumb) branco.
-   * - `blood`: Trilho e polegar em tons de vermelho sangue.
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
    * Altura máxima do container antes de ativar a rolagem.
@@ -32,18 +30,41 @@ interface AbyssScrollProps extends React.HTMLAttributes<HTMLDivElement> {
  * - Estilização profunda de scrollbar para manter a imersão gótica.
  * - Suporte a conteúdo dinâmico.
  */
-export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
-  (
-    {
-      children,
-      variant = "void",
-      maxHeight = "400px",
-      className,
-      style,
-      ...props
-    },
-    ref,
-  ) => {
+export const Scroll = forwardRef<HTMLDivElement, ScrollProps>(
+  ({ children, variant = "primary", maxHeight = "400px", className, style, ...props }, ref) => {
+    const scrollbarVariants = {
+      primary: [
+        "[&::-webkit-scrollbar-track]:border-zinc-800",
+        "[&::-webkit-scrollbar-thumb]:bg-white",
+        "[&::-webkit-scrollbar-thumb]:hover:bg-zinc-400",
+        "[scrollbar-color:white_black]",
+      ],
+      secondary: [
+        "[&::-webkit-scrollbar-track]:border-secondary/20",
+        "[&::-webkit-scrollbar-thumb]:bg-secondary",
+        "[&::-webkit-scrollbar-thumb]:hover:bg-secondary/80",
+        "[scrollbar-color:#00FF41_black]",
+      ],
+      accent: [
+        "[&::-webkit-scrollbar-track]:border-accent/20",
+        "[&::-webkit-scrollbar-thumb]:bg-accent",
+        "[&::-webkit-scrollbar-thumb]:hover:bg-accent/80",
+        "[scrollbar-color:#FF007F_black]",
+      ],
+      danger: [
+        "[&::-webkit-scrollbar-track]:border-danger/20",
+        "[&::-webkit-scrollbar-thumb]:bg-danger",
+        "[&::-webkit-scrollbar-thumb]:hover:bg-danger/80",
+        "[scrollbar-color:#DC2626_black]",
+      ],
+      warning: [
+        "[&::-webkit-scrollbar-track]:border-warning/20",
+        "[&::-webkit-scrollbar-thumb]:bg-warning",
+        "[&::-webkit-scrollbar-thumb]:hover:bg-warning/80",
+        "[scrollbar-color:#FFD700_black]",
+      ],
+    };
+
     return (
       <div
         ref={ref}
@@ -68,25 +89,8 @@ export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
           // --- FIREFOX SUPPORT (Via propriedades CSS padrão) ---
           "scrollbar-thin", // Define a largura fina no Firefox
 
-          // --- VARIANTE VOID ---
-          variant === "void" && [
-            // Webkit
-            "[&::-webkit-scrollbar-track]:border-zinc-800",
-            "[&::-webkit-scrollbar-thumb]:bg-white",
-            "[&::-webkit-scrollbar-thumb]:hover:bg-zinc-400",
-            // Firefox (scrollbar-color: thumb track)
-            "[scrollbar-color:white_black]",
-          ],
-
-          // --- VARIANTE BLOOD ---
-          variant === "blood" && [
-            // Webkit
-            "[&::-webkit-scrollbar-track]:border-red-900",
-            "[&::-webkit-scrollbar-thumb]:bg-red-900",
-            "[&::-webkit-scrollbar-thumb]:hover:bg-red-600",
-            // Firefox
-            "[scrollbar-color:#7f1d1d_black]",
-          ],
+          // --- VARIANTES ---
+          scrollbarVariants[variant],
 
           className,
         )}
@@ -98,4 +102,4 @@ export const AbyssScroll = forwardRef<HTMLDivElement, AbyssScrollProps>(
   },
 );
 
-AbyssScroll.displayName = "AbyssScroll";
+Scroll.displayName = "Scroll";

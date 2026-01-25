@@ -1,13 +1,11 @@
 import styled from "styled-components";
-import { SoulTabs, NocturnaCard, VoidButton, SigilBadge } from "nocturna-ui";
+import { Tabs, Card, Badge } from "nocturna-ui";
 
 const Layout = styled.div`
   display: flex;
   flex-direction: column;
   gap: 3rem;
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
 `;
 
 const ContentArea = styled.div`
@@ -20,69 +18,64 @@ const StatRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #27272a; /* zinc-800 */
+  border-bottom: 1px solid #27272a;
   padding-bottom: 0.5rem;
 `;
 
 export const BasicUsage = () => {
-  // Conteúdo para o exemplo Void
-  const voidTabs = [
+  const items = [
     {
-      id: "lore",
-      label: "Grimório",
+      id: "data",
+      label: "Dados",
       content: (
         <ContentArea>
           <p style={{ color: "#a1a1aa" }}>
-            O Grimório contém os segredos antigos da interface do usuário. Cada
-            componente é uma página de um livro esquecido.
+            Acesso direto ao banco de dados neural. Leitura apenas.
           </p>
-          <VoidButton size="sm">Ler Capítulo</VoidButton>
+          <StatRow>
+            <span style={{ color: "#d4d4d8" }}>Integridade</span>
+            <Badge variant="secondary" styleType="solid">
+              98%
+            </Badge>
+          </StatRow>
+          <StatRow>
+            <span style={{ color: "#d4d4d8" }}>Latência</span>
+            <Badge variant="primary">12ms</Badge>
+          </StatRow>
         </ContentArea>
       ),
     },
     {
-      id: "stats",
-      label: "Atributos",
+      id: "logs",
+      label: "Registros",
       content: (
         <ContentArea>
-          <StatRow>
-            <span style={{ color: "#d4d4d8" }}>Inteligência</span>
-            <SigilBadge size="sm">LVL 99</SigilBadge>
-          </StatRow>
-          <StatRow>
-            <span style={{ color: "#d4d4d8" }}>Carisma</span>
-            <SigilBadge size="sm">LVL 10</SigilBadge>
-          </StatRow>
+          <p style={{ color: "#a1a1aa" }}>Últimas 24 horas de atividade do sistema.</p>
+          <div style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#71717a" }}>
+            <div>[08:00] Inicialização do Kernel... OK</div>
+            <div>[08:05] Conexão remota estabelecida.</div>
+            <div style={{ color: "#ef4444" }}>[10:42] Erro de paridade no setor 9.</div>
+          </div>
         </ContentArea>
       ),
-    },
-  ];
-
-  // Conteúdo para o exemplo Blood
-  const bloodTabs = [
-    {
-      id: "active",
-      label: "Maldições Ativas",
-      content: "Nenhuma maldição detectada no momento. O sistema está estável.",
-    },
-    {
-      id: "history",
-      label: "Histórico de Sangue",
-      content: "Registro de erros críticos apagado pelo administrador.",
     },
   ];
 
   return (
     <Layout>
-      {/* 1. Variante Padrão (Void) */}
-      <NocturnaCard title="Painel do Personagem">
-        <SoulTabs tabs={voidTabs} />
-      </NocturnaCard>
+      <Card title="Terminal do Usuário">
+        <Tabs tabs={items} variant="primary" />
+      </Card>
 
-      {/* 2. Variante Blood */}
-      <NocturnaCard title="Status do Sistema" variant="blood">
-        <SoulTabs variant="blood" tabs={bloodTabs} />
-      </NocturnaCard>
+      <Card title="Modo de Segurança (Warning)" variant="warning">
+        <Tabs
+          variant="warning"
+          tabs={[
+            { id: "warn", label: "Alertas", content: "3 Ameaças detectadas no perímetro." },
+            { id: "fix", label: "Correção", content: "Execute o protocolo de limpeza." },
+          ]}
+        />
+      </Card>
     </Layout>
   );
 };

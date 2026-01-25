@@ -1,37 +1,44 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
 
-interface VoidButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Define o estilo visual do botão.
-   * - `void`: Estilo padrão preto e branco.
-   * - `blood`: Estilo vermelho escuro para ações perigosas ou destaque.
-   * @default "void"
+   * @default "primary"
    */
-  variant?: "void" | "blood";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
   /**
-   * Controla o tamanho e o padding do botão.
+   * Controla o tamanho e o padding.
    * @default "md"
    */
   size?: "sm" | "md" | "lg";
 }
 
 /**
- * O botão primário da Nocturna UI.
- * Utiliza sombras rígidas e transições brutas.
+ * Botão primário com estética brutalista.
+ * Utiliza sombras rígidas (hard shadows) e transições de alto contraste.
  */
-export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
-  (
-    {
-      variant = "void",
-      size = "md",
-      className,
-      type = "button", // Default seguro para evitar submits acidentais
-      disabled,
-      ...props
-    },
-    ref,
-  ) => {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = "primary", size = "md", className, type = "button", disabled, ...props }, ref) => {
+    const variantStyles = {
+      primary:
+        "border-primary text-primary hover:bg-primary hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]",
+      secondary:
+        "border-secondary text-secondary hover:bg-secondary hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(0,255,65,0.5)]",
+      accent:
+        "border-accent text-accent hover:bg-accent hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(255,0,127,0.5)]",
+      danger:
+        "border-danger text-danger hover:bg-danger hover:text-white focus-visible:shadow-[6px_6px_0px_0px_rgba(220,38,38,0.5)]",
+      warning:
+        "border-warning text-warning hover:bg-warning hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(255,215,0,0.5)]",
+    };
+
+    const sizeStyles = {
+      sm: "px-3 py-1 text-xs",
+      md: "px-6 py-2 text-sm",
+      lg: "px-10 py-4 text-base",
+    };
+
     return (
       <button
         ref={ref}
@@ -39,20 +46,9 @@ export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
         disabled={disabled}
         className={cn(
           "border-2 font-serif uppercase tracking-widest transition-all duration-300 relative select-none",
-          // Layout & Size
-          "flex items-center justify-center",
-          size === "sm" && "px-3 py-1 text-xs",
-          size === "md" && "px-6 py-2 text-sm",
-          size === "lg" && "px-10 py-4 text-base",
-          // Color Variants
-          variant === "void"
-            ? "border-white text-white hover:bg-white hover:text-black"
-            : "border-red-900 text-red-600 hover:bg-red-900 hover:text-white",
-          // Focus Styles (Acessibilidade via Teclado)
-          "focus:outline-none",
-          variant === "void"
-            ? "focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]"
-            : "focus-visible:shadow-[6px_6px_0px_0px_rgba(136,8,8,0.6)]",
+          "flex items-center justify-center focus:outline-none",
+          sizeStyles[size],
+          variantStyles[variant],
           // Disabled State
           disabled &&
             "opacity-50 cursor-not-allowed hover:shadow-none hover:bg-transparent hover:text-inherit pointer-events-none",
@@ -64,4 +60,4 @@ export const VoidButton = forwardRef<HTMLButtonElement, VoidButtonProps>(
   },
 );
 
-VoidButton.displayName = "VoidButton";
+Button.displayName = "Button";

@@ -1,36 +1,44 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { GrimoireAccordion } from "../Accordion";
+import { Accordion } from "../Accordion";
 
 const items = [
   { id: "1", title: "Item 1", content: "Conteúdo 1" },
   { id: "2", title: "Item 2", content: "Conteúdo 2" },
 ];
 
-describe("GrimoireAccordion", () => {
+describe("Accordion", () => {
   it("deve renderizar os títulos dos itens", () => {
-    render(<GrimoireAccordion items={items} />);
+    render(<Accordion items={items} />);
     expect(screen.getByText("Item 1")).toBeInTheDocument();
     expect(screen.getByText("Item 2")).toBeInTheDocument();
   });
 
-  it("deve mostrar o conteúdo ao clicar e esconder ao clicar novamente", () => {
-    render(<GrimoireAccordion items={items} />);
+  it("deve aplicar a variante danger corretamente", () => {
+    render(<Accordion items={items} variant="danger" />);
+    // O container do item deve ter a borda correspondente ao danger
+    // Como o componente usa map, pega o primeiro item
+    const itemContainer = screen.getByText("Item 1").closest("div");
+    expect(itemContainer?.className).toContain("border-danger");
+  });
 
-    // Inicialmente fechado (não visível ou não montado pelo AnimatePresence)
-    // O queryByText retorna null se não achar, o que é esperado aqui.
+  it("deve mostrar o conteúdo ao clicar e atualizar ARIA", () => {
+    render(<Accordion items={items} />);
+
+    // Inicialmente fechado
     expect(screen.queryByText("Conteúdo 1")).not.toBeInTheDocument();
 
-    // Clica para abrir
-    fireEvent.click(screen.getByText("Item 1"));
-    expect(screen.getByText("Conteúdo 1")).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: /item 1/i });
+    expect(button).toHaveAttribute("aria-expanded", "false");
 
-    // Verifica atributo ARIA
-    const button = screen.getByText("Item 1").closest("button");
+    // Clica para abrir
+    fireEvent.click(button);
+    expect(screen.getByText("Conteúdo 1")).toBeInTheDocument();
     expect(button).toHaveAttribute("aria-expanded", "true");
 
     // Clica para fechar
-    fireEvent.click(screen.getByText("Item 1"));
-    // Nota: O Framer Motion em testes pode precisar de mocks, mas a lógica de estado do React é o que importa.
+    fireEvent.click(button);
+    // Nota: Em testes unitários sem animação real, o componente sai do DOM imediatamente
+    // ou aguarda o timeout do framer-motion. É verificado o estado lógico.
     expect(button).toHaveAttribute("aria-expanded", "false");
   });
 });

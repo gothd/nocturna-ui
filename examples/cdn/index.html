@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nocturna UI v0.0.5 - CDN Ritual</title>
+    <title>Nocturna UI v0.0.6 - CDN Ritual</title>
 
     <link rel="stylesheet" href="../../dist/style.css" />
 
@@ -14,8 +14,9 @@
     <script src="../../dist/index.umd.js"></script>
 
     <style>
+      /* Reset Básico para o Demo */
       body {
-        background-color: #000;
+        background-color: #050505; /* Abyss Black */
         color: #fff;
         font-family:
           system-ui,
@@ -28,22 +29,21 @@
         justify-content: center;
         margin: 0;
       }
-      /* Utilitário simples para layout */
       .layout-container {
         width: 100%;
-        max-width: 600px;
+        max-width: 500px;
         padding: 2rem;
         display: flex;
         flex-direction: column;
         gap: 2rem;
       }
       .code-block {
-        background: #18181b;
+        background: #09090b;
         padding: 1rem;
         border: 1px solid #27272a;
         font-family: monospace;
         font-size: 0.8rem;
-        color: #a1a1aa;
+        color: #00ff41; /* Secondary (Malware Green) */
         margin-top: 1rem;
       }
     </style>
@@ -52,34 +52,27 @@
     <div id="root"></div>
 
     <script>
-      // 1. Desconstrução dos Primitivos Globais
-      const {
-        VoidButton,
-        NocturnaCard,
-        AbyssSeparator,
-        OmenToastProvider,
-        SigilBadge,
-      } = window.NocturnaUI;
+      // 1. Desconstrução da API Global
+      // Na v0.0.6, usamos nomes diretos: Button, Card, etc.
+      const { Button, Card, Separator, ToastProvider, Badge } = window.NocturnaUI;
 
       const React = window.React;
       const ReactDOM = window.ReactDOM;
 
-      // 2. Componente da Aplicação (Layout)
+      // 2. Componente da Aplicação (Sem JSX)
       function App() {
         // Função para disparar o Toast usando a Bridge Global
         const summonToast = () => {
-          // Verifica se a bridge foi injetada
           if (window.NocturnaUI.toaster) {
             window.NocturnaUI.toaster.toast({
-              title: "Invocação CDN",
-              description:
-                "O sistema de Toasts funciona perfeitamente via UMD.",
-              variant: "blood",
+              title: "Sistema Conectado",
+              description: "Acesso via CDN estabelecido com sucesso.",
+              variant: "secondary", // Verde Neon
               type: "success",
               duration: 4000,
             });
           } else {
-            alert("O Provider ainda não inicializou a bridge.");
+            alert("Erro: O Provider ainda não inicializou a bridge.");
           }
         };
 
@@ -94,59 +87,64 @@
             React.createElement(
               "h1",
               {
-                className:
-                  "text-4xl font-serif uppercase tracking-tighter mb-2",
+                style: {
+                  fontSize: "2.25rem",
+                  lineHeight: "2.5rem",
+                  fontFamily: "Playfair Display, Georgia, serif",
+                  textTransform: "uppercase",
+                  letterSpacing: "-0.05em",
+                  marginBottom: "0.5rem",
+                },
               },
               "Nocturna CDN",
             ),
             React.createElement(
-              SigilBadge,
-              { variant: "void", styleType: "outline" },
-              "v0.0.5",
+              Badge,
+              // Usando a nova paleta Accent (Rosa)
+              { variant: "accent", styleType: "outline" },
+              "v0.0.6 • Cyber Goth",
             ),
           ),
 
-          React.createElement(AbyssSeparator, { label: "♦" }),
+          React.createElement(Separator, { label: "♱", variant: "primary" }),
 
           // Card de Demonstração
           React.createElement(
-            NocturnaCard,
+            Card,
             {
-              title: "Ambiente Híbrido",
-              variant: "void",
+              title: "Ambiente Vanilla",
+              variant: "primary",
             },
             React.createElement(
               "p",
-              { style: { color: "#71717a", marginBottom: "1rem" } },
-              "Este exemplo roda React sem compilador (JSX), carregando os componentes diretamente do arquivo dist local.",
+              { style: { color: "#a1a1aa", marginBottom: "1.5rem" } },
+              "Este exemplo roda React puro, carregando os componentes via script UMD sem compiladores.",
             ),
             React.createElement(
-              VoidButton,
+              Button,
               {
-                variant: "blood",
-                onClick: summonToast, // Chama a função que usa a Bridge
+                variant: "accent", // Botão Rosa Neon
+                onClick: summonToast,
                 style: { width: "100%" },
               },
-              "Invocar Toast",
+              "Executar Protocolo",
             ),
             // Exibição de código para instrução
             React.createElement(
               "div",
               { className: "code-block" },
-              "window.NocturnaUI.toaster.toast({ title: '...' })",
+              "window.NocturnaUI.toaster.toast({ type: 'success' })",
             ),
           ),
         );
       }
 
-      // 3. Inicialização do React
+      // 3. Inicialização
       const rootElement = document.getElementById("root");
       const root = ReactDOM.createRoot(rootElement);
 
-      // OBRIGATÓRIO: Envolver a App no Provider para que os Toasts funcionem
-      root.render(
-        React.createElement(OmenToastProvider, null, React.createElement(App)),
-      );
+      // OBRIGATÓRIO: ToastProvider na raiz para o sistema de notificações funcionar
+      root.render(React.createElement(ToastProvider, null, React.createElement(App)));
     </script>
   </body>
 </html>
