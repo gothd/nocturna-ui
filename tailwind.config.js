@@ -17,8 +17,9 @@ module.exports = {
         muted: "#52525b", // Zinc-600 (Cinza para textos secundários)
       },
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"], // Estilo tumblr/goth clássico
-        sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["Playfair Display", "Georgia", "Cambria", "Times New Roman", "serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "Consolas", "monospace"],
       },
       keyframes: {
         progress: {

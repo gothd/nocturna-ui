@@ -1,58 +1,68 @@
-import styled from "styled-components";
-import { Separator, Card, Button } from "nocturna-ui";
-
-const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
+import { Separator, Card, Button, Box, Text } from "nocturna-ui";
 
 export const BasicUsage = () => {
   return (
-    <Layout>
-      <Card title="Divisores de Seção">
-        <Content>
-          <p style={{ color: "#a1a1aa" }}>Introdução ao capítulo 1.</p>
+    <Box style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      {/* Caso 1: Separador Horizontal Padrão */}
+      <Card title="Divisores de Conteúdo">
+        <Box style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <Text color="zinc-400">Introdução ao capítulo 1.</Text>
 
           <Separator variant="primary" />
 
-          <p style={{ color: "#a1a1aa" }}>Conteúdo principal do texto sagrado.</p>
+          <Text color="zinc-400">Conteúdo principal do texto sagrado.</Text>
 
-          <Separator variant="accent" label="Capítulo 2" />
+          <Separator variant="accent" label="Capítulo 2" style={{ margin: "2rem 0" }} />
 
-          <p style={{ color: "#a1a1aa" }}>Início da segunda parte da profecia.</p>
-        </Content>
+          <Text color="zinc-400">Início da segunda parte da profecia.</Text>
+        </Box>
       </Card>
 
+      {/* Caso 2: Separador Vertical (HStack logic) */}
+      <Card title="Toolbar (Vertical Separator)" variant="secondary">
+        <Box
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            height: "40px", // Altura definida para o separador preencher
+            gap: "1rem",
+          }}
+        >
+          <Button size="sm">Edit</Button>
+          <Button size="sm">View</Button>
+
+          {/* Separador Vertical */}
+          <Separator orientation="vertical" variant="secondary" />
+
+          <Button size="sm">Copy</Button>
+          <Button size="sm">Paste</Button>
+
+          <Separator orientation="vertical" variant="secondary" />
+
+          <Text fontSize="xs" color="secondary" style={{ marginLeft: "auto" }}>
+            v2.0.1
+          </Text>
+        </Box>
+      </Card>
+
+      {/* Caso 3: Zona Restrita */}
       <Card title="Zona Restrita" variant="danger">
-        <Content>
+        <Box style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span>Status: Comprometido</span>
+            <Text color="danger">Status: Comprometido</Text>
             <Button size="sm" variant="danger">
               Reportar
             </Button>
           </div>
 
-          <Separator variant="danger" label="Classified" />
+          <Separator variant="danger" label="Classified" style={{ margin: "1.5rem 0" }} />
 
-          <p
-            style={{
-              color: "#dc2626",
-              opacity: "0.8",
-              fontSize: "0.875rem",
-              lineHeight: "1.25rem",
-            }}
-          >
+          <Text color="danger" style={{ opacity: 0.8, fontSize: "0.875rem" }}>
             Estas informações são visíveis apenas para nível 5 de acesso.
-          </p>
-        </Content>
+          </Text>
+        </Box>
       </Card>
-    </Layout>
+    </Box>
   );
 };

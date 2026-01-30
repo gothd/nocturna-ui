@@ -9,14 +9,26 @@ describe("Separator", () => {
     expect(label.className).toContain("text-warning");
   });
 
-  it("deve ter role separator e borda primary por padrão", () => {
+  it("deve ter role separator e borda primary por padrão (horizontal)", () => {
     render(<Separator />);
     const separator = screen.getByRole("separator");
     expect(separator).toBeInTheDocument();
+    expect(separator).toHaveAttribute("aria-orientation", "horizontal");
 
-    // As linhas (divs filhas) devem ter a borda padrão
+    // As linhas (divs filhas) devem ter a borda superior (border-t)
     const line = separator.querySelector("div");
-    expect(line?.className).toContain("border-primary");
+    expect(line?.className).toContain("border-t-2");
+  });
+
+  it("deve renderizar verticalmente quando orientation='vertical'", () => {
+    render(<Separator orientation="vertical" />);
+    const separator = screen.getByRole("separator");
+    expect(separator).toHaveAttribute("aria-orientation", "vertical");
+    expect(separator.className).toContain("flex-col");
+
+    // As linhas devem ter borda lateral (border-l)
+    const line = separator.querySelector("div");
+    expect(line?.className).toContain("border-l-2");
   });
 
   it("deve suportar polimorfismo (as='li')", () => {

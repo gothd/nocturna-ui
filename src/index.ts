@@ -22,6 +22,15 @@ export { Tabs } from "./components/Tabs";
 export { Toast } from "./components/Toast";
 export { Tooltip } from "./components/Tooltip";
 
+// Layout Primitivos
+export { Box } from "./components/Box";
+export { Flex } from "./components/Flex";
+export { Stack, VStack, HStack } from "./components/Stack";
+export { Grid } from "./components/Grid";
+export { SimpleGrid } from "./components/SimpleGrid";
+export { Text } from "./components/Text";
+export { Heading } from "./components/Heading";
+
 // Providers e Hooks
 export { ToastProvider, useToast } from "./providers/ToastProvider";
 

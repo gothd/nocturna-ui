@@ -1,513 +1,458 @@
-import React, { type ReactNode } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, type ReactNode, type KeyboardEvent } from "react";
 import styled from "styled-components";
 import Markdown from "react-markdown";
-import { Separator, Card, Badge } from "nocturna-ui";
+import { Card, Box, Text, Heading, Badge } from "nocturna-ui";
+import { Link } from "react-router-dom";
 
-interface DocgenType {
-  name: string;
-  raw?: string;
-  value?: { value: string }[];
-}
-
+// --- Interfaces ---
 interface DocgenProp {
   defaultValue: { value: string } | null;
   description: string;
   name: string;
   required: boolean;
-  type: DocgenType;
-}
-
-interface DocgenInfo {
-  description: string;
-  displayName: string;
-  props: Record<string, DocgenProp>;
+  type: { name: string; raw?: string; value?: { value: string }[] };
 }
 
 export type ComponentWithDocgen = React.ComponentType<unknown> & {
-  __docgenInfo?: DocgenInfo;
+  __docgenInfo?: {
+    description: string;
+    displayName: string;
+    props: Record<string, DocgenProp>;
+  };
 };
-
-interface DocsViewerProps {
-  component: ComponentWithDocgen;
-  presets?: ComponentWithDocgen[];
-  children?: ReactNode;
-}
 
 // --- Styled Components ---
 
-const ViewerWrapper = styled.div`
-  width: 100%;
-  margin: 3rem 0;
-  animation: fadeIn 0.7s ease-in-out;
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-`;
-
-const HeaderSection = styled.div`
-  padding: 2rem 1.5rem;
-  background-color: #050505;
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-  }
-`;
-
-const ComponentTitle = styled.h2`
-  font-family: "Playfair Display", serif;
-  font-size: 2.25rem;
-  color: #fff;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.025em;
-`;
-
-const PresetTitle = styled.h3`
-  font-family: "Playfair Display", serif;
-  font-size: 1.5rem;
-  color: #fff;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.025em;
-`;
-
-const ComponentDescription = styled.div`
-  font-family: system-ui, sans-serif;
-  color: #a1a1aa;
-  font-size: 1.125rem;
-  line-height: 1.75;
-  max-width: 48rem;
-
-  strong {
-    color: #fff;
-    font-weight: 600;
-  }
-  code {
-    background: #18181b;
-    padding: 0.2em 0.4em;
-    border-radius: 0.25rem;
-    font-family: monospace;
-    font-size: 0.9em;
-    border: 1px solid #27272a;
-    color: #e4e4e7;
-  }
-  p {
-    margin-bottom: 0.75rem;
-  }
-`;
-
-const PresetDescription = styled(ComponentDescription)`
-  font-size: 1rem;
+const ReferenceContainer = styled(Card)`
+  border: 1px solid #27272a;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
 `;
 
 const GridHeader = styled.div`
-  display: none;
-  @media (min-width: 768px) {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #27272a;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #71717a;
-    font-family: "Playfair Display", serif;
-    font-size: 0.875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-`;
-
-const HeaderCol = styled.div<{ $span: number }>`
-  grid-column: span ${(props) => props.$span} / span ${(props) => props.$span};
-`;
-
-const PropRow = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 0.8fr 1.5fr;
   gap: 1rem;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(24, 24, 27, 0.5);
-  transition: background-color 0.2s;
-  position: relative;
+  padding: 1rem;
+  background: #101010;
+  border-bottom: 1px solid #27272a;
 
-  &:hover {
-    background-color: rgba(24, 24, 27, 0.3);
-  }
-  &:last-child {
-    border-bottom: none;
-  }
-
-  @media (min-width: 768px) {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    padding: 1.5rem;
-    align-items: start;
-  }
-`;
-
-const NameCol = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: #050505;
-  margin: -1.5rem -1.5rem 0 -1.5rem;
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid #18181b;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-
-  @media (min-width: 768px) {
-    grid-column: span 3 / span 3;
-    position: static;
-    background-color: transparent;
-    margin: 0;
-    padding: 0;
-    border-bottom: none;
-    box-shadow: none;
-  }
-`;
-
-const PropNameWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  @media (min-width: 768px) {
-    justify-content: flex-start;
-  }
-`;
-
-const PropName = styled.span`
-  font-family: monospace;
-  font-size: 0.875rem;
-  /* Accent Pink para destacar chaves de propriedade */
-  color: #ff007f;
-  font-weight: 700;
-  word-break: break-all;
-`;
-
-const RequiredBadge = styled.span`
-  font-size: 0.625rem;
-  /* Danger Red */
-  color: #dc2626;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-  background-color: rgba(220, 38, 38, 0.1);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-const DataCol = styled.div<{ $span: number }>`
-  @media (min-width: 768px) {
-    grid-column: span ${(props) => props.$span} / span ${(props) => props.$span};
-  }
-`;
-
-const MobileLabel = styled.span`
-  display: block;
-  font-size: 0.75rem;
-  color: #52525b;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.5rem;
-  font-family: "Playfair Display", serif;
-  @media (min-width: 768px) {
+  @media (max-width: 768px) {
     display: none;
   }
 `;
 
-const TypeBadgesWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-`;
-
-const DefaultValue = styled.span`
-  font-family: monospace;
+const HeaderCell = styled.span`
+  color: #71717a;
   font-size: 0.75rem;
-  color: #d4d4d8;
-  background-color: #18181b;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid #27272a;
-  display: inline-block;
-  word-break: break-all;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 `;
 
-const DescriptionText = styled.div`
-  font-size: 0.875rem;
-  color: #a1a1aa;
-  line-height: 1.6;
-  text-wrap: balance;
-
-  strong {
-    color: #fff;
-    font-weight: 600;
-  }
-  code {
-    background: #18181b;
-    padding: 0.1em 0.3em;
-    border-radius: 0.2rem;
-    font-family: monospace;
-    font-size: 0.85em;
-    border: 1px solid #27272a;
-    color: #e4e4e7;
-  }
-  p {
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const EmptyState = styled.div`
-  padding: 3rem;
-  text-align: center;
-  color: #52525b;
-  font-style: italic;
-  font-family: serif;
-  border-top: 1px solid #18181b;
-  background-color: rgba(9, 9, 11, 0.3);
-`;
-
-const ErrorBox = styled.div`
+const GridRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 0.8fr 1.5fr;
+  gap: 1rem;
   padding: 1rem;
-  border: 1px solid #7f1d1d;
-  background-color: rgba(69, 10, 10, 0.2);
-  color: #ef4444;
-  font-family: monospace;
-  font-size: 0.875rem;
+  border-bottom: 1px solid #27272a;
+  transition: background 0.2s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+  }
 `;
 
-const formatType = (type: DocgenType): string[] => {
-  let parts: string | undefined;
-  if (type.raw) parts = type.raw;
-  if (type.name === "enum" && Array.isArray(type.value)) {
-    parts = type.value.map((v) => v.value).join(" | ");
+const Cell = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  word-wrap: break-word;
+`;
+
+const MobileLabel = styled.span`
+  display: none;
+  font-size: 0.7rem;
+  color: #52525b;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  @media (max-width: 768px) {
+    display: block;
   }
-  if (!parts) parts = type.name;
-  // Faz cleanup de undefined (já usamos o termo "obrigatório" ou "?" em propriedades literais)
-  parts = parts.replaceAll(" | undefined", "");
-  if (parts.startsWith("(") && parts.endsWith(")")) {
-    parts = parts.replace(/^\(|\)$/g, "");
+`;
+
+const PropName = styled.code`
+  font-family: "JetBrains Mono", monospace;
+  color: #ff007f;
+  font-weight: bold;
+  font-size: 0.9rem;
+`;
+
+// Badge Interativa com foco visual para acessibilidade
+const InteractiveBadge = styled(Badge)<{ $interactive?: boolean }>`
+  font-family: "JetBrains Mono", monospace;
+  text-transform: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+  width: max-content;
+  line-height: 1.5;
+  padding: 0.125rem 0.5rem;
+  display: inline-block;
+  font-size: 0.75rem;
+  background: #18181b;
+  border: 1px solid #27272a;
+  color: #a1a1aa;
+  cursor: ${(props) => (props.$interactive ? "pointer" : "default")};
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: none;
+    border-color: ${(props) => (props.$interactive ? "#3f3f46" : "#27272a")};
+    background: ${(props) => (props.$interactive ? "#27272a" : "#18181b")};
   }
-  // Se for objeto literal ou arrow function retorna em um array
-  if (typeof parts === "string" && (parts.startsWith("{") || parts.startsWith("("))) {
-    return [parts];
+
+  /* Estilo de foco para navegação por teclado */
+  &:focus-visible {
+    box-shadow: none;
+    outline: 2px solid #00ff41;
+    outline-offset: 1px;
   }
-  return parts.split(" | ");
+`;
+
+const MoreLabel = styled.span`
+  color: #00ff41;
+  font-weight: bold;
+  font-size: 0.7rem;
+  margin-left: 4px;
+  opacity: 0.8;
+  white-space: nowrap;
+`;
+
+const SYSTEM_PROPS_KEYS = new Set([
+  "m",
+  "mt",
+  "mb",
+  "ml",
+  "mr",
+  "mx",
+  "my",
+  "p",
+  "pt",
+  "pb",
+  "pl",
+  "pr",
+  "px",
+  "py",
+  "w",
+  "h",
+  "minW",
+  "maxW",
+  "minH",
+  "maxH",
+  "display",
+  "bg",
+  "color",
+  "opacity",
+  "rounded",
+  "fontSize",
+  "fontWeight",
+  "fontFamily",
+  "lineHeight",
+  "textAlign",
+  "as",
+  "ref",
+]);
+
+const cleanTypeString = (propName: string, type: any): string => {
+  let raw = type.raw || type.name || "string";
+  raw = raw.replace(/ \| undefined/g, "").replace(/ \| null/g, "");
+  if (propName === "as" || raw.includes("ElementType")) {
+    return "React.ElementType";
+  }
+  if (raw.includes("TokenOrValue")) {
+    return raw.replace(/TokenOrValue<(.+)>/, "$1 | number | string");
+  }
+  if (raw.includes("TokenOrString")) {
+    return raw.replace(/TokenOrString<(.+)>/, "$1 | string");
+  }
+  if (raw.includes("|")) {
+    return raw.replace(/\|/g, " | ");
+  }
+  return raw;
 };
 
-export const DocsViewer = ({ children, component, presets }: DocsViewerProps) => {
-  const docs = component.__docgenInfo;
-  const presetsDocs = presets && presets.map((p) => p.__docgenInfo).filter((p) => !!p);
-  console.log(docs);
+// --- Componente TypeDisplay (Com Acessibilidade) ---
+const TypeDisplay = ({ propName, typeData }: { propName: string; typeData: any }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const fullType = cleanTypeString(propName, typeData);
+  const isLong = fullType.length > 60 && (fullType.match(/\|/g) || []).length > 3;
 
-  if (!docs) {
-    return <ErrorBox>Documentação não encontrada.</ErrorBox>;
+  if (!isLong) {
+    return (
+      <InteractiveBadge variant="secondary" size="sm">
+        {fullType}
+      </InteractiveBadge>
+    );
   }
 
-  const hasProps = Object.keys(docs.props).length > 0;
+  const parts = fullType.split(" | ");
+  const preview = parts.slice(0, 3).join(" | ");
+  const remainingCount = parts.length - 3;
+
+  // Handler para teclado (Enter ou Espaço)
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault(); // Evita scroll da página com espaço
+      setIsExpanded(!isExpanded);
+    }
+  };
 
   return (
-    <ViewerWrapper>
-      {/* Overflow visible para sticky funcionar */}
-      <Card variant="primary" style={{ padding: 0, overflow: "visible" }}>
-        <HeaderSection>
-          <ComponentTitle>{docs.displayName}</ComponentTitle>
-          <ComponentDescription>
-            <Markdown>{docs.description}</Markdown>
-          </ComponentDescription>
-        </HeaderSection>
+    <InteractiveBadge
+      as="button"
+      variant="secondary"
+      size="sm"
+      $interactive={true}
+      onClick={() => setIsExpanded(!isExpanded)}
+      onKeyDown={handleKeyDown}
+      // Props de Acessibilidade
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
+      aria-label={isExpanded ? "Encolher detalhes do tipo" : "Expandir todos os tipos"}
+      style={{ textAlign: "left" }}
+    >
+      {isExpanded ? (
+        fullType
+      ) : (
+        <>
+          {preview} <span style={{ opacity: 0.5 }}>|</span>
+          <MoreLabel>+ {remainingCount}...</MoreLabel>
+        </>
+      )}
+    </InteractiveBadge>
+  );
+};
 
-        {/* Showcase do componente */}
-        {children}
+// --- Main Component ---
 
-        <div className="hidden md:block">
-          <Separator label="API Reference" variant="primary" style={{ margin: 0 }} />
-        </div>
-        <div className="block md:hidden">
-          <Separator label="API" variant="primary" style={{ margin: 0 }} />
-        </div>
+export const DocsViewer = ({
+  component,
+  children,
+  presets,
+}: {
+  component: ComponentWithDocgen;
+  presets?: ComponentWithDocgen[];
+  children?: ReactNode;
+}) => {
+  const info = component.__docgenInfo;
 
-        {hasProps ? (
-          <>
-            <div style={{ width: "100%", position: "relative" }}>
-              <GridHeader>
-                <HeaderCol $span={3} style={{ paddingLeft: "0.5rem" }}>
-                  Propriedade
-                </HeaderCol>
-                <HeaderCol $span={3}>Tipo</HeaderCol>
-                <HeaderCol $span={2}>Padrão</HeaderCol>
-                <HeaderCol $span={4}>Descrição</HeaderCol>
-              </GridHeader>
+  if (!info)
+    return (
+      <Box p={8}>
+        <Text>Sem documentação.</Text>
+      </Box>
+    );
 
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                {(Object.values(docs.props) as DocgenProp[]).map((prop) => (
-                  <PropRow key={prop.name}>
-                    {/* Nome da Propriedade (Sticky no Mobile) */}
-                    <NameCol>
-                      <PropNameWrapper>
+  const { displayName, description, props } = info;
+  const isBox = displayName === "Box";
+
+  const filteredProps = Object.entries(props || {})
+    .filter(([key]) => isBox || !SYSTEM_PROPS_KEYS.has(key))
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  const presetsInfo =
+    presets &&
+    presets
+      .map((p) => p.__docgenInfo)
+      .filter((p) => !!p)
+      .map((preset) => {
+        const { props } = preset;
+        const filteredProps = Object.entries(props || {})
+          .filter(([key]) => !SYSTEM_PROPS_KEYS.has(key))
+          .sort(([a], [b]) => a.localeCompare(b));
+        return { ...preset, props: filteredProps };
+      });
+
+  return (
+    <Box my="3rem" className="animate-fade-in">
+      <Box mb={8}>
+        <Heading level="h1" mb={4}>
+          {displayName}
+        </Heading>
+        <Text as="div" fontSize="lg" color="zinc-400" lineHeight="relaxed">
+          <Markdown>{description}</Markdown>
+        </Text>
+      </Box>
+
+      {!isBox && (
+        <Box p={4} mb={8} bg="rgba(0, 255, 65, 0.05)" style={{ borderLeft: "4px solid #00FF41" }}>
+          <Text fontSize="sm" color="zinc-300">
+            Este componente suporta todas as{" "}
+            <Link
+              to="/system-props"
+              style={{ color: "#00FF41", fontWeight: "bold", textDecoration: "none" }}
+            >
+              System Props
+            </Link>
+            .
+          </Text>
+        </Box>
+      )}
+
+      {children && (
+        <Box mb={10}>
+          <Heading level="h3" mb={6} color="primary">
+            Exemplos
+          </Heading>
+          {children}
+        </Box>
+      )}
+
+      <ReferenceContainer>
+        <Box p={4} bg="zinc-950" style={{ borderBottom: "1px solid #27272a" }}>
+          <Heading level="h4" color="white">
+            Referência da API
+          </Heading>
+        </Box>
+
+        <Box style={{ overflowX: "auto" }}>
+          <GridHeader>
+            <HeaderCell>Prop</HeaderCell>
+            <HeaderCell>Tipo</HeaderCell>
+            <HeaderCell>Padrão</HeaderCell>
+            <HeaderCell>Descrição</HeaderCell>
+          </GridHeader>
+
+          {filteredProps.length > 0 ? (
+            filteredProps.map(([key, prop]) => (
+              <GridRow key={key}>
+                <Cell>
+                  <MobileLabel>Prop</MobileLabel>
+                  <PropName>{prop.name}</PropName>
+                  {prop.required && (
+                    <Text as="span" color="danger" fontSize="xs" ml={1}>
+                      *
+                    </Text>
+                  )}
+                </Cell>
+
+                <Cell>
+                  <MobileLabel>Tipo</MobileLabel>
+                  <TypeDisplay propName={prop.name} typeData={prop.type} />
+                </Cell>
+
+                <Cell>
+                  <MobileLabel>Padrão</MobileLabel>
+                  <Text fontFamily="mono" fontSize="xs" color="zinc-500">
+                    {prop.defaultValue ? (
+                      <InteractiveBadge>
+                        {prop.defaultValue.value.replace(/"/g, "")}
+                      </InteractiveBadge>
+                    ) : (
+                      "-"
+                    )}
+                  </Text>
+                </Cell>
+
+                <Cell>
+                  <MobileLabel>Descrição</MobileLabel>
+                  <Text as="div" fontSize="sm" color="zinc-400">
+                    {prop.description ? <Markdown>{prop.description}</Markdown> : "-"}
+                  </Text>
+                </Cell>
+              </GridRow>
+            ))
+          ) : (
+            <Box p={8} style={{ textAlign: "center", fontStyle: "italic", opacity: 0.5 }}>
+              Nenhuma propriedade específica encontrada.
+            </Box>
+          )}
+        </Box>
+
+        {presetsInfo &&
+          presetsInfo.length > 0 &&
+          presetsInfo.map((preset) => (
+            <React.Fragment key={preset.displayName}>
+              <Box mt={8} mb={4} p={4}>
+                <Heading level="h3" mb={4}>
+                  {preset.displayName}
+                </Heading>
+                <Text as="div" fontSize="base" color="zinc-400" lineHeight="relaxed">
+                  <Markdown>{preset.description}</Markdown>
+                </Text>
+              </Box>
+
+              <Box style={{ overflowX: "auto" }}>
+                <GridHeader>
+                  <HeaderCell>Prop</HeaderCell>
+                  <HeaderCell>Tipo</HeaderCell>
+                  <HeaderCell>Padrão</HeaderCell>
+                  <HeaderCell>Descrição</HeaderCell>
+                </GridHeader>
+
+                {preset.props.length > 0 ? (
+                  preset.props.map(([key, prop]) => (
+                    <GridRow key={key}>
+                      <Cell>
+                        <MobileLabel>Prop</MobileLabel>
                         <PropName>{prop.name}</PropName>
-                        {prop.required && <RequiredBadge>Obrigatório</RequiredBadge>}
-                      </PropNameWrapper>
-                    </NameCol>
-
-                    <DataCol $span={3}>
-                      <MobileLabel>Tipo</MobileLabel>
-                      <TypeBadgesWrapper>
-                        {formatType(prop.type).map((typePart) => (
-                          <div key={typePart} style={{ maxWidth: "100%" }}>
-                            <Badge
-                              size="sm"
-                              variant="accent"
-                              styleType="outline"
-                              style={{
-                                textTransform: "none",
-                                fontFamily: "monospace",
-                                whiteSpace: "normal",
-                                textAlign: "left",
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {typePart.replace(/^"|"$/g, "")}
-                            </Badge>
-                          </div>
-                        ))}
-                      </TypeBadgesWrapper>
-                    </DataCol>
-
-                    <DataCol $span={2}>
-                      <MobileLabel>Padrão</MobileLabel>
-                      <div>
-                        {prop.defaultValue ? (
-                          <DefaultValue>{prop.defaultValue.value.replace(/"/g, "")}</DefaultValue>
-                        ) : (
-                          <span
-                            style={{
-                              fontFamily: "monospace",
-                              color: "#3f3f46",
-                              opacity: 0.5,
-                            }}
-                          >
-                            -
-                          </span>
+                        {prop.required && (
+                          <Text as="span" color="danger" fontSize="xs" ml={1}>
+                            *
+                          </Text>
                         )}
-                      </div>
-                    </DataCol>
+                      </Cell>
 
-                    <DataCol $span={4}>
-                      <MobileLabel>Descrição</MobileLabel>
-                      <DescriptionText>
-                        {prop.description ? (
-                          <Markdown>{prop.description}</Markdown>
-                        ) : (
-                          <span style={{ fontStyle: "italic", opacity: 0.3 }}>Sem descrição.</span>
-                        )}
-                      </DescriptionText>
-                    </DataCol>
-                  </PropRow>
-                ))}
-              </div>
-            </div>
+                      <Cell>
+                        <MobileLabel>Tipo</MobileLabel>
+                        <TypeDisplay propName={prop.name} typeData={prop.type} />
+                      </Cell>
 
-            {presetsDocs?.map((docs) => (
-              <React.Fragment key={docs.displayName}>
-                <HeaderSection>
-                  <PresetTitle>{docs.displayName}</PresetTitle>
-                  <PresetDescription>
-                    <Markdown>{docs.description}</Markdown>
-                  </PresetDescription>
-                </HeaderSection>
+                      <Cell>
+                        <MobileLabel>Padrão</MobileLabel>
+                        <Text fontFamily="mono" fontSize="xs" color="zinc-500">
+                          {prop.defaultValue ? (
+                            <InteractiveBadge>
+                              {prop.defaultValue.value.replace(/"/g, "")}
+                            </InteractiveBadge>
+                          ) : (
+                            "-"
+                          )}
+                        </Text>
+                      </Cell>
 
-                <div style={{ width: "100%", position: "relative" }}>
-                  <GridHeader>
-                    <HeaderCol $span={3} style={{ paddingLeft: "0.5rem" }}>
-                      Propriedade
-                    </HeaderCol>
-                    <HeaderCol $span={3}>Tipo</HeaderCol>
-                    <HeaderCol $span={2}>Padrão</HeaderCol>
-                    <HeaderCol $span={4}>Descrição</HeaderCol>
-                  </GridHeader>
-
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    {(Object.values(docs.props) as DocgenProp[]).map((prop) => (
-                      <PropRow key={prop.name}>
-                        <NameCol>
-                          <PropNameWrapper>
-                            <PropName>{prop.name}</PropName>
-                            {prop.required && <RequiredBadge>Obrigatório</RequiredBadge>}
-                          </PropNameWrapper>
-                        </NameCol>
-
-                        <DataCol $span={3}>
-                          <MobileLabel>Tipo</MobileLabel>
-                          <TypeBadgesWrapper>
-                            {formatType(prop.type).map((typePart) => (
-                              <div key={typePart} style={{ maxWidth: "100%" }}>
-                                <Badge
-                                  size="sm"
-                                  variant="accent"
-                                  styleType="outline"
-                                  style={{
-                                    textTransform: "none",
-                                    fontFamily: "monospace",
-                                    whiteSpace: "normal",
-                                    textAlign: "left",
-                                    wordBreak: "break-word",
-                                  }}
-                                >
-                                  {typePart.replace(/^"|"$/g, "")}
-                                </Badge>
-                              </div>
-                            ))}
-                          </TypeBadgesWrapper>
-                        </DataCol>
-
-                        <DataCol $span={2}>
-                          <MobileLabel>Padrão</MobileLabel>
-                          <div>
-                            {prop.defaultValue ? (
-                              <DefaultValue>
-                                {prop.defaultValue.value.replace(/"/g, "")}
-                              </DefaultValue>
-                            ) : (
-                              <span
-                                style={{
-                                  fontFamily: "monospace",
-                                  color: "#3f3f46",
-                                  opacity: 0.5,
-                                }}
-                              >
-                                -
-                              </span>
-                            )}
-                          </div>
-                        </DataCol>
-
-                        <DataCol $span={4}>
-                          <MobileLabel>Descrição</MobileLabel>
-                          <DescriptionText>
-                            {prop.description ? (
-                              <Markdown>{prop.description}</Markdown>
-                            ) : (
-                              <span style={{ fontStyle: "italic", opacity: 0.3 }}>
-                                Sem descrição.
-                              </span>
-                            )}
-                          </DescriptionText>
-                        </DataCol>
-                      </PropRow>
-                    ))}
-                  </div>
-                </div>
-              </React.Fragment>
-            ))}
-          </>
-        ) : (
-          <EmptyState>Este componente é puro e não aceita configurações externas.</EmptyState>
-        )}
-      </Card>
-    </ViewerWrapper>
+                      <Cell>
+                        <MobileLabel>Descrição</MobileLabel>
+                        <Text as="div" fontSize="sm" color="zinc-400">
+                          {prop.description ? <Markdown>{prop.description}</Markdown> : "-"}
+                        </Text>
+                      </Cell>
+                    </GridRow>
+                  ))
+                ) : (
+                  <Box p={8} style={{ textAlign: "center", fontStyle: "italic", opacity: 0.5 }}>
+                    Nenhuma propriedade específica encontrada.
+                  </Box>
+                )}
+              </Box>
+            </React.Fragment>
+          ))}
+      </ReferenceContainer>
+    </Box>
   );
 };
