@@ -3,9 +3,11 @@
 import { AlertTriangle, CheckCircle, Info, X, XCircle } from "lucide-react";
 import React, { forwardRef, useEffect, useState } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 import { Progress } from "./Progress";
 
-export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ToastProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /** ID único gerado automaticamente pelo Provider. */
   id: string;
   /** Título principal da notificação. */
@@ -38,7 +40,7 @@ export type ToastVariant = Required<ToastProps>["variant"];
 const typeToVariantMap: Record<ToastType, ToastVariant> = {
   info: "primary", // Info -> Branco
   success: "secondary", // Success -> Verde
-  warning: "warning", // Warning -> Gold
+  warning: "warning", // Warning -> Amarelo
   error: "danger", // Error -> Vermelho
 };
 
@@ -70,7 +72,10 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
   ) => {
     const [isExiting, setIsExiting] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+    const { systemStyle, domProps } = extractSystemStyles(props);
 
+    // Determina a variante final: Se o usuário passou 'variant', usa ela.
+    // Senão, usa a variante mapeada pelo 'type'.
     const activeVariant = variant || typeToVariantMap[type];
 
     const variantStyles = {
@@ -122,7 +127,8 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
             : "animate-in slide-in-from-right-full fade-in duration-300", // Entrada
           className,
         )}
-        {...props}
+        style={systemStyle}
+        {...domProps}
       >
         <div className="flex items-start gap-4 mb-3">
           <span className="shrink-0 mt-0.5 text-current">{iconMap[type]}</span>

@@ -1,9 +1,11 @@
 "use client";
 
 import React, { forwardRef, useId, useState } from "react";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 import { cn } from "../utils/cn";
 
-interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
+interface TooltipProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * O texto ou conteúdo a ser exibido dentro do tooltip.
    */
@@ -26,6 +28,12 @@ interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
    * @default "top"
    */
   position?: "top" | "bottom" | "left" | "right";
+
+  /**
+   * Atraso em milissegundos antes de mostrar o tooltip.
+   * @default 200
+   */
+  delay?: number;
 }
 
 /**
@@ -37,12 +45,22 @@ interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
  * - **Animação:** Fade e Scale sutis na entrada/saída.
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ content, children, variant = "primary", position = "top", className, ...props }, ref) => {
+  (
+    { content, children, variant = "primary", position = "top", delay = 200, className, ...props },
+    ref,
+  ) => {
     const [isVisible, setIsVisible] = useState(false);
     const tooltipId = useId(); // Garante ID único para acessibilidade
+    const timerRef = React.useRef<NodeJS.Timeout>();
+    const { systemStyle, domProps } = extractSystemStyles(props);
     // Handlers unificados para Mouse e Teclado
-    const show = () => setIsVisible(true);
-    const hide = () => setIsVisible(false);
+    const show = () => {
+      timerRef.current = setTimeout(() => setIsVisible(true), delay);
+    };
+    const hide = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setIsVisible(false);
+    };
 
     const variantStyles = {
       primary:
@@ -63,7 +81,8 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         onFocus={show} // Acessibilidade via teclado
         onBlur={hide}
         aria-describedby={isVisible ? tooltipId : undefined}
-        {...props}
+        style={systemStyle}
+        {...domProps}
       >
         {children}
 

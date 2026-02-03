@@ -1,32 +1,17 @@
-import styled from "styled-components";
-import { useToast, Button, Card } from "nocturna-ui";
-
-const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-  max-width: 600px;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
+import { Button, Card, Flex, Text, useToast } from "nocturna-ui";
 
 export const BasicUsage = () => {
   const { toast, dismissAll } = useToast();
 
   return (
-    <Layout>
+    <Flex direction="column" gap={8} w="full" maxW="600px">
       <Card title="Central de Notificações">
-        <p style={{ color: "#a1a1aa", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
+        <Text color="zinc-400" mb="1.5rem" fontSize="sm">
           Dispare notificações flutuantes. As cores reagem automaticamente ao <code>type</code>{" "}
           escolhido.
-        </p>
+        </Text>
 
-        <ButtonGroup>
+        <Flex wrap="wrap" gap={4}>
           <Button
             size="sm"
             variant="secondary"
@@ -82,11 +67,11 @@ export const BasicUsage = () => {
           >
             Info
           </Button>
-        </ButtonGroup>
+        </Flex>
       </Card>
 
-      <Card title="Controle Manual" variant="accent">
-        <ButtonGroup>
+      <Card title="Controle Manual (Accent)" variant="accent">
+        <Flex gap={4}>
           <Button variant="primary" size="sm" onClick={dismissAll}>
             Limpar Tudo
           </Button>
@@ -97,7 +82,7 @@ export const BasicUsage = () => {
             onClick={() =>
               toast({
                 title: "Estilo Forçado",
-                description: "Este toast usa variant='accent' explicitamente.",
+                description: "Este toast usa variant='accent' explicitamente, ignorando o type.",
                 variant: "accent",
                 type: "info",
               })
@@ -105,8 +90,8 @@ export const BasicUsage = () => {
           >
             Forçar Accent
           </Button>
-        </ButtonGroup>
+        </Flex>
       </Card>
-    </Layout>
+    </Flex>
   );
 };

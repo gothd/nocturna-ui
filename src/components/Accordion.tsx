@@ -4,26 +4,30 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import React, { forwardRef, useState } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AccordionProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Lista de seções do acordeão.
-   * Define o ID, título e conteúdo de cada painel.
    */
   items: Array<{
-    /** Identificador único para controle de estado */
-    id: string;
-    /** Texto do cabeçalho (sempre uppercase/serif) */
+    /** Identificador único do item. Se omitido, será gerado pelo índice. */
+    id?: string;
+    /** Texto do cabeçalho */
     title: string;
     /** Conteúdo a ser revelado (ReactNode) */
     content: React.ReactNode;
   }>;
 
+  /** Permite múltiplas seções abertas ao mesmo tempo */
+  allowMultiple?: boolean;
+
   /**
    * Define a estética visual.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
 }
 
 /**
@@ -31,11 +35,21 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
  * Possui bordas sobrepostas para criar um efeito de lista contínua.
  */
 export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
-  ({ items, variant = "primary", className, ...props }, ref) => {
-    const [openId, setOpenId] = useState<string | null>(null);
+  (
+    { items, allowMultiple = false, variant = "primary", uppercase = true, className, ...props },
+    ref,
+  ) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
+    const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 
-    const toggle = (id: string) => {
-      setOpenId(openId === id ? null : id);
+    const toggle = (index: number) => {
+      if (allowMultiple) {
+        setOpenIndexes((prev) =>
+          prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
+        );
+      } else {
+        setOpenIndexes((prev) => (prev.includes(index) ? [] : [index]));
+      }
     };
 
     const borderStyles = {
@@ -44,6 +58,8 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
       accent: "border-accent focus-within:shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
       danger: "border-danger focus-within:shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
       warning: "border-warning focus-within:shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+      ghost:
+        "border-transparent bg-transparent focus-within:border-zinc-700 focus-within:bg-black focus-within:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)] hover:border-zinc-700 hover:bg-black",
     };
 
     const textStyles = {
@@ -52,17 +68,19 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
       accent: "text-accent group-hover:text-accent/80",
       danger: "text-danger group-hover:text-danger/80",
       warning: "text-warning group-hover:text-warning/80",
+      ghost: "text-zinc-400 group-hover:text-zinc-200",
     };
 
     return (
-      <div ref={ref} className={cn("flex flex-col", className)} {...props}>
+      <div ref={ref} className={cn("flex flex-col", className)} style={systemStyle} {...domProps}>
         {items.map((item, index) => {
-          const isOpen = openId === item.id;
+          const isOpen = openIndexes.includes(index);
+          const itemId = item.id || `item-${index}`;
           const isFirst = index === 0;
 
           return (
             <div
-              key={item.id}
+              key={itemId}
               className={cn(
                 "bg-black border-2 transition-shadow duration-300",
                 borderStyles[variant],
@@ -72,13 +90,14 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
               )}
             >
               <button
-                onClick={() => toggle(item.id)}
+                onClick={() => toggle(index)}
                 aria-expanded={isOpen}
                 className="w-full flex items-center justify-between p-4 text-left focus:outline-none group"
               >
                 <span
                   className={cn(
-                    "font-serif text-lg uppercase tracking-tighter transition-colors",
+                    "text-lg tracking-tighter transition-colors",
+                    uppercase && "uppercase",
                     textStyles[variant],
                   )}
                 >

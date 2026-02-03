@@ -16,7 +16,8 @@ const LayoutContainer = styled.div`
 `;
 
 const Sidebar = styled.aside`
-  width: 288px;
+  width: max-content;
+  min-width: 15rem;
   border-right: 1px solid #27272a;
   padding: 2rem;
   flex-shrink: 0;

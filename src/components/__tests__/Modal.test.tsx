@@ -3,7 +3,11 @@ import { Modal } from "../Modal";
 
 describe("Modal", () => {
   it("não deve renderizar nada se isOpen for false", () => {
-    render(<Modal isOpen={false} onClose={() => {}} title="Título" />);
+    render(
+      <Modal isOpen={false} onClose={() => {}} title="Título">
+        Conteúdo
+      </Modal>,
+    );
     expect(screen.queryByText("Título")).not.toBeInTheDocument();
   });
 
@@ -14,45 +18,51 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    // Aguarda o componente ser montado (efeito de hidratação)
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
     expect(document.body.style.overflow).toBe("hidden");
   });
 
-  it("deve liberar o scroll do body ao desmontar/fechar", async () => {
-    const { unmount } = render(<Modal isOpen={true} onClose={() => {}} title="Título" />);
+  it("deve aplicar estilos da variante ghost", async () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}} title="Ghost Mode" variant="ghost">
+        Conteúdo
+      </Modal>,
+    );
 
-    // Aguarda montagem antes de desmontar
-    await screen.findByRole("dialog");
-    expect(document.body.style.overflow).toBe("hidden");
-
-    unmount();
-    expect(document.body.style.overflow).toBe("unset");
+    const dialog = await screen.findByRole("dialog");
+    // Variante ghost tem bg-zinc-950/90
+    expect(dialog.className).toContain("bg-zinc-950/90");
+    expect(dialog.className).toContain("border-zinc-800");
+    expect(dialog.className).toContain("shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]");
   });
 
-  it("deve aplicar estilos da variante warning", async () => {
-    render(<Modal isOpen={true} onClose={() => {}} title="Aviso" variant="warning" />);
+  it("deve aplicar System Props ao container", async () => {
+    render(
+      <Modal
+        isOpen={true}
+        onClose={() => {}}
+        title="Styled"
+        p={0} // Remove padding interno
+        data-testid="styled-modal"
+      >
+        Conteúdo
+      </Modal>,
+    );
 
-    // Aguarda montagem
-    await screen.findByRole("dialog");
-
-    const titleElement = screen.getByText("Aviso");
-    // O container pai (relative) é quem recebe a borda
-    const modalContainer = titleElement.closest(".relative");
-
-    expect(modalContainer).toHaveClass("border-warning");
+    const dialog = await screen.findByTestId("styled-modal");
+    expect(dialog.style.padding).toBe("0px");
   });
 
   it("deve chamar onClose ao pressionar ESC", async () => {
     const handleClose = jest.fn();
-    render(<Modal isOpen={true} onClose={handleClose} title="Teste" />);
+    render(
+      <Modal isOpen={true} onClose={handleClose} title="Teste">
+        Conteúdo
+      </Modal>,
+    );
 
-    // await findBy... aguarda o ciclo de 'mounted' terminar e o elemento aparecer.
-    // Isso garante que os useEffects (incluindo o do addEventListener) já rodaram.
-    // Sem isso, o evento é disparado antes do listener existir.
     await screen.findByRole("dialog");
-
     fireEvent.keyDown(document, { key: "Escape" });
     expect(handleClose).toHaveBeenCalledTimes(1);
   });

@@ -1,58 +1,60 @@
-import styled from "styled-components";
-import { Skeleton, SkeletonAvatar, SkeletonLine, SkeletonCard, Card } from "nocturna-ui";
-
-const Layout = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  width: 100%;
-`;
-
-const Row = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-`;
+import {
+  Skeleton,
+  SkeletonAvatar,
+  SkeletonLine,
+  SkeletonCard,
+  Card,
+  VStack,
+  HStack,
+  Box,
+} from "nocturna-ui";
 
 export const BasicUsage = () => {
   return (
-    <Layout>
-      {/* 1. Composição Manual */}
-      <Card title="Carregando Perfil...">
-        <Row>
+    <VStack gap={8} w="full">
+      {/* 1. Composição Manual (Atomic) */}
+      <Card title="Composição Manual">
+        <HStack gap={4} align="center">
           <SkeletonAvatar size="lg" />
-          <Column>
-            <SkeletonLine width="60%" height="1.2rem" />
-            <SkeletonLine width="40%" />
-          </Column>
-        </Row>
-        <Skeleton height="100px" style={{ marginTop: "1rem" }} />
+          <VStack gap={2} w="full">
+            <SkeletonLine w="60%" h="1.2rem" />
+            <SkeletonLine w="40%" />
+          </VStack>
+        </HStack>
+        <Skeleton h="100px" w="full" mt={4} />
       </Card>
 
       {/* 2. Preset de Card (Secondary Theme) */}
-      <Card title="Feed (Secondary)" variant="secondary">
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <Card title="Presets de Card (Secondary)" variant="secondary">
+        <VStack gap={4}>
           <SkeletonCard variant="secondary" />
+          {/* Card sem título, apenas linhas */}
           <SkeletonCard variant="secondary" lines={2} hasTitle={false} />
-        </div>
+        </VStack>
       </Card>
 
-      {/* 3. Variante Accent */}
+      {/* 3. Variante Accent & Grid */}
       <Card title="Dados Críticos (Accent)" variant="accent">
-        <Row>
-          <SkeletonAvatar variant="accent" size="md" />
-          <SkeletonLine variant="accent" />
-        </Row>
-        <SkeletonCard variant="accent" lines={4} />
+        <Box
+          display="grid"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}
+        >
+          <Box>
+            <HStack gap={4} mb={4} align="center">
+              <SkeletonAvatar variant="accent" size="sm" />
+              <SkeletonLine variant="accent" w="50%" />
+            </HStack>
+            <SkeletonCard variant="accent" lines={2} hasTitle={false} />
+          </Box>
+          <Box>
+            <HStack gap={4} mb={4} align="center">
+              <SkeletonAvatar variant="accent" size="sm" />
+              <SkeletonLine variant="accent" w="50%" />
+            </HStack>
+            <SkeletonCard variant="accent" lines={2} hasTitle={false} />
+          </Box>
+        </Box>
       </Card>
-    </Layout>
+    </VStack>
   );
 };

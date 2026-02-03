@@ -1,43 +1,88 @@
+import styled from "styled-components";
 import { Grid, Box, Text, Heading } from "nocturna-ui";
+
+// 1. Grid Responsivo: Mobile First (1 coluna) -> Desktop (3 colunas)
+const ResponsiveGrid = styled(Grid)`
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  height: auto;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 250px 1fr 300px;
+    grid-template-rows: 80px 1fr 150px;
+    height: 600px;
+  }
+`;
+
+// 2. Componentes de Área para controlar o posicionamento (grid-column/row)
+const HeaderArea = styled(Box)`
+  grid-column: 1 / -1; // Ocupa tudo em qualquer tamanho
+`;
+
+const SidebarArea = styled(Box)`
+  @media (min-width: 1024px) {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+  }
+`;
+
+const MainArea = styled(Box)`
+  @media (min-width: 1024px) {
+    grid-row: 2 / 3;
+    grid-column: 2 / 3;
+  }
+`;
+
+const WidgetsArea = styled(Box)`
+  @media (min-width: 1024px) {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+  }
+`;
+
+const FooterArea = styled(Box)`
+  grid-column: 1 / -1; // Mobile: largura total
+
+  @media (min-width: 1024px) {
+    grid-column: 2 / -1; // Desktop: começa após a sidebar
+    grid-row: 3 / 4;
+  }
+`;
 
 export const BasicUsage = () => {
   return (
     <Box w="full" color="zinc-200">
       <Heading level="h3" mb={6} color="primary">
-        Cyber Dashboard Layout
+        Cyber Dashboard Layout (Responsive)
       </Heading>
 
       <Text mb={4} color="zinc-400">
-        Um layout de grade complexo usando <code>templateColumns</code> e <code>templateRows</code>.
-        Observe como os itens filhos usam estilo inline para <code>gridColumn</code>/
-        <code>gridRow</code> para se posicionarem.
+        Layout adaptativo: empilha os blocos em telas menores e expande para um dashboard complexo
+        em desktop, prevenindo overflow horizontal.
       </Text>
 
-      {/* Container Principal do Grid */}
-      <Grid
-        h="600px"
-        templateRows="80px 1fr 150px" // Header, Content, Footer
-        templateColumns="250px 1fr 300px" // Sidebar, Main, Widgets
+      {/* Grid Wrapper */}
+      <ResponsiveGrid
         gap={4}
         bg="background"
         p={4}
         rounded="md"
-        style={{ border: "1px solid #27272a" }} // Borda sutil zinc-800
+        style={{ border: "1px solid #27272a" }}
       >
-        {/* HEADER: Ocupa toda a largura (3 colunas) */}
-        <Box
+        {/* HEADER */}
+        <HeaderArea
           bg="zinc-900"
           p={4}
           rounded="sm"
-          style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center" }}
+          style={{ display: "flex", alignItems: "center" }}
         >
           <Text fontWeight="bold" color="accent" fontSize="xl">
             NOCTURNA_OS v2.0
           </Text>
-        </Box>
+        </HeaderArea>
 
-        {/* SIDEBAR: Coluna 1 */}
-        <Box bg="zinc-900" p={4} rounded="sm">
+        {/* SIDEBAR */}
+        <SidebarArea bg="zinc-900" p={4} rounded="sm">
           <Text color="zinc-500" mb={4} fontSize="sm">
             MENU
           </Text>
@@ -56,16 +101,16 @@ export const BasicUsage = () => {
               </Box>
             ))}
           </Box>
-        </Box>
+        </SidebarArea>
 
-        {/* MAIN CONTENT: Coluna 2 */}
-        <Box bg="black" p={6} rounded="sm" style={{ border: "1px solid #3f3f46" }}>
+        {/* MAIN CONTENT */}
+        <MainArea bg="black" p={6} rounded="sm" style={{ border: "1px solid #3f3f46" }}>
           <Heading level="h4" mb={4}>
             Atividade do Sistema
           </Heading>
           <Text>
-            O grid permite layouts assimétricos com facilidade. Este painel central se expande para
-            preencher o espaço disponível (1fr).
+            Este painel central se expande para preencher o espaço disponível (1fr). Em mobile, ele
+            flui naturalmente abaixo do menu.
           </Text>
           <Box
             mt={8}
@@ -78,10 +123,10 @@ export const BasicUsage = () => {
               Gráfico Placeholder
             </Text>
           </Box>
-        </Box>
+        </MainArea>
 
-        {/* WIDGETS: Coluna 3 */}
-        <Box bg="zinc-900" p={4} rounded="sm">
+        {/* WIDGETS */}
+        <WidgetsArea bg="zinc-900" p={4} rounded="sm">
           <Text color="warning" fontWeight="bold" mb={2}>
             ALERTAS
           </Text>
@@ -95,15 +140,14 @@ export const BasicUsage = () => {
               Backup Complete
             </Text>
           </Box>
-        </Box>
+        </WidgetsArea>
 
-        {/* FOOTER: Ocupa as duas últimas colunas */}
-        <Box
+        {/* FOOTER */}
+        <FooterArea
           bg="zinc-950"
           p={4}
           rounded="sm"
           style={{
-            gridColumn: "2 / -1", // Começa na coluna 2 e vai até o fim
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -115,8 +159,8 @@ export const BasicUsage = () => {
           <Text fontSize="xs" fontFamily="mono" color="secondary">
             PING: 12ms
           </Text>
-        </Box>
-      </Grid>
+        </FooterArea>
+      </ResponsiveGrid>
     </Box>
   );
 };

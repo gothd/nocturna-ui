@@ -1,7 +1,9 @@
 import React, { forwardRef } from "react";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 import { cn } from "../utils/cn";
 
-interface ScrollProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ScrollProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Conteúdo que será rolado.
    * Deve exceder a altura definida em `maxHeight` para ativar a rolagem.
@@ -15,11 +17,15 @@ interface ScrollProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
 
   /**
-   * Altura máxima do container antes de ativar a rolagem.
-   * Aceita valores CSS válidos (ex: "400px", "50vh", 300).
-   * @default "400px"
+   * Define a direção da rolagem.
+   * @default "vertical"
    */
-  maxHeight?: string | number;
+  orientation?: "vertical" | "horizontal" | "both";
+
+  /**
+   * Se verdadeiro, oculta visualmente a barra de rolagem mantendo a funcionalidade.
+   */
+  hideScrollbar?: boolean;
 }
 
 /**
@@ -31,7 +37,18 @@ interface ScrollProps extends React.HTMLAttributes<HTMLDivElement> {
  * - Suporte a conteúdo dinâmico.
  */
 export const Scroll = forwardRef<HTMLDivElement, ScrollProps>(
-  ({ children, variant = "primary", maxHeight = "400px", className, style, ...props }, ref) => {
+  (
+    { variant = "primary", orientation = "vertical", hideScrollbar, className, children, ...props },
+    ref,
+  ) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
+
+    const orientationStyles = {
+      vertical: "overflow-y-auto overflow-x-hidden h-full pr-2",
+      horizontal: "overflow-x-auto overflow-y-hidden w-full pb-2",
+      both: "overflow-auto w-full h-full pr-2 pb-2",
+    };
+
     const scrollbarVariants = {
       primary: [
         "[&::-webkit-scrollbar-track]:border-zinc-800",
@@ -70,12 +87,8 @@ export const Scroll = forwardRef<HTMLDivElement, ScrollProps>(
         ref={ref}
         // tabindex=0 permite que usuários de teclado foquem na área para rolar com setas
         tabIndex={0}
-        style={{
-          maxHeight,
-          ...style,
-        }}
         className={cn(
-          "overflow-auto w-full pr-2 focus:outline-none focus:ring-1 focus:ring-zinc-800",
+          "focus:outline-none focus:ring-1 focus:ring-zinc-800",
 
           // --- CONFIGURAÇÃO BASE DA SCROLLBAR (WEBKIT) ---
           "[&::-webkit-scrollbar]:w-2",
@@ -88,13 +101,14 @@ export const Scroll = forwardRef<HTMLDivElement, ScrollProps>(
 
           // --- FIREFOX SUPPORT (Via propriedades CSS padrão) ---
           "scrollbar-thin", // Define a largura fina no Firefox
-
           // --- VARIANTES ---
+          orientationStyles[orientation],
           scrollbarVariants[variant],
-
+          hideScrollbar && "scrollbar-none",
           className,
         )}
-        {...props}
+        style={systemStyle}
+        {...domProps}
       >
         {children}
       </div>

@@ -1,7 +1,9 @@
 import React, { forwardRef } from "react";
+import { PolymorphicComponent } from "../types/polymorphic";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SeparatorProps extends SystemProps, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Define o tema visual das linhas e do texto.
    * @default "primary"
@@ -22,31 +24,31 @@ interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
    * Renderizado em uppercase e com espaçamento de letras estendido.
    */
   label?: string;
-
-  /**
-   * Polimorfismo: Permite alterar o elemento HTML raiz.
-   * Útil para semântica (ex: renderizar como `li` em listas ou `hr` estilizado).
-   * @default "div"
-   */
-  as?: React.ElementType;
 }
 
 /**
  * Divisor visual com estética brutalista.
  * Cria uma linha horizontal (ou duas, se houver rótulo) para separar seções de conteúdo.
  */
-export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
+export const Separator: PolymorphicComponent<SeparatorProps> = forwardRef<any, SeparatorProps>(
   (
     {
+      as = "div",
       variant = "primary",
       orientation = "horizontal",
       label,
-      as: Component = "div",
+      fontFamily = "serif",
+      uppercase = true,
       className,
       ...props
     },
     ref,
   ) => {
+    const {
+      as: Component,
+      systemStyle,
+      domProps,
+    } = extractSystemStyles({ ...props, fontFamily, as });
     const isVertical = orientation === "vertical";
 
     // Styles
@@ -80,14 +82,16 @@ export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
     return (
       <Component
         ref={ref}
-        role={!label ? "separator" : undefined}
+        role={!label ? "separator" : undefined} // Semântica: Se tem label, vira um container de grupo
         aria-orientation={orientation}
         className={cn(
           "relative flex items-center justify-center select-none opacity-80",
           containerClasses,
+          uppercase && "uppercase",
           className,
         )}
-        {...props}
+        style={systemStyle}
+        {...domProps}
       >
         {/* Linha 1 (Esquerda ou Topo) */}
         <div
@@ -101,11 +105,7 @@ export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
         {/* Rótulo Central */}
         {label && (
           <span
-            className={cn(
-              "flex-none font-serif text-sm uppercase tracking-[0.2em]",
-              labelSpacing,
-              textStyles[variant],
-            )}
+            className={cn("flex-none text-sm tracking-[0.2em]", labelSpacing, textStyles[variant])}
           >
             {label}
           </span>

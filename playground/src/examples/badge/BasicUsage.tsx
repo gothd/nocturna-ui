@@ -1,66 +1,55 @@
-import styled from "styled-components";
-import { Badge, Card, Separator } from "nocturna-ui";
-
-const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-`;
+import { Badge, Box, Text, HStack } from "nocturna-ui";
 
 export const BasicUsage = () => {
   return (
-    <Layout>
-      <Card title="Badges de Status">
-        <p style={{ color: "#a1a1aa", marginBottom: "1rem" }}>
-          Indicadores de estado com estilos <code>outline</code> (padrão) e <code>solid</code>.
-        </p>
+    <Box w="full">
+      {/* Seção 1: Variantes de Status */}
+      <Box mb={8}>
+        <Text fontSize="sm" color="zinc-500" mb={4} fontWeight="bold">
+          Variantes
+        </Text>
+        <HStack gap={4} wrap="wrap">
+          <Badge variant="primary">Primary</Badge>
+          <Badge variant="secondary">Secondary</Badge>
+          <Badge variant="accent">Accent</Badge>
+          <Badge variant="danger">Danger</Badge>
+          <Badge variant="warning">Warning</Badge>
+          <Badge variant="ghost">Ghost</Badge>
+        </HStack>
+      </Box>
 
-        <Row>
-          <Badge variant="primary">Stable</Badge>
-          <Badge variant="secondary">Online</Badge>
-          <Badge variant="accent">New</Badge>
-          <Badge variant="warning">Pending</Badge>
-          <Badge variant="danger">Offline</Badge>
-        </Row>
+      {/* Seção 2: Tamanhos */}
+      <Box mb={8}>
+        <Text fontSize="sm" color="zinc-500" mb={4} fontWeight="bold">
+          Tamanhos
+        </Text>
+        <HStack gap={4} align="center">
+          <Badge size="sm" styleType="outline">
+            Small (sm)
+          </Badge>
+          <Badge size="md" variant="primary">
+            Medium (md)
+          </Badge>
+        </HStack>
+      </Box>
 
-        <Separator label="Estilo Sólido" variant="primary" />
+      {/* Seção 3: Customização com System Props */}
+      <Box>
+        <Text fontSize="sm" color="zinc-500" mb={4} fontWeight="bold">
+          Customização (System Props)
+        </Text>
+        <Box p={4} bg="zinc-900" rounded="md" style={{ display: "inline-flex", gap: "1rem" }}>
+          {/* Exemplo de Badge customizado visualmente */}
+          <Badge bg="white" color="black" px={4} py={1} rounded="md" style={{ border: "none" }}>
+            CUSTOM_SOLID
+          </Badge>
 
-        <Row>
-          <Badge variant="primary" styleType="solid">
-            v2.0.0
+          {/* Exemplo de Badge com margem customizada */}
+          <Badge variant="accent" mt={2}>
+            Margin Top
           </Badge>
-          <Badge variant="secondary" styleType="solid">
-            Success
-          </Badge>
-          <Badge variant="accent" styleType="solid">
-            Hotfix
-          </Badge>
-          <Badge variant="warning" styleType="solid">
-            Beta
-          </Badge>
-          <Badge variant="danger" styleType="solid">
-            Error
-          </Badge>
-        </Row>
-      </Card>
-
-      <Card title="Tamanhos" variant="secondary">
-        <Row>
-          <Badge size="sm" variant="secondary">
-            Small
-          </Badge>
-          <Badge size="md" variant="secondary">
-            Medium
-          </Badge>
-        </Row>
-      </Card>
-    </Layout>
+        </Box>
+      </Box>
+    </Box>
   );
 };

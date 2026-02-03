@@ -2,42 +2,54 @@ import { render, screen } from "@testing-library/react";
 import { Separator } from "../Separator";
 
 describe("Separator", () => {
-  it("deve renderizar com label e aplicar variante warning", () => {
-    render(<Separator label="Capítulo 1" variant="warning" />);
-    const label = screen.getByText("Capítulo 1");
-    expect(label).toBeInTheDocument();
-    expect(label.className).toContain("text-warning");
-  });
+  it("deve renderizar horizontalmente por padrão", () => {
+    render(<Separator data-testid="sep" />);
+    const separator = screen.getByTestId("sep");
 
-  it("deve ter role separator e borda primary por padrão (horizontal)", () => {
-    render(<Separator />);
-    const separator = screen.getByRole("separator");
-    expect(separator).toBeInTheDocument();
     expect(separator).toHaveAttribute("aria-orientation", "horizontal");
+    expect(separator.className).toContain("flex-row");
+    expect(separator.className).toContain("w-full");
 
-    // As linhas (divs filhas) devem ter a borda superior (border-t)
-    const line = separator.querySelector("div");
+    // Verifica se a linha interna tem borda superior (border-t)
+    const line = separator.firstElementChild;
     expect(line?.className).toContain("border-t-2");
   });
 
   it("deve renderizar verticalmente quando orientation='vertical'", () => {
-    render(<Separator orientation="vertical" />);
-    const separator = screen.getByRole("separator");
+    render(<Separator orientation="vertical" data-testid="sep-vert" />);
+    const separator = screen.getByTestId("sep-vert");
+
     expect(separator).toHaveAttribute("aria-orientation", "vertical");
     expect(separator.className).toContain("flex-col");
+    expect(separator.className).toContain("h-full");
 
-    // As linhas devem ter borda lateral (border-l)
-    const line = separator.querySelector("div");
+    // Verifica se a linha interna tem borda lateral (border-l)
+    const line = separator.firstElementChild;
     expect(line?.className).toContain("border-l-2");
   });
 
-  it("deve suportar polimorfismo (as='li')", () => {
-    render(
-      <ul>
-        <Separator as="li" />
-      </ul>,
-    );
-    const separator = screen.getByRole("separator");
-    expect(separator.tagName).toBe("LI");
+  it("deve renderizar label e aplicar cores da variante accent", () => {
+    render(<Separator label="Seção A" variant="accent" />);
+
+    const label = screen.getByText("Seção A");
+    expect(label).toBeInTheDocument();
+    expect(label.className).toContain("text-accent");
+
+    // A linha deve ter a cor accent
+    const separator = label.parentElement;
+    const line = separator?.firstElementChild;
+    expect(line?.className).toContain("border-t-accent"); // ou border-l-accent
+  });
+
+  it("deve aplicar System Props (margem)", () => {
+    render(<Separator my={8} data-testid="sep-margin" />);
+    const separator = screen.getByTestId("sep-margin");
+    expect(separator).toHaveStyle({ marginTop: "2rem", marginBottom: "2rem" });
+  });
+
+  it("deve suportar polimorfismo", () => {
+    render(<Separator as="li" data-testid="sep-li" />);
+    const element = screen.getByTestId("sep-li");
+    expect(element.tagName).toBe("LI");
   });
 });

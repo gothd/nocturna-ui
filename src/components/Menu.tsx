@@ -2,21 +2,23 @@
 
 import { MoreVertical } from "lucide-react";
 import React, {
+  cloneElement,
   forwardRef,
+  isValidElement,
+  useCallback,
   useEffect,
   useRef,
-  cloneElement,
-  isValidElement,
   useState,
-  useCallback,
 } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface MenuProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLButtonElement>, "color"> {
   /** Lista de itens do menu. */
   items: Array<{
-    /** Identificador único do item. */
-    id: string;
+    /** Identificador único do item. Se omitido, será gerado pelo índice. */
+    id?: string;
     /** Texto do item. */
     label: string;
     /** Ícone opcional à esquerda. */
@@ -32,7 +34,7 @@ export interface MenuProps extends React.HTMLAttributes<HTMLDivElement> {
    * Define o tema visual do menu.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
   /** Elemento gatilho opcional. Se omitido, usa ícone padrão. */
   trigger?: React.ReactNode;
   /** Alinhamento do dropdown. */
@@ -58,6 +60,7 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
     const menuRef = useRef<HTMLDivElement>(null);
     // Rastreia se a abertura foi via teclado para gerenciamento de foco inteligente
     const wasOpenedByKeyboard = useRef(false);
+    const { systemStyle, domProps } = extractSystemStyles(props);
 
     // Fechar ao clicar fora (Click Outside)
     useEffect(() => {
@@ -186,6 +189,8 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
         "border-danger bg-black text-danger hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.3)]",
       warning:
         "border-warning bg-black text-warning hover:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.3)]",
+      ghost:
+        "border-transparent bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-700 hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const menuBorderStyles = {
@@ -194,6 +199,7 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
       accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
       danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
       warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+      ghost: "border-zinc-800 shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     // Usamos opacidade no background para dar efeito neon sem perder legibilidade
@@ -204,6 +210,7 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
       accent: "hover:bg-accent/10 hover:text-accent focus:bg-accent/10 focus:text-accent",
       danger: "hover:bg-danger/10 hover:text-danger focus:bg-danger/10 focus:text-danger",
       warning: "hover:bg-warning/10 hover:text-warning focus:bg-warning/10 focus:text-warning",
+      ghost: "hover:bg-zinc-900 hover:text-white focus:bg-zinc-900 focus:text-white",
     };
 
     const separatorStyles = {
@@ -212,11 +219,14 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
       accent: "border-b border-accent/20",
       danger: "border-b border-danger/20",
       warning: "border-b border-warning/20",
+      ghost: "border-b border-zinc-800",
     };
 
     // Props para o Gatilho (Trigger)
     const triggerProps = {
+      ...domProps, // Aplica props do usuário (id, aria-label, etc) no botão
       onClick: (e: React.MouseEvent) => {
+        domProps.onClick?.(e as any); // Garante que o onClick do usuário também dispare
         // Previne comportamento duplo se estiver dentro de forms
         e.preventDefault();
         setIsOpen((prev) => !prev);
@@ -269,7 +279,7 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
         className={cn("relative inline-block text-left", className)}
         ref={containerRef}
         onKeyDown={handleKeyDown}
-        {...props}
+        style={systemStyle}
       >
         {triggerElement}
 
@@ -292,50 +302,54 @@ export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
             menuBorderStyles[variant],
           )}
         >
-          {items.map((item, index) => (
-            <button
-              key={item.id}
-              role="menuitem"
-              disabled={item.disabled}
-              // TabIndex -1 retira da ordem do Tab (navegação via setas)
-              tabIndex={-1}
-              onClick={(e) => {
-                // Impede propagação para não reativar o trigger imediatamente em casos raros
-                e.stopPropagation();
-                if (item.disabled) return;
-                item.onClick();
-                setIsOpen(false);
-                triggerRef.current?.focus(); // Retorna foco ao trigger após ação
-              }}
-              className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 font-sans text-sm transition-colors duration-200 group text-left focus:outline-none cursor-pointer",
-                "text-zinc-400", // Cor Base
-                // Estilos de interação (hover + focus)
-                itemInteractionStyles[variant],
-                // Danger override
-                item.danger &&
-                  "text-danger hover:text-danger hover:bg-danger/10 focus:text-danger focus:bg-danger/10",
-                // Disabled state
-                item.disabled &&
-                  "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400 pointer-events-none",
-                // Separator
-                index !== items.length - 1 && separatorStyles[variant],
-              )}
-            >
-              {item.icon && (
-                <span
-                  className={cn(
-                    "opacity-70 group-hover:opacity-100 transition-opacity",
-                    // Herda a cor do hover do pai via group-hover ou força danger
-                    item.danger ? "text-danger" : "text-inherit",
-                  )}
-                >
-                  {item.icon}
-                </span>
-              )}
-              <span className="tracking-wide">{item.label}</span>
-            </button>
-          ))}
+          {items.map((item, index) => {
+            const itemId = item.id || `item-${index}`;
+
+            return (
+              <button
+                key={itemId}
+                role="menuitem"
+                disabled={item.disabled}
+                // TabIndex -1 retira da ordem do Tab (navegação via setas)
+                tabIndex={-1}
+                onClick={(e) => {
+                  // Impede propagação para não reativar o trigger imediatamente em casos raros
+                  e.stopPropagation();
+                  if (item.disabled) return;
+                  item.onClick();
+                  setIsOpen(false);
+                  triggerRef.current?.focus(); // Retorna foco ao trigger após ação
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 font-sans text-sm transition-colors duration-200 group text-left focus:outline-none cursor-pointer",
+                  "text-zinc-400", // Cor Base
+                  // Estilos de interação (hover + focus)
+                  itemInteractionStyles[variant],
+                  // Danger override
+                  item.danger &&
+                    "text-danger hover:text-danger hover:bg-danger/10 focus:text-danger focus:bg-danger/10",
+                  // Disabled state
+                  item.disabled &&
+                    "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400 pointer-events-none",
+                  // Separator
+                  index !== items.length - 1 && separatorStyles[variant],
+                )}
+              >
+                {item.icon && (
+                  <span
+                    className={cn(
+                      "opacity-70 group-hover:opacity-100 transition-opacity",
+                      // Herda a cor do hover do pai via group-hover ou força danger
+                      item.danger ? "text-danger" : "text-inherit",
+                    )}
+                  >
+                    {item.icon}
+                  </span>
+                )}
+                <span className="tracking-wide">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );

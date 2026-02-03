@@ -1,11 +1,15 @@
 import { Check } from "lucide-react";
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface CheckboxProps
+  extends
+    Omit<SystemProps, "as">,
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "width" | "height" | "color"> {
   /**
    * Texto opcional exibido ao lado do checkbox.
-   * Renderizado com tipografia sans-serif e uppercase.
+   * Renderizado com tipografia sans-serif e uppercase por padrão.
    */
   label?: string;
 
@@ -13,7 +17,13 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
    * Define o tema visual do componente.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
+
+  /**
+   * Se verdadeiro, o checkbox fica desabilitado e com aparência esmaecida.
+   * @default false
+   */
+  disabled?: boolean;
 }
 
 /**
@@ -22,7 +32,20 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
  * mas preservando a navegabilidade via teclado e leitores de tela.
  */
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, variant = "primary", className, ...props }, ref) => {
+  (
+    {
+      label,
+      uppercase = true,
+      fontFamily = "sans",
+      variant = "primary",
+      disabled = false,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
+    const { systemStyle, domProps } = extractSystemStyles({ ...props, fontFamily });
+
     const boxStyles = {
       primary:
         "border-primary peer-checked:bg-primary peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]",
@@ -34,6 +57,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         "border-danger peer-checked:bg-danger peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(220,38,38,0.3)]",
       warning:
         "border-warning peer-checked:bg-warning peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,215,0,0.3)]",
+      ghost:
+        "border-zinc-700 bg-transparent peer-checked:bg-zinc-700 peer-focus-visible:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const labelStyles = {
@@ -42,6 +67,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       accent: "text-accent",
       danger: "text-danger",
       warning: "text-warning",
+      ghost: "text-zinc-400",
     };
 
     const iconColorStyles = {
@@ -50,16 +76,26 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       accent: "text-black",
       danger: "text-white",
       warning: "text-black",
+      ghost: "text-zinc-400",
     };
 
     return (
-      <label className="inline-flex items-center gap-3 cursor-pointer group w-fit">
+      <label
+        className={cn(
+          "inline-flex items-center gap-3 group w-fit",
+          uppercase && "uppercase",
+          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          className,
+        )}
+        style={systemStyle}
+      >
         <div className="relative flex items-center">
           <input
             ref={ref}
             type="checkbox"
             className="peer sr-only" // Input nativo escondido
-            {...props}
+            disabled={disabled}
+            {...domProps}
           />
           {/* Caixa Customizada */}
           <div
@@ -71,7 +107,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               "peer-checked:[&_svg]:scale-100 peer-checked:[&_svg]:opacity-100",
               // Hover Effect (Sutil)
               "group-hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]",
-              className,
+              // Disabled
+              disabled && "opacity-50 cursor-not-allowed grayscale-[0.5]",
             )}
           >
             <Check
@@ -88,8 +125,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <span
             className={cn(
-              "font-sans text-sm uppercase tracking-wider select-none",
+              "text-sm tracking-wider select-none",
               labelStyles[variant],
+              disabled && "opacity-50 cursor-not-allowed grayscale-[0.5]",
             )}
           >
             {label}

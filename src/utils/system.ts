@@ -86,12 +86,15 @@ export interface SystemProps {
   fontWeight?: TokenOrValue<FontWeightToken>;
   /** Família da fonte (sans, serif, mono). */
   fontFamily?: TokenOrString<FontFamilyToken>;
-  /** * Altura da linha (line-height).
+  /**
+   * Altura da linha (line-height).
    * Aceita tokens (tight, relaxed) ou valores numéricos/strings.
    */
   lineHeight?: TokenOrValue<LineHeightToken>;
   /** Alinhamento de texto. */
   textAlign?: "left" | "right" | "center" | "justify" | "start" | "end";
+  /** Renderiza o texto em caixa alta. */
+  uppercase?: boolean;
 
   // --- COLORS ---
   /** Cor de fundo (bg). */
@@ -140,6 +143,7 @@ export function extractSystemStyles<T extends Record<string, any>>(props: T) {
     fontFamily,
     lineHeight,
     textAlign,
+    uppercase,
     bg,
     color,
     opacity,
@@ -179,6 +183,7 @@ export function extractSystemStyles<T extends Record<string, any>>(props: T) {
     fontFamily: getFontFamily(fontFamily),
     lineHeight: getLineHeight(lineHeight),
     textAlign,
+    ...(uppercase && { textTransform: "uppercase" }),
 
     // Decor
     backgroundColor: getColor(bg),

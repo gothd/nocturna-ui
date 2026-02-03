@@ -4,8 +4,10 @@ import { X } from "lucide-react";
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ModalProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Controla a visibilidade do modal.
    * O componente é renderizado via React Portal no `document.body`.
@@ -40,7 +42,12 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
    * Define o tema visual do modal.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
+
+  /** Define a largura máxima do modal.
+   * @default "md"
+   */
+  size?: "sm" | "md" | "lg" | "xl" | "full";
 }
 
 /**
@@ -53,7 +60,17 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   (
-    { isOpen, onClose, title, description, children, variant = "primary", className, ...props },
+    {
+      isOpen,
+      onClose,
+      title,
+      description,
+      size = "md",
+      variant = "primary",
+      children,
+      className,
+      ...props
+    },
     ref,
   ) => {
     // Refs
@@ -62,6 +79,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     const onCloseRef = useRef(onClose);
 
     const [mounted, setMounted] = useState(false);
+    const { systemStyle, domProps } = extractSystemStyles(props);
 
     useEffect(() => {
       setMounted(true);
@@ -153,6 +171,8 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
       danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
       warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+      ghost:
+        "border-zinc-800 bg-zinc-950/90 backdrop-blur-md shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const textStyles = {
@@ -161,6 +181,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       accent: "text-accent",
       danger: "text-danger",
       warning: "text-warning",
+      ghost: "text-zinc-300",
     };
 
     const closeButtonStyles = {
@@ -174,22 +195,31 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         "text-zinc-500 hover:text-danger hover:bg-danger/10 focus:text-danger focus:bg-danger/10 focus:ring-danger",
       warning:
         "text-zinc-500 hover:text-warning hover:bg-warning/10 focus:text-warning focus:bg-warning/10 focus:ring-warning",
+      ghost:
+        "text-zinc-600 hover:text-white hover:bg-zinc-800 focus:text-white focus:bg-zinc-800 focus:ring-zinc-500",
     };
 
+    const sizes = {
+      sm: "max-w-md",
+      md: "max-w-lg",
+      lg: "max-w-2xl",
+      xl: "max-w-4xl",
+      full: "max-w-[95vw] h-[90vh]",
+    };
+
+    // Garante que o Portal seja criado apenas no cliente (segurança para SSR)
+    if (typeof document === "undefined") return null;
+
     return createPortal(
-      <div
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={title ? "crypt-modal-title" : undefined}
-        aria-describedby={description ? "crypt-modal-desc" : undefined}
-      >
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity"
           onClick={() => onCloseRef.current()}
           aria-hidden="true"
         />
 
+        {/* Content */}
         <div
           ref={(node) => {
             internalRef.current = node;
@@ -197,18 +227,24 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
           }}
           tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={title ? "crypt-modal-title" : undefined}
+          aria-describedby={description ? "crypt-modal-desc" : undefined}
           className={cn(
-            "relative bg-black border-2 w-full max-w-lg mx-auto p-8 shadow-2xl animate-in zoom-in-95 duration-200 outline-none",
+            "relative bg-black border-2 w-full mx-auto p-8 shadow-2xl animate-in zoom-in-95 duration-200 outline-none",
             containerStyles[variant],
+            sizes[size],
             className,
           )}
-          {...props}
+          style={systemStyle}
+          {...domProps}
         >
           <button
             onClick={() => onCloseRef.current()}
             aria-label="Fechar modal"
             className={cn(
-              "absolute top-4 right-4 p-1 transition-all duration-300 focus:outline-none",
+              "absolute top-4 right-4 p-1 transition-all duration-300 focus:outline-none focus:ring-2",
               closeButtonStyles[variant],
             )}
           >

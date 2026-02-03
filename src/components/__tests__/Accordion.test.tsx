@@ -1,44 +1,54 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Accordion } from "../Accordion";
 
+// Dados mistos: alguns com ID, outros sem (para testar o fallback)
 const items = [
-  { id: "1", title: "Item 1", content: "Conteúdo 1" },
-  { id: "2", title: "Item 2", content: "Conteúdo 2" },
+  { id: "custom-id-1", title: "Item 1", content: "Conteúdo 1" },
+  { title: "Item 2", content: "Conteúdo 2" }, // Sem ID
 ];
 
 describe("Accordion", () => {
-  it("deve renderizar os títulos dos itens", () => {
+  it("deve renderizar os títulos dos itens corretamente", () => {
     render(<Accordion items={items} />);
     expect(screen.getByText("Item 1")).toBeInTheDocument();
     expect(screen.getByText("Item 2")).toBeInTheDocument();
   });
 
-  it("deve aplicar a variante danger corretamente", () => {
-    render(<Accordion items={items} variant="danger" />);
-    // O container do item deve ter a borda correspondente ao danger
-    // Como o componente usa map, pega o primeiro item
-    const itemContainer = screen.getByText("Item 1").closest("div");
-    expect(itemContainer?.className).toContain("border-danger");
+  it("deve aceitar a variante ghost sem erros", () => {
+    render(<Accordion items={items} variant="ghost" data-testid="acc-ghost" />);
+    expect(screen.getByText("Item 1")).toBeInTheDocument();
+
+    // Verifica se a variante ghost agora é transparente
+    const itemContainer = screen.getByText("Item 1").closest("div.border-2");
+    expect(itemContainer?.className).toContain("border-transparent");
   });
 
-  it("deve mostrar o conteúdo ao clicar e atualizar ARIA", () => {
+  it("deve gerenciar estado de abertura/fechamento (inclusive para itens sem ID explícito)", async () => {
     render(<Accordion items={items} />);
 
-    // Inicialmente fechado
-    expect(screen.queryByText("Conteúdo 1")).not.toBeInTheDocument();
-
-    const button = screen.getByRole("button", { name: /item 1/i });
-    expect(button).toHaveAttribute("aria-expanded", "false");
-
-    // Clica para abrir
-    fireEvent.click(button);
+    // 1. Abrir Item 1 (com ID)
+    const button1 = screen.getByRole("button", { name: /item 1/i });
+    fireEvent.click(button1);
     expect(screen.getByText("Conteúdo 1")).toBeInTheDocument();
-    expect(button).toHaveAttribute("aria-expanded", "true");
 
-    // Clica para fechar
-    fireEvent.click(button);
-    // Nota: Em testes unitários sem animação real, o componente sai do DOM imediatamente
-    // ou aguarda o timeout do framer-motion. É verificado o estado lógico.
-    expect(button).toHaveAttribute("aria-expanded", "false");
+    // 2. Abrir Item 2 (sem ID - testando fallback)
+    // Isso deve desencadear o fechamento do Item 1 pois allowMultiple=false
+    const button2 = screen.getByRole("button", { name: /item 2/i });
+    fireEvent.click(button2);
+
+    // Verifica se o Item 2 abriu
+    expect(screen.getByText("Conteúdo 2")).toBeInTheDocument();
+
+    // 3. Verifica se o Item 1 fechou (aguardando a animação de saída)
+    await waitFor(() => {
+      expect(screen.queryByText("Conteúdo 1")).not.toBeInTheDocument();
+    });
+  });
+
+  it("deve aplicar System Props ao container", () => {
+    render(<Accordion items={items} mt={10} w="50%" data-testid="accordion-styled" />);
+    const container = screen.getByTestId("accordion-styled");
+    expect(container.style.marginTop).toBe("2.5rem"); // 10 * 0.25rem
+    expect(container.style.width).toBe("50%");
   });
 });

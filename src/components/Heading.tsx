@@ -10,6 +10,11 @@ export interface HeadingProps extends TextProps {
    * @default "h2"
    */
   level?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  /**
+   * Se verdadeiro, transforma o texto em caixa alta.
+   * @default true
+   */
+  uppercase?: boolean;
 }
 
 const sizeMap = {
@@ -27,16 +32,20 @@ const sizeMap = {
  * alinhado com a identidade Cyber Goth da Nocturna UI.
  */
 export const Heading: PolymorphicComponent<HeadingProps> = React.forwardRef<any, HeadingProps>(
-  ({ level = "h2", className, fontFamily = "serif", ...props }, ref) => {
+  (
+    { level = "h2", as = level, uppercase = true, className, fontFamily = "serif", ...props },
+    ref,
+  ) => {
     return (
       <Text
-        as={level}
+        as={as}
         ref={ref}
         fontFamily={fontFamily}
         fontSize={sizeMap[level]}
         fontWeight="bold"
         className={cn(
-          "uppercase tracking-tighter", // Identidade Brutalista
+          "tracking-tighter", // Identidade Brutalista
+          uppercase && "uppercase", // Caixa alta
           className,
         )}
         {...props}

@@ -3,7 +3,7 @@ import { Badge, Box, Card, Heading, Text } from "nocturna-ui";
 import { useState, type KeyboardEvent } from "react";
 import Markdown from "react-markdown";
 import styled from "styled-components";
-// Importamos o Box para ler seus metadados (__docgenInfo)
+// Importa o Box para ler seus metadados (__docgenInfo)
 import { Box as BoxComponent } from "nocturna-ui";
 
 // --- Configuração das Categorias ---

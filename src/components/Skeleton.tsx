@@ -1,16 +1,14 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+interface SkeletonProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Define o tema visual do esqueleto.
    * @default "primary"
    */
   variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
-  /** Largura manual (ex: "100%", 200). */
-  width?: string | number;
-  /** Altura manual (ex: "1rem", 40). */
-  height?: string | number;
 }
 
 /**
@@ -22,7 +20,9 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
  * e não deve ser lido por leitores de tela.
  */
 export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ variant = "primary", width, height, className, style, ...props }, ref) => {
+  ({ variant = "primary", className, ...props }, ref) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
+
     // Skeletons usam cores de fundo muito sutis e bordas correspondentes
     const variantStyles = {
       primary: "border-zinc-800 bg-zinc-900",
@@ -37,12 +37,8 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
         ref={ref}
         aria-hidden="true" // Skeletons são visuais, leitores de tela devem ignorar
         className={cn("animate-pulse border-2", variantStyles[variant], className)}
-        style={{
-          width,
-          height,
-          ...style,
-        }}
-        {...props}
+        style={systemStyle}
+        {...domProps}
       />
     );
   },
@@ -51,22 +47,17 @@ Skeleton.displayName = "Skeleton";
 
 // --- PRESETS (Line, Avatar, Card) ---
 
-interface SkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Define o tema visual do esqueleto.
-   * @default "primary"
-   */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+interface SkeletonLineProps extends Omit<SkeletonProps, "w" | "h"> {
   /**
    * Largura manual.
    * @default "100%"
    */
-  width?: string | number;
+  w?: string | number;
   /**
    * Altura manual.
    * @default "1rem"
    */
-  height?: string | number;
+  h?: string | number;
 }
 
 /**
@@ -74,12 +65,12 @@ interface SkeletonLineProps extends React.HTMLAttributes<HTMLDivElement> {
  * Altura padrão de 1rem.
  */
 export const SkeletonLine = forwardRef<HTMLDivElement, SkeletonLineProps>((props, ref) => {
-  const { width = "100%", height = "1rem", ...rest } = props;
-  return <Skeleton ref={ref} width={width} height={height} {...rest} />;
+  const { variant = "primary", w = "100%", h = "1rem", ...rest } = props;
+  return <Skeleton ref={ref} variant={variant} w={w} h={h} {...rest} />;
 });
 SkeletonLine.displayName = "SkeletonLine";
 
-interface SkeletonAvatarProps extends Omit<SkeletonProps, "width" | "height"> {
+interface SkeletonAvatarProps extends SkeletonProps {
   /**
    * Tamanhos predefinidos para avatares.
    * - `sm`: 32px (w-8)
@@ -94,20 +85,26 @@ interface SkeletonAvatarProps extends Omit<SkeletonProps, "width" | "height"> {
  * Wrapper quadrado para simular avatares ou ícones de perfil.
  */
 export const SkeletonAvatar = forwardRef<HTMLDivElement, SkeletonAvatarProps>(
-  ({ size = "md", className, ...props }, ref) => {
+  ({ variant = "primary", size = "md", className, ...props }, ref) => {
     const sizeClasses = {
       sm: "w-8 h-8",
       md: "w-12 h-12",
       lg: "w-16 h-16",
     };
 
-    return <Skeleton ref={ref} className={cn(sizeClasses[size], className)} {...props} />;
+    return (
+      <Skeleton
+        ref={ref}
+        variant={variant}
+        className={cn(sizeClasses[size], className)}
+        {...props}
+      />
+    );
   },
 );
 SkeletonAvatar.displayName = "SkeletonAvatar";
 
-interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+interface SkeletonCardProps extends SkeletonProps {
   /** Número de linhas de texto simuladas no corpo do card. */
   lines?: number;
   /** Se verdadeiro, renderiza uma linha de título mais larga. */
@@ -120,6 +117,8 @@ interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const SkeletonCard = forwardRef<HTMLDivElement, SkeletonCardProps>(
   ({ variant = "primary", lines = 3, hasTitle = true, className, ...props }, ref) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
+
     // Container do card também segue o tema
     const cardStyles = {
       primary: "border-zinc-800 bg-black",
@@ -132,26 +131,25 @@ export const SkeletonCard = forwardRef<HTMLDivElement, SkeletonCardProps>(
     return (
       <div
         ref={ref}
-        className={cn("border-2 p-6 max-w-sm w-full", cardStyles[variant], className)}
-        {...props}
+        className={cn("border-2 p-6 max-w-sm w-full flex flex-col", cardStyles[variant], className)}
+        style={systemStyle}
+        {...domProps}
       >
-        {/* Título simulado (Condicional) */}
-        {hasTitle && (
-          <SkeletonLine variant={variant} height="1.5rem" width="60%" className="mb-4" />
-        )}
-
-        {/* Linhas de corpo */}
-        <div className="flex flex-col gap-2">
+        {/* Linhas de corpo (Renderizado antes para sincronia de animação) */}
+        <div className="flex flex-col gap-2 order-2">
           {Array.from({ length: lines }).map((_, i) => (
             <SkeletonLine
               key={i}
               variant={variant}
-              height="0.875rem"
+              h="0.875rem"
               // A última linha é um pouco menor para dar efeito visual de parágrafo
-              {...(i === lines - 1 && { width: "80%" })}
+              w={i === lines - 1 ? "80%" : "100%"}
             />
           ))}
         </div>
+
+        {/* Título simulado (Condicional) - Visualmente no topo via order-1 */}
+        {hasTitle && <SkeletonLine variant={variant} h="1.5rem" w="60%" className="mb-4 order-1" />}
       </div>
     );
   },

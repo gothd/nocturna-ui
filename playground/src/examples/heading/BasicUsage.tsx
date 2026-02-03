@@ -11,7 +11,7 @@ export const BasicUsage = () => {
       </div>
 
       <div>
-        <Heading level="h2" color="accent">
+        <Heading level="h2" color="accent" uppercase={false}>
           Heading H2 (Accent)
         </Heading>
         <Text color="zinc-500">Subtítulos de seção.</Text>

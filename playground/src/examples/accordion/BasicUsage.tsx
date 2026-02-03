@@ -1,63 +1,74 @@
-import { Accordion, Badge, Card } from "nocturna-ui";
-import styled from "styled-components";
-
-const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-`;
+import { Accordion, Badge, Box, Text } from "nocturna-ui";
 
 export const BasicUsage = () => {
   const systemItems = [
     {
-      id: "term",
       title: "Terminal Root",
       content: (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <p>Acesso de superusuário concedido.</p>
-          <code style={{ fontSize: "0.75rem", lineHeight: "1rem", color: "#71717a" }}>
-            $ sudo apt-get install nocturna-ui
-          </code>
-        </div>
+        <Box>
+          <Text fontSize="sm" color="zinc-300" mb={2}>
+            Acesso de superusuário concedido. Logs de sistema disponíveis.
+          </Text>
+          <Box p={3} bg="zinc-900" rounded="sm" style={{ borderLeft: "2px solid #00FF41" }}>
+            <Text fontFamily="mono" fontSize="xs" color="secondary">
+              $ sudo apt-get install nocturna-ui --force-yes
+            </Text>
+          </Box>
+        </Box>
       ),
     },
     {
-      id: "cpu",
+      id: "cpu-stats",
       title: "Processamento Neural",
-      content: "Alocação de núcleos: 8/12. Temperatura estável em 45°C.",
+      content: (
+        <Text fontSize="sm" color="zinc-400">
+          Alocação de núcleos: 8/12. Temperatura estável em 45°C.
+        </Text>
+      ),
     },
   ];
 
   const securityItems = [
     {
-      id: "firewall",
       title: "Status do Firewall",
       content: (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span>Tráfego de entrada bloqueado.</span>
-          <Badge variant="danger" size="sm" styleType="solid">
+        <Box style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Text fontSize="sm" color="zinc-300">
+            Tráfego de entrada bloqueado.
+          </Text>
+          <Badge variant="danger" size="sm">
             BLOCK
           </Badge>
-        </div>
+        </Box>
       ),
     },
     {
-      id: "breach",
       title: "Relatório de Intrusão",
-      content: "Nenhuma tentativa de acesso não autorizado nas últimas 24h.",
+      content: (
+        <Text fontSize="sm" color="zinc-400" italic>
+          Nenhuma tentativa de acesso não autorizado nas últimas 24h.
+        </Text>
+      ),
     },
   ];
 
   return (
-    <Layout>
-      <Card title="Documentação do Sistema">
-        <Accordion items={systemItems} variant="primary" />
-      </Card>
+    <Box w="full" maxW="600px">
+      {/* Exemplo 1: Default (Primary) */}
+      <Box mb={8}>
+        <Text fontWeight="bold" color="primary" mb={4} fontSize="lg">
+          Configurações do Sistema
+        </Text>
+        <Accordion items={systemItems} allowMultiple uppercase={false} w="full" />
+      </Box>
 
-      <Card title="Protocolos de Segurança" variant="danger">
-        <Accordion items={securityItems} variant="danger" />
-      </Card>
-    </Layout>
+      {/* Exemplo 2: Ghost Variant */}
+      <Box>
+        <Text fontWeight="bold" color="zinc-500" mb={4} fontSize="lg">
+          Histórico (Ghost Variant)
+        </Text>
+        <Accordion items={securityItems} variant="ghost" fontFamily="mono" w="full" />
+      </Box>
+    </Box>
   );
 };

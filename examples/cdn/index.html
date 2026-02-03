@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nocturna UI v0.0.6 - CDN Ritual</title>
+    <title>Nocturna UI v0.1.0 - CDN Ritual</title>
 
     <link rel="stylesheet" href="../../dist/style.css" />
 
@@ -39,70 +39,48 @@
       }
       .code-block {
         background: #09090b;
-        padding: 1rem;
         border: 1px solid #27272a;
+        padding: 1rem;
         font-family: monospace;
-        font-size: 0.8rem;
-        color: #00ff41; /* Secondary (Malware Green) */
+        font-size: 0.85rem;
+        color: #a1a1aa;
         margin-top: 1rem;
+        border-radius: 4px;
       }
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" class="layout-container"></div>
 
     <script>
-      // 1. Desconstrução da API Global
-      // Na v0.0.6, usamos nomes diretos: Button, Card, etc.
-      const { Button, Card, Separator, ToastProvider, Badge } = window.NocturnaUI;
+      // 1. Extração dos Componentes do namespace global
+      const { Button, Card, Badge, Separator, ToastProvider, useToast, Box, Text } =
+        window.NocturnaUI;
 
-      const React = window.React;
-      const ReactDOM = window.ReactDOM;
-
-      // 2. Componente da Aplicação (Sem JSX)
+      // 2. Componente App
       function App() {
-        // Função para disparar o Toast usando a Bridge Global
+        const { toast } = useToast();
+
         const summonToast = () => {
-          if (window.NocturnaUI.toaster) {
-            window.NocturnaUI.toaster.toast({
-              title: "Sistema Conectado",
-              description: "Acesso via CDN estabelecido com sucesso.",
-              variant: "secondary", // Verde Neon
-              type: "success",
-              duration: 4000,
-            });
-          } else {
-            alert("Erro: O Provider ainda não inicializou a bridge.");
-          }
+          toast({
+            title: "Sistema Atualizado",
+            description: "Engine de Layout v0.1.0 carregada com sucesso.",
+            type: "success",
+            variant: "secondary",
+          });
         };
 
         return React.createElement(
-          "div",
-          { className: "layout-container" },
-
-          // Cabeçalho
+          React.Fragment,
+          null,
+          // Header
           React.createElement(
             "div",
-            { style: { textAlign: "center" } },
-            React.createElement(
-              "h1",
-              {
-                style: {
-                  fontSize: "2.25rem",
-                  lineHeight: "2.5rem",
-                  fontFamily: "Playfair Display, Georgia, serif",
-                  textTransform: "uppercase",
-                  letterSpacing: "-0.05em",
-                  marginBottom: "0.5rem",
-                },
-              },
-              "Nocturna CDN",
-            ),
+            { style: { textAlign: "center", marginBottom: "1rem" } },
             React.createElement(
               Badge,
-              // Usando a nova paleta Accent (Rosa)
               { variant: "accent", styleType: "outline" },
-              "v0.0.6 • Cyber Goth",
+              "v0.1.0 • System Props Era",
             ),
           ),
 
@@ -112,24 +90,25 @@
           React.createElement(
             Card,
             {
-              title: "Ambiente Vanilla",
+              title: "Ambiente Vanilla JS",
               variant: "primary",
             },
+            // Usando o componente Text
             React.createElement(
-              "p",
-              { style: { color: "#a1a1aa", marginBottom: "1.5rem" } },
-              "Este exemplo roda React puro, carregando os componentes via script UMD sem compiladores.",
+              Text,
+              { color: "zinc-400", mb: 4, fontSize: "sm" },
+              "Este exemplo roda React puro via script UMD. Agora com suporte a System Props e Primitivos de Layout.",
             ),
             React.createElement(
               Button,
               {
-                variant: "accent", // Botão Rosa Neon
+                variant: "accent",
                 onClick: summonToast,
-                style: { width: "100%" },
+                w: "full", // Utilizando System Prop w="full"
               },
               "Executar Protocolo",
             ),
-            // Exibição de código para instrução
+            // Exibição de código de exemplo
             React.createElement(
               "div",
               { className: "code-block" },
@@ -143,7 +122,7 @@
       const rootElement = document.getElementById("root");
       const root = ReactDOM.createRoot(rootElement);
 
-      // OBRIGATÓRIO: ToastProvider na raiz para o sistema de notificações funcionar
+      // OBRIGATÓRIO PARA O USO DO TOAST FUNCIONAR: ToastProvider na raiz
       root.render(React.createElement(ToastProvider, null, React.createElement(App)));
     </script>
   </body>

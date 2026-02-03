@@ -4,7 +4,7 @@ import { Scroll } from "../Scroll";
 describe("Scroll", () => {
   it("deve renderizar children e aplicar max-height", () => {
     render(
-      <Scroll maxHeight="200px">
+      <Scroll maxH="200px">
         <p>Conteúdo Longo</p>
       </Scroll>,
     );
@@ -21,17 +21,38 @@ describe("Scroll", () => {
       </Scroll>,
     );
     const container = screen.getByText("Erro").parentElement;
-    // Verifica tokens específicos do scrollbar-thumb
     expect(container?.className).toContain("[&::-webkit-scrollbar-thumb]:bg-danger");
   });
 
-  it("deve aplicar estilos de scrollbar da variante accent", () => {
+  it("deve ocultar a scrollbar quando hideScrollbar=true", () => {
     render(
-      <Scroll variant="accent">
-        <p>Dados</p>
+      <Scroll hideScrollbar>
+        <p>Oculto</p>
       </Scroll>,
     );
-    const container = screen.getByText("Dados").parentElement;
-    expect(container?.className).toContain("[&::-webkit-scrollbar-thumb]:bg-accent");
+    const container = screen.getByText("Oculto").parentElement;
+    expect(container?.className).toContain("scrollbar-none");
+  });
+
+  it("deve aplicar overflow correto baseado na orientation", () => {
+    // Teste Vertical (Padrão)
+    const { rerender } = render(
+      <Scroll orientation="vertical">
+        <p>Vertical</p>
+      </Scroll>,
+    );
+    let container = screen.getByText("Vertical").parentElement;
+    expect(container?.className).toContain("overflow-y-auto");
+    expect(container?.className).toContain("overflow-x-hidden");
+
+    // Teste Horizontal
+    rerender(
+      <Scroll orientation="horizontal">
+        <p>Horizontal</p>
+      </Scroll>,
+    );
+    container = screen.getByText("Horizontal").parentElement;
+    expect(container?.className).toContain("overflow-x-auto");
+    expect(container?.className).toContain("overflow-y-hidden");
   });
 });

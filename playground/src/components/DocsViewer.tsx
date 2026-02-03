@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, type ReactNode, type KeyboardEvent } from "react";
-import styled from "styled-components";
+import { Badge, Box, Card, Heading, Text } from "nocturna-ui";
+import React, { useState, type KeyboardEvent, type ReactNode } from "react";
 import Markdown from "react-markdown";
-import { Card, Box, Text, Heading, Badge } from "nocturna-ui";
-import { Link } from "react-router-dom";
+import styled from "styled-components";
+// Importa o Box para ler seus metadados (__docgenInfo)
+import { Box as BoxComponent } from "nocturna-ui";
 
 // --- Interfaces ---
 interface DocgenProp {
@@ -142,40 +143,19 @@ const MoreLabel = styled.span`
   white-space: nowrap;
 `;
 
-const SYSTEM_PROPS_KEYS = new Set([
-  "m",
-  "mt",
-  "mb",
-  "ml",
-  "mr",
-  "mx",
-  "my",
-  "p",
-  "pt",
-  "pb",
-  "pl",
-  "pr",
-  "px",
-  "py",
-  "w",
-  "h",
-  "minW",
-  "maxW",
-  "minH",
-  "maxH",
-  "display",
-  "bg",
-  "color",
-  "opacity",
-  "rounded",
-  "fontSize",
-  "fontWeight",
-  "fontFamily",
-  "lineHeight",
-  "textAlign",
-  "as",
-  "ref",
-]);
+const BOX_PROPS = (BoxComponent as ComponentWithDocgen).__docgenInfo?.props || {};
+
+const BOX_PROPS_DESCRIPTIONS = Object.fromEntries(
+  Object.entries(BOX_PROPS).map(([key, value]) => [key, value.description]),
+);
+
+const SYSTEM_PROPS_KEYS = new Set([...Object.keys(BOX_PROPS), "ref"]);
+
+/** Checa se não é uma system prop ou se é um override */
+const isValidProp = (propName: string, prop: DocgenProp) =>
+  !SYSTEM_PROPS_KEYS.has(propName) ||
+  !!prop.defaultValue ||
+  prop.description !== BOX_PROPS_DESCRIPTIONS[propName];
 
 const cleanTypeString = (propName: string, type: any): string => {
   let raw = type.raw || type.name || "string";
@@ -270,9 +250,10 @@ export const DocsViewer = ({
 
   const { displayName, description, props } = info;
   const isBox = displayName === "Box";
-
+  console.log(BOX_PROPS_DESCRIPTIONS);
   const filteredProps = Object.entries(props || {})
-    .filter(([key]) => isBox || !SYSTEM_PROPS_KEYS.has(key))
+    // Caso não for a Box remove se for system prop mas mantém se for um override
+    .filter(([key, value]) => isBox || isValidProp(key, value))
     .sort(([a], [b]) => a.localeCompare(b));
 
   const presetsInfo =
@@ -283,7 +264,7 @@ export const DocsViewer = ({
       .map((preset) => {
         const { props } = preset;
         const filteredProps = Object.entries(props || {})
-          .filter(([key]) => !SYSTEM_PROPS_KEYS.has(key))
+          .filter(([key, value]) => isValidProp(key, value))
           .sort(([a], [b]) => a.localeCompare(b));
         return { ...preset, props: filteredProps };
       });
@@ -298,21 +279,6 @@ export const DocsViewer = ({
           <Markdown>{description}</Markdown>
         </Text>
       </Box>
-
-      {!isBox && (
-        <Box p={4} mb={8} bg="rgba(0, 255, 65, 0.05)" style={{ borderLeft: "4px solid #00FF41" }}>
-          <Text fontSize="sm" color="zinc-300">
-            Este componente suporta todas as{" "}
-            <Link
-              to="/system-props"
-              style={{ color: "#00FF41", fontWeight: "bold", textDecoration: "none" }}
-            >
-              System Props
-            </Link>
-            .
-          </Text>
-        </Box>
-      )}
 
       {children && (
         <Box mb={10}>
@@ -343,12 +309,15 @@ export const DocsViewer = ({
               <GridRow key={key}>
                 <Cell>
                   <MobileLabel>Prop</MobileLabel>
-                  <PropName>{prop.name}</PropName>
-                  {prop.required && (
-                    <Text as="span" color="danger" fontSize="xs" ml={1}>
-                      *
-                    </Text>
-                  )}
+                  <PropName>
+                    {prop.name}
+
+                    {prop.required && (
+                      <Text as="span" color="danger" fontSize="xs" ml={1}>
+                        *
+                      </Text>
+                    )}
+                  </PropName>
                 </Cell>
 
                 <Cell>
@@ -410,12 +379,15 @@ export const DocsViewer = ({
                     <GridRow key={key}>
                       <Cell>
                         <MobileLabel>Prop</MobileLabel>
-                        <PropName>{prop.name}</PropName>
-                        {prop.required && (
-                          <Text as="span" color="danger" fontSize="xs" ml={1}>
-                            *
-                          </Text>
-                        )}
+                        <PropName>
+                          {prop.name}
+
+                          {prop.required && (
+                            <Text as="span" color="danger" fontSize="xs" ml={1}>
+                              *
+                            </Text>
+                          )}
+                        </PropName>
                       </Cell>
 
                       <Cell>

@@ -1,7 +1,9 @@
 import React, { forwardRef } from "react";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 import { cn } from "../utils/cn";
 
-export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ProgressProps
+  extends Omit<SystemProps, "as">, Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Valor atual do progresso.
    * Utilizado apenas quando `mode="value"`.
@@ -77,6 +79,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     },
     ref,
   ) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
     // Cálculo de porcentagem para o modo "value"
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
@@ -105,7 +108,12 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
     };
 
     return (
-      <div ref={ref} className={cn("flex flex-col gap-2 w-full", className)} {...props}>
+      <div
+        ref={ref}
+        className={cn("flex flex-col gap-2 w-full", className)}
+        style={systemStyle}
+        {...domProps}
+      >
         {/* Cabeçalho (Label + Valor) */}
         {(label || (showValue && mode === "value")) && (
           <div className="flex justify-between items-end mb-1">

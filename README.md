@@ -2,19 +2,28 @@
 
 > **Primitivos góticos e brutalistas forjados para a web que não teme a escuridão.**
 
-A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de alto contraste, tipografia serifada e estética minimalista.
+A **Nocturna UI** é uma biblioteca de componentes React focada em interfaces de alto contraste e DX (Developer Experience) superior.
 
-Na **v0.0.6**, introduzimos a identidade visual **Cyber Goth**, nomes de componentes padronizados (API Limpa) e tokens semânticos de cor.
+Na versão **v0.1.0**, apresentamos a **System Props Engine** e os **Layout Primitives**, eliminando a necessidade de arquivos CSS externos para a maioria dos casos de uso.
 
-[![NPM Version](https://img.shields.io/npm/v/nocturna-ui?color=000000&label=npm&style=flat-square)](https://www.npmjs.com/package/nocturna-ui)
+[![NPM Version](https://img.shields.io/npm/v/nocturna-ui?color=ff007f&label=v0.1.0&style=flat-square)](https://www.npmjs.com/package/nocturna-ui)
 [![Tests](https://github.com/gothd/nocturna-ui/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/gothd/nocturna-ui/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/gothd/nocturna-ui?style=flat-square&color=white)](https://codecov.io/gh/gothd/nocturna-ui)
 
 ---
 
-## 🔮 Documentação Completa
+## ✨ Novidades da v0.1.0
 
-Para ver os componentes em ação, tabelas de propriedades interativas e exemplos avançados, visite nosso Grimório Digital:
+- **System Props Engine:** Controle margens (`m`, `p`), cores (`bg`, `color`), tipografia e layout diretamente nas props dos componentes.
+- **Layout Primitives:** Novos componentes `Box`, `Stack`, `HStack`, `VStack`, `Grid` e `SimpleGrid`.
+- **Polymorphic Components:** Use a prop `as` para alterar a tag HTML semântica (ex: `as="section"`, `as="a"`) mantendo os estilos.
+- **Engine de Design Tokens:** Integração profunda com tokens de espaçamento e cores do tema Cyber Goth.
+
+---
+
+## 🔮 Documentação & Playground
+
+Explore o grimório digital com exemplos interativos:
 
 ### [👉 Acessar Documentação (Playground)](https://gothd.github.io/nocturna-ui/)
 
@@ -26,114 +35,46 @@ Para ver os componentes em ação, tabelas de propriedades interativas e exemplo
 npm install nocturna-ui
 ```
 
-### Dependências
-
-A biblioteca requer React e Framer Motion.
-
-```bash
-npm install react react-dom framer-motion
-```
-
----
-
-## 🩸 Setup Inicial
-
-Importe o CSS global e envolva sua aplicação no `ToastProvider` para habilitar o sistema de notificações.
+### Exemplo Rápido
 
 ```tsx
-// No seu arquivo raiz (main.tsx ou App.tsx)
-import { ToastProvider } from "nocturna-ui";
-import "nocturna-ui/style.css"; // ⚠️ Importação vital dos estilos
+import { Button, Card, VStack, Text, Badge } from "nocturna-ui";
 
-export default function App({ children }) {
-  return <ToastProvider>{children}</ToastProvider>;
-}
-```
+export const App = () => (
+  <Card title="Status do Sistema" variant="secondary" w="350px">
+    <VStack gap={4}>
+      <Text color="zinc-400">Todos os sistemas operacionais.</Text>
 
----
-
-## 🎨 Paleta Cyber Goth
-
-A versão 0.0.6 introduz 5 variantes de cor principais que permeiam todos os componentes:
-
-| Token       | Cor (Hex) | Significado Semântico | Estética      |
-| ----------- | --------- | --------------------- | ------------- |
-| `primary`   | `#FFFFFF` | Padrão / Neutro       | Bone White    |
-| `secondary` | `#00FF41` | Sucesso               | Malware Green |
-| `accent`    | `#FF007F` | Destaque              | Phantom Pink  |
-| `danger`    | `#DC2626` | Erro / Perigo         | Sanguine Red  |
-| `warning`   | `#FFD700` | Alerta                | Cyber Gold    |
-
----
-
-## 🕸️ Uso Básico
-
-Componentes padronizados e tipados:
-
-```tsx
-import { Button, Card, Badge, useToast } from "nocturna-ui";
-
-export const Ritual = () => {
-  const { toast } = useToast();
-
-  return (
-    <Card title="Protocolo de Rede" variant="secondary">
-      <div className="flex gap-4 mb-4">
-        <Badge variant="secondary">Online</Badge>
-        <Badge variant="primary" styleType="solid">
-          v2.4
+      <HStack justify="between" w="full">
+        <Badge variant="primary">v0.1.0</Badge>
+        <Badge variant="secondary" styleType="solid">
+          ONLINE
         </Badge>
-      </div>
+      </HStack>
 
-      <Button
-        variant="accent"
-        onClick={() =>
-          toast({
-            title: "Upload Iniciado",
-            type: "success", // Automático: Usa cor secondary
-          })
-        }
-      >
-        Transferir Dados
+      <Button variant="accent" w="full" mt={4}>
+        Executar Diagnóstico
       </Button>
-    </Card>
-  );
-};
+    </VStack>
+  </Card>
+);
 ```
 
 ---
 
-## 📜 Uso via CDN (Vanilla JS)
+## 📜 Uso via CDN
 
-A biblioteca injeta uma ponte global `window.NocturnaUI` para uso sem bundlers.
+Para prototipagem rápida sem bundlers:
 
 ```html
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
-
-<script src="https://unpkg.com/nocturna-ui@0.0.6/dist/index.umd.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/nocturna-ui@0.0.6/dist/style.css" />
-
-<div id="root"></div>
-
-<script>
-  const { ToastProvider, Button } = window.NocturnaUI;
-
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(React.createElement(ToastProvider));
-</script>
+<script src="https://unpkg.com/nocturna-ui@0.1.0/dist/index.umd.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/nocturna-ui@0.1.0/dist/style.css" />
 ```
 
-_Veja o [exemplo completo aqui](./examples/cdn/index.html)._
+## _Veja o [exemplo completo aqui](./examples/cdn/index.html)._
 
----
+## 🤝 Contribuição
 
-## 🧪 Desenvolvimento
+Forks e Pull Requests são bem-vindos. Consulte o guia de contribuição para começar.
 
-```bash
-npm test               # Roda testes unitários
-npm run test:coverage  # Relatório detalhado
-```
-
-Desenvolvido com 🖤 por **gothd**.
+**Licença ISC** • Criado por [Ruan Oliveira Sena](https://github.com/gothd)

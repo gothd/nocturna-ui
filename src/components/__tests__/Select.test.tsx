@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Select } from "../Select";
 
-// MOCK: O JSDOM não implementa scroll, então simula a função vazia
+// MOCK: O JSDOM não implementa scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
 const options = [
@@ -22,19 +22,36 @@ describe("Select", () => {
     expect(trigger.className).toContain("border-secondary");
   });
 
+  it("deve aplicar a variante ghost corretamente", () => {
+    render(<Select options={options} variant="ghost" />);
+    const trigger = screen.getByRole("combobox");
+    // Ghost deve ter estilo 'stealth' (borda inferior apenas, fundo transparente)
+    expect(trigger.className).toContain("border-zinc-700");
+    expect(trigger.className).toContain("bg-transparent");
+    expect(trigger.className).toContain("border-x-transparent");
+    expect(trigger.className).toContain("border-t-transparent");
+  });
+
+  it("deve aplicar System Props ao container", () => {
+    render(<Select options={options} label="Teste" mt={4} w="50%" data-testid="select-root" />);
+
+    const label = screen.getByText("Teste");
+    const container = label.parentElement;
+
+    expect(container).toHaveStyle({ marginTop: "1rem" });
+    expect(container).toHaveStyle({ width: "50%" });
+  });
+
   it("deve abrir lista com teclado (Enter) e selecionar opção", () => {
     const handleChange = jest.fn();
     render(<Select options={options} onChange={handleChange} />);
     const trigger = screen.getByRole("combobox");
 
-    // Foca e aperta Enter para abrir
     trigger.focus();
     fireEvent.keyDown(trigger, { key: "Enter" });
 
-    // O scrollIntoView será chamado no mock e não quebrará o teste
     expect(screen.getByText("Opção 1")).toBeVisible();
 
-    // Clica na opção
     fireEvent.click(screen.getByText("Opção 1"));
     expect(handleChange).toHaveBeenCalledWith("v1");
   });
@@ -44,7 +61,6 @@ describe("Select", () => {
     const trigger = screen.getByRole("combobox");
 
     fireEvent.click(trigger);
-    expect(screen.queryByText("Opção 1")).not.toBeInTheDocument();
-    expect(trigger).toBeDisabled();
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
 });

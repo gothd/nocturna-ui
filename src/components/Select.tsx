@@ -3,16 +3,12 @@
 import { ChevronDown } from "lucide-react";
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
 
-export interface RitualSelectOption {
-  value: string;
-  label: string;
-}
-
-export interface SelectProps extends Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "onChange" | "value"
-> {
+export interface SelectProps
+  extends
+    Omit<SystemProps, "as">,
+    Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange" | "value" | "color"> {
   /**
    * Lista de opções disponíveis para seleção.
    */
@@ -37,7 +33,7 @@ export interface SelectProps extends Omit<
 
   /**
    * Texto exibido quando nenhum valor está selecionado.
-   * @default "Select..."
+   * @default "Selecionar..."
    */
   placeholder?: string;
 
@@ -50,7 +46,7 @@ export interface SelectProps extends Omit<
    * Define o tema visual.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
 
   /**
    * Altura do componente.
@@ -81,6 +77,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
     },
     ref,
   ) => {
+    const { systemStyle, domProps } = extractSystemStyles(props);
+
     const [isOpen, setIsOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -155,6 +153,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       accent: "text-accent",
       danger: "text-danger",
       warning: "text-warning",
+      ghost: "text-zinc-500",
     };
 
     const triggerStyles = {
@@ -168,6 +167,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
         "border-danger focus-visible:shadow-[6px_6px_0px_0px_rgba(220,38,38,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
       warning:
         "border-warning focus-visible:shadow-[6px_6px_0px_0px_rgba(255,215,0,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+      ghost:
+        "border-zinc-700 border-x-transparent border-t-transparent bg-transparent text-zinc-400 focus:border-zinc-700 focus:bg-black focus-visible:shadow-[6px_6px_0px_0px_rgba(113,113,122,0.5)] hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const dropdownBorderStyles = {
@@ -176,6 +177,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       accent: "border-accent shadow-[8px_8px_0px_0px_rgba(255,0,127,0.2)]",
       danger: "border-danger shadow-[8px_8px_0px_0px_rgba(220,38,38,0.2)]",
       warning: "border-warning shadow-[8px_8px_0px_0px_rgba(255,215,0,0.2)]",
+      ghost: "border-zinc-800 shadow-[8px_8px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const textStyles = {
@@ -184,10 +186,11 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       accent: "text-accent",
       danger: "text-danger",
       warning: "text-warning",
+      ghost: "text-zinc-400",
     };
 
     return (
-      <div className="flex flex-col gap-2 w-full">
+      <div className={cn("flex flex-col gap-2 w-full", className)} style={systemStyle}>
         {label && (
           <label
             onClick={() => !props.disabled && setIsOpen(!isOpen)}
@@ -220,9 +223,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
               size === "lg" && "px-7 py-6 min-h-[64px]",
               // Disabled
               props.disabled && "opacity-50 cursor-not-allowed hover:shadow-none",
-              className,
             )}
-            {...props}
+            {...domProps}
           >
             <span
               className={cn(
@@ -236,7 +238,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
               size={18}
               className={cn(
                 textStyles[variant],
-                "transition-transform duration-300 flex-shrink-0",
+                "transition-all duration-300 flex-shrink-0",
                 isOpen && "rotate-180",
               )}
             />
@@ -267,7 +269,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
                     }}
                     onMouseEnter={() => setHighlightedIndex(idx)}
                     className={cn(
-                      "px-4 py-3 cursor-pointer font-sans text-sm transition-colors duration-200",
+                      "px-4 py-3 cursor-pointer font-sans text-sm transition-colors duration-300",
                       textStyles[variant],
                       isActive ? "bg-zinc-800" : "bg-black",
                       isSelected && "font-bold tracking-wide bg-zinc-900",

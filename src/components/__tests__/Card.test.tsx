@@ -3,9 +3,11 @@ import { Card } from "../Card";
 
 describe("Card", () => {
   it("deve renderizar título e descrição", () => {
-    render(<Card title="Título" description="Descrição" />);
+    render(<Card title="Título" description="Descrição" descriptionFontFamily="mono" />);
     expect(screen.getByText("Título")).toBeInTheDocument();
-    expect(screen.getByText("Descrição")).toBeInTheDocument();
+    const descriptionElement = screen.getByText("Descrição");
+    expect(descriptionElement).toBeInTheDocument();
+    expect(descriptionElement.style.fontFamily).toMatch(/JetBrains Mono/);
   });
 
   it("deve renderizar apenas o children se não houver título", () => {
@@ -14,22 +16,33 @@ describe("Card", () => {
     expect(screen.queryByRole("heading")).not.toBeInTheDocument();
   });
 
-  it("deve aplicar estilos da variante secondary", () => {
-    render(<Card title="System" variant="secondary" />);
-    // O container do card deve ter a borda secondary
-    const heading = screen.getByRole("heading", { name: /system/i });
-    // Verifica a cor do texto do título que herda a variante
-    expect(heading.className).toContain("text-secondary");
+  it("deve aplicar estilos da variante ghost", () => {
+    render(<Card title="Ghost Card" variant="ghost" data-testid="card-ghost" />);
+    const card = screen.getByTestId("card-ghost");
+    expect(card.className).toContain("border-transparent");
+
+    const heading = screen.getByRole("heading", { name: /Ghost Card/i });
+    expect(heading.className).toContain("text-zinc-400");
   });
 
-  it("deve suportar polimorfismo (renderizar como section)", () => {
-    const { container } = render(<Card as="section" title="Seção" />);
-    const section = container.querySelector("section");
-    expect(section).toBeInTheDocument();
+  it("deve aplicar System Props via style inline", () => {
+    // Teste de margin (mb), padding (p) e width (w)
+    render(<Card mb={8} w="50%" p={0} data-testid="card-styled" />);
+    const card = screen.getByTestId("card-styled");
+
+    expect(card.style.marginBottom).toBe("2rem");
+    expect(card.style.width).toBe("50%");
+    expect(card.style.padding).toBe("0px");
   });
 
-  it("deve alterar o nível do cabeçalho corretamente", () => {
-    render(<Card title="Título H1" headingLevel="h1" />);
-    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  it("deve renderizar o footer quando fornecido", () => {
+    render(<Card footer={<span>Rodapé</span>}>Corpo</Card>);
+    expect(screen.getByText("Rodapé")).toBeInTheDocument();
+  });
+
+  it("deve suportar polimorfismo (renderizar como article)", () => {
+    const { container } = render(<Card as="article" title="Artigo" />);
+    const article = container.querySelector("article");
+    expect(article).toBeInTheDocument();
   });
 });

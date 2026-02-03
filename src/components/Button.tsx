@@ -1,25 +1,48 @@
 import React, { forwardRef } from "react";
 import { cn } from "../utils/cn";
+import { extractSystemStyles, SystemProps } from "../utils/system";
+import { PolymorphicComponent } from "src/types/polymorphic";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends SystemProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color"> {
   /**
    * Define o estilo visual do botão.
    * @default "primary"
    */
-  variant?: "primary" | "secondary" | "accent" | "danger" | "warning";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "warning" | "ghost";
   /**
    * Controla o tamanho e o padding.
    * @default "md"
    */
   size?: "sm" | "md" | "lg";
+  /**
+   * Define o estado de loading.
+   * @default false
+   */
+  isLoading?: boolean;
 }
 
 /**
  * Botão primário com estética brutalista.
  * Utiliza sombras rígidas (hard shadows) e transições de alto contraste.
  */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", className, type = "button", disabled, ...props }, ref) => {
+export const Button: PolymorphicComponent<ButtonProps> = forwardRef<any, ButtonProps>(
+  (
+    {
+      as = "button",
+      variant = "primary",
+      size = "md",
+      uppercase = true,
+      isLoading,
+      disabled,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const { systemStyle, domProps, as: Component } = extractSystemStyles({ ...props, as });
+
     const variantStyles = {
       primary:
         "border-primary text-primary hover:bg-primary hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)]",
@@ -31,6 +54,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "border-danger text-danger hover:bg-danger hover:text-white focus-visible:shadow-[6px_6px_0px_0px_rgba(220,38,38,0.5)]",
       warning:
         "border-warning text-warning hover:bg-warning hover:text-black focus-visible:shadow-[6px_6px_0px_0px_rgba(255,215,0,0.5)]",
+      ghost:
+        "border-transparent bg-transparent text-zinc-400 hover:border-zinc-700 hover:bg-black hover:text-white focus-visible:border-zinc-700 focus-visible:bg-black focus-visible:text-white focus-visible:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)]",
     };
 
     const sizeStyles = {
@@ -40,22 +65,30 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
+      <Component
         ref={ref}
-        type={type}
-        disabled={disabled}
+        disabled={isLoading || disabled}
         className={cn(
-          "border-2 font-serif uppercase tracking-widest transition-all duration-300 relative select-none",
+          "border-2 font-serif tracking-widest transition-all duration-300 relative select-none whitespace-nowrap",
           "flex items-center justify-center focus:outline-none",
+          uppercase && "uppercase",
           sizeStyles[size],
           variantStyles[variant],
           // Disabled State
-          disabled &&
-            "opacity-50 cursor-not-allowed hover:shadow-none hover:bg-transparent hover:text-inherit pointer-events-none",
+          (disabled || isLoading) &&
+            "opacity-50 cursor-not-allowed hover:shadow-none hover:bg-transparent hover:text-inherit pointer-events-none active:shadow-none active:translate-y-0",
           className,
         )}
-        {...props}
-      />
+        style={systemStyle}
+        {...domProps}
+      >
+        {isLoading && (
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <span className="block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          </span>
+        )}
+        <span className={cn("flex items-center gap-2", isLoading && "invisible")}>{children}</span>
+      </Component>
     );
   },
 );
